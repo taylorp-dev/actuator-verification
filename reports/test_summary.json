@@ -1,7 +1,7 @@
 {
   "summary": {
-    "generated_utc": "2026-10-14T05:02:28+00:00",
-    "git_commit": "no-git",
+    "generated_utc": "2026-10-14T05:20:10+00:00",
+    "git_commit": "84abada",
     "config_file": "config/sil.yaml",
     "config_sha256_12": "3efda6d32f2d",
     "airframe_icd": "Generic Rotorcraft A",
@@ -9,8 +9,8 @@
       "unloaded": 0.0,
       "rated": 700.0
     },
-    "python": "3.13.16",
-    "suite_runtime_s": 2.8,
+    "python": "3.13.3",
+    "suite_runtime_s": 7.4,
     "requirements_total": 16,
     "requirements_traced": 16,
     "requirements_traced_pct": 100.0,
@@ -174,7 +174,7 @@
         "A1"
       ],
       "status": "passed",
-      "duration_s": 0.008,
+      "duration_s": 0.011,
       "measured": {
         "rise_s": 0.108,
         "overshoot_pct": 4.4
@@ -187,7 +187,7 @@
         "A2"
       ],
       "status": "passed",
-      "duration_s": 0.007,
+      "duration_s": 0.012,
       "measured": {
         "load": "unloaded",
         "rate_mm_s": 40.0
@@ -200,7 +200,7 @@
         "A2"
       ],
       "status": "passed",
-      "duration_s": 0.009,
+      "duration_s": 0.011,
       "measured": {
         "load": "rated",
         "rate_mm_s": 11.7
@@ -213,7 +213,7 @@
         "A3"
       ],
       "status": "passed",
-      "duration_s": 0.098,
+      "duration_s": 0.136,
       "measured": {
         "accuracy_mm": 0.05,
         "backlash_mm": 0.101
@@ -226,7 +226,7 @@
         "A3"
       ],
       "status": "passed",
-      "duration_s": 0.03,
+      "duration_s": 0.051,
       "measured": {
         "own_feedback_hysteresis_mm": 0.001,
         "truth_hysteresis_mm": 0.101
@@ -239,7 +239,7 @@
         "A4"
       ],
       "status": "passed",
-      "duration_s": 1.01,
+      "duration_s": 1.753,
       "measured": {
         "bandwidth_hz": 2.99
       },
@@ -251,7 +251,7 @@
         "A5"
       ],
       "status": "passed",
-      "duration_s": 0.005,
+      "duration_s": 0.013,
       "measured": {
         "rise_s": 0.108,
         "overshoot_pct": 5.1
@@ -264,7 +264,7 @@
         "A5"
       ],
       "status": "passed",
-      "duration_s": 0.078,
+      "duration_s": 0.131,
       "measured": {
         "accuracy_mm": 0.051
       },
@@ -470,7 +470,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.054,
+      "duration_s": 0.463,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL",
@@ -486,7 +486,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.046,
+      "duration_s": 0.221,
       "measured": {
         "max_voted_error_deg": 1.25,
         "final_mode": "DUAL",
@@ -502,7 +502,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.045,
+      "duration_s": 0.219,
       "measured": {
         "max_voted_error_deg": 1.25,
         "final_mode": "DUAL",
@@ -518,7 +518,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.045,
+      "duration_s": 0.187,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL",
@@ -534,7 +534,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.046,
+      "duration_s": 0.187,
       "measured": {
         "max_voted_error_deg": 1.25,
         "final_mode": "DUAL",
@@ -550,7 +550,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.045,
+      "duration_s": 0.17,
       "measured": {
         "max_voted_error_deg": 1.25,
         "final_mode": "DUAL",
@@ -566,7 +566,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.045,
+      "duration_s": 0.153,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL",
@@ -582,7 +582,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.046,
+      "duration_s": 0.124,
       "measured": {
         "max_voted_error_deg": 0.96,
         "final_mode": "DUAL",
@@ -598,7 +598,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.046,
+      "duration_s": 0.098,
       "measured": {
         "max_voted_error_deg": 0.96,
         "final_mode": "DUAL",
@@ -613,7 +613,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.046,
+      "duration_s": 0.095,
       "measured": {
         "max_voted_error_deg": 0.21,
         "final_mode": "TRIPLEX"
@@ -627,7 +627,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.045,
+      "duration_s": 0.126,
       "measured": {
         "max_voted_error_deg": 0.94,
         "final_mode": "TRIPLEX"
@@ -641,7 +641,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.046,
+      "duration_s": 0.129,
       "measured": {
         "max_voted_error_deg": 0.94,
         "final_mode": "TRIPLEX"
@@ -656,7 +656,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.045,
+      "duration_s": 0.137,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL"
@@ -671,7 +671,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.044,
+      "duration_s": 0.128,
       "measured": {
         "max_voted_error_deg": 0.24,
         "final_mode": "DUAL"
@@ -686,7 +686,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.045,
+      "duration_s": 0.071,
       "measured": {
         "max_voted_error_deg": 0.73,
         "final_mode": "DUAL"
@@ -701,7 +701,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.047,
+      "duration_s": 0.091,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL"
@@ -716,7 +716,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.047,
+      "duration_s": 0.096,
       "measured": {
         "max_voted_error_deg": 0.21,
         "final_mode": "DUAL"
@@ -731,7 +731,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.048,
+      "duration_s": 0.108,
       "measured": {
         "max_voted_error_deg": 0.73,
         "final_mode": "DUAL"
@@ -746,7 +746,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.045,
+      "duration_s": 0.073,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL"
@@ -761,7 +761,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.048,
+      "duration_s": 0.071,
       "measured": {
         "max_voted_error_deg": 0.24,
         "final_mode": "DUAL"
@@ -776,7 +776,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.046,
+      "duration_s": 0.122,
       "measured": {
         "max_voted_error_deg": 0.73,
         "final_mode": "DUAL"
@@ -791,7 +791,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.055,
+      "duration_s": 0.186,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL"
@@ -806,7 +806,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.059,
+      "duration_s": 0.149,
       "measured": {
         "max_voted_error_deg": 0.21,
         "final_mode": "DUAL"
@@ -821,7 +821,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.045,
+      "duration_s": 0.147,
       "measured": {
         "max_voted_error_deg": 0.73,
         "final_mode": "DUAL"
@@ -834,7 +834,7 @@
         "R9"
       ],
       "status": "passed",
-      "duration_s": 0.051,
+      "duration_s": 0.228,
       "measured": {
         "load": "unloaded",
         "step_mm": 4.04,
@@ -849,7 +849,7 @@
         "R9"
       ],
       "status": "xfail",
-      "duration_s": 0.051,
+      "duration_s": 0.129,
       "measured": {
         "load": "rated",
         "step_mm": 4.06,
@@ -864,7 +864,7 @@
         "R9"
       ],
       "status": "passed",
-      "duration_s": 0.052,
+      "duration_s": 0.128,
       "measured": {
         "load": "unloaded",
         "step_mm": 4.04,
@@ -879,7 +879,7 @@
         "R9"
       ],
       "status": "passed",
-      "duration_s": 0.054,
+      "duration_s": 0.098,
       "measured": {
         "load": "rated",
         "step_mm": 4.03,
@@ -894,7 +894,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.002,
+      "duration_s": 0.003,
       "measured": {
         "max_cmd_mm": 22.0,
         "max_rate_mm_s": 60.0

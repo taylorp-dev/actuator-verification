@@ -1,15 +1,14 @@
 Actuator Verification SIL: test log
-Run (UTC):  2026-10-14T05:02:13+00:00
-Python:     3.13.16 on Linux
+Run (UTC):  2026-10-14T05:20:01+00:00
+Python:     3.13.3 on Windows
 Exit code:  0 (0 = all passed or expected-fail)
 Traceability matrix for this run: reports/traceability.md
 ==============================================================================
-============================= test session starts ==============================
-platform linux -- Python 3.13.16, pytest-9.1.1, pluggy-1.6.0 -- /usr/bin/python3
-rootdir: /home/claude/actuator-verification-sil
+============================= test session starts =============================
+platform win32 -- Python 3.13.3, pytest-9.1.1, pluggy-1.6.0 -- D:\projects\actuator-verification\.venv\Scripts\python.exe
+rootdir: D:\projects\actuator-verification
 configfile: pytest.ini
 testpaths: tests
-plugins: anyio-4.15.1
 collecting ... collected 70 items
 
 tests/test_part_a_actuator.py::test_a1_small_signal_step_unloaded PASSED [  1%]
@@ -83,7 +82,7 @@ tests/test_part_b_voter.py::test_r8_dual_mode_average_and_annunciate PASSED [ 97
 tests/test_part_b_voter.py::test_r8_second_fault_in_dual_is_annunciated PASSED [ 98%]
 tests/test_part_b_voter.py::test_r8_invalid_channel_excluded PASSED      [100%]
 
-- generated xml file: /home/claude/actuator-verification-sil/reports/junit.xml -
-=========================== short test summary info ============================
+--- generated xml file: D:\projects\actuator-verification\reports\junit.xml ---
+=========================== short test summary info ===========================
 XFAIL tests/test_part_b_system.py::test_r9_reconfiguration_transient_baseline[rated] - RCA-001: integrator windup during rate saturation at rated load
-======================== 69 passed, 1 xfailed in 2.92s =========================
+======================== 69 passed, 1 xfailed in 7.17s ========================

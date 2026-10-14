@@ -1,13 +1,13 @@
 # Requirements Traceability Matrix
 
-- Generated: 2026-10-14T05:02:28+00:00
-- Git commit: `no-git`
+- Generated: 2026-10-14T05:20:10+00:00
+- Git commit: `84abada`
 - Config: `config/sil.yaml` (sha256 `3efda6d32f2d`)
 - ICD: Generic Rotorcraft A
 - Load conditions: {'unloaded': 0.0, 'rated': 700.0}
 - Requirements traced: 16/16 (100.0%)
 - Tests: 70 (passed 69, xfail 1)
-- Suite runtime: 2.8 s
+- Suite runtime: 7.4 s
 
 | Req | Stage | Requirement | Tests | Passed | Verdict | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
