@@ -1,0 +1,64 @@
+# SIL configuration under version control. The test report records a hash of
+# this file, so every result traces to the exact configuration that produced it.
+# All numbers are representative, not any real aircraft's values.
+
+actuator:
+  stroke_mm: 25.0
+  v0_mm_s: 40.0
+  stall_force_n: 1000.0
+  kp: 15.0
+  ki: 30.0
+  tau_motor_s: 0.010
+  backlash_mm: 0.10
+  damping_n_s_per_mm: 2000.0
+  supply_v_nominal: 28.0
+  anti_windup: false        # baseline design; RCA-001 corrective action sets true
+
+load_conditions:            # used as a pytest fixture parameter
+  unloaded: 0.0
+  rated: 700.0              # rated opposing aero load, N
+
+actuator_spec:              # Part A acceptance limits
+  A1_rise_time_max_s: 0.15
+  A1_overshoot_max_pct: 10.0
+  A1_step_mm: 1.0
+  A2_rate_min_unloaded_mm_s: 35.0
+  A2_rate_min_rated_mm_s: 10.0
+  A3_accuracy_max_mm: 0.10
+  A3_backlash_max_mm: 0.15
+  A4_bandwidth_min_hz: 2.5
+  A5_overshoot_max_pct: 10.0
+  A5_rise_time_max_s: 0.15
+
+icd:                        # airframe interface control document (labels)
+  airframe: "Generic Rotorcraft A"
+  labels:
+    pitch: {label_octal: "324", range_units: 180.0, sig_bits: 14, min_valid: -90.0, max_valid: 90.0, rate_hz: 50.0}
+    roll:  {label_octal: "325", range_units: 180.0, sig_bits: 14, min_valid: -180.0, max_valid: 180.0, rate_hz: 50.0}
+  stale_intervals: 3
+
+sensors:
+  noise_sd_deg: 0.02
+  phase_offsets_s: [0.000, 0.007, 0.013]   # channels are asynchronous
+  # Worst-case healthy tolerance stack: A high, C low, both within +/-1.0 deg spec
+  bias_deg: [1.0, 0.0, -1.0]
+
+voter:
+  # Was 2.0 (= exactly 2 x sensor tolerance). First fault-matrix run isolated the
+  # WRONG channel: with A at +1.0 and C at -1.0, a frozen middle channel made A-C
+  # sit right at threshold and noise tripped a healthy channel. See FINDING-002.
+  threshold_deg: 2.5        # = 2 x sensor tolerance + 0.5 deg margin for noise and latency
+  tolerance_deg: 1.0        # healthy sensor accuracy spec (used by the margin check)
+  persistence_s: 0.10
+  frame_s: 0.02
+
+command_law:
+  gain_mm_per_deg: 4.0
+  target_deg: 0.0
+  pos_limit_mm: 22.0
+  rate_limit_mm_s: 60.0
+
+system_spec:                # Part B system-level limits
+  R9_overshoot_max_mm: 0.60
+  R9_settle_band_mm: 0.25
+  R9_settle_time_max_s: 0.80

@@ -1,0 +1,17 @@
+req,stage,text,tests,passed,verdict,notes
+ICD-1,Interface,"ARINC 429 BNR words shall be encoded per the ICD (label, SDI, sign, resolution, SSM, odd parity).",10,10,PASS,
+A1,Actuator,"Small-signal step response (1 mm, unloaded) shall have rise time <= 0.15 s and overshoot <= 10 %.",1,1,PASS,
+A2,Actuator,Maximum rate shall be >= 35 mm/s unloaded and >= 10 mm/s at rated opposing load.,2,2,PASS,
+A3,Actuator,"Static position accuracy shall be <= 0.10 mm and backlash <= 0.15 mm, measured at the output rod.",2,2,PASS,
+A4,Actuator,Position bandwidth (-3 dB) shall be >= 2.5 Hz.,1,1,PASS,
+A5,Actuator,"At rated opposing load, small-signal step overshoot shall be <= 10 %, rise time <= 0.15 s, accuracy <= 0.10 mm.",2,2,PASS,
+R1,Receiver,The receiver shall reject words with bad parity.,4,4,PASS,
+R2,Receiver,The receiver shall treat SSM Failure Warning or No Computed Data as invalid.,6,6,PASS,
+R3,Receiver,The receiver shall declare a label stale if not updated within 3 nominal transmit intervals.,4,4,PASS,
+R4,Receiver,The receiver shall reject values outside the physical range.,7,7,PASS,
+R5,Voter,"With three valid sources, the voter shall output the middle value.",6,6,PASS,
+R6,Voter,The voter shall fail a channel that miscompares beyond threshold for longer than the persistence time.,12,12,PASS,
+R7,Voter,The voter shall not fail a channel on a single short spike.,5,5,PASS,
+R8,Voter,"After one channel failure, the voter shall continue on the remaining two and annunciate.",24,24,PASS,
+R9,System,"After a single-channel failure, the actuator reconfiguration transient shall overshoot <= 0.60 mm and settle within +/-0.25 mm in <= 0.80 s.",4,3,OPEN DEFECT,RCA-001: integrator windup during rate saturation at rated load
+R10,System,"The actuator command shall never exceed the position or rate limits, whatever the input.",25,25,PASS,

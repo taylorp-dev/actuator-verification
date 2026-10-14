@@ -1,0 +1,1049 @@
+{
+  "summary": {
+    "generated_utc": "2026-10-14T05:02:28+00:00",
+    "git_commit": "no-git",
+    "config_file": "config/sil.yaml",
+    "config_sha256_12": "3efda6d32f2d",
+    "airframe_icd": "Generic Rotorcraft A",
+    "load_conditions": {
+      "unloaded": 0.0,
+      "rated": 700.0
+    },
+    "python": "3.13.16",
+    "suite_runtime_s": 2.8,
+    "requirements_total": 16,
+    "requirements_traced": 16,
+    "requirements_traced_pct": 100.0,
+    "tests_total": 70,
+    "tests_by_status": {
+      "passed": 69,
+      "xfail": 1
+    },
+    "untagged_tests": []
+  },
+  "requirements": [
+    {
+      "req": "ICD-1",
+      "stage": "Interface",
+      "text": "ARINC 429 BNR words shall be encoded per the ICD (label, SDI, sign, resolution, SSM, odd parity).",
+      "tests": 10,
+      "passed": 10,
+      "verdict": "PASS",
+      "notes": ""
+    },
+    {
+      "req": "A1",
+      "stage": "Actuator",
+      "text": "Small-signal step response (1 mm, unloaded) shall have rise time <= 0.15 s and overshoot <= 10 %.",
+      "tests": 1,
+      "passed": 1,
+      "verdict": "PASS",
+      "notes": ""
+    },
+    {
+      "req": "A2",
+      "stage": "Actuator",
+      "text": "Maximum rate shall be >= 35 mm/s unloaded and >= 10 mm/s at rated opposing load.",
+      "tests": 2,
+      "passed": 2,
+      "verdict": "PASS",
+      "notes": ""
+    },
+    {
+      "req": "A3",
+      "stage": "Actuator",
+      "text": "Static position accuracy shall be <= 0.10 mm and backlash <= 0.15 mm, measured at the output rod.",
+      "tests": 2,
+      "passed": 2,
+      "verdict": "PASS",
+      "notes": ""
+    },
+    {
+      "req": "A4",
+      "stage": "Actuator",
+      "text": "Position bandwidth (-3 dB) shall be >= 2.5 Hz.",
+      "tests": 1,
+      "passed": 1,
+      "verdict": "PASS",
+      "notes": ""
+    },
+    {
+      "req": "A5",
+      "stage": "Actuator",
+      "text": "At rated opposing load, small-signal step overshoot shall be <= 10 %, rise time <= 0.15 s, accuracy <= 0.10 mm.",
+      "tests": 2,
+      "passed": 2,
+      "verdict": "PASS",
+      "notes": ""
+    },
+    {
+      "req": "R1",
+      "stage": "Receiver",
+      "text": "The receiver shall reject words with bad parity.",
+      "tests": 4,
+      "passed": 4,
+      "verdict": "PASS",
+      "notes": ""
+    },
+    {
+      "req": "R2",
+      "stage": "Receiver",
+      "text": "The receiver shall treat SSM Failure Warning or No Computed Data as invalid.",
+      "tests": 6,
+      "passed": 6,
+      "verdict": "PASS",
+      "notes": ""
+    },
+    {
+      "req": "R3",
+      "stage": "Receiver",
+      "text": "The receiver shall declare a label stale if not updated within 3 nominal transmit intervals.",
+      "tests": 4,
+      "passed": 4,
+      "verdict": "PASS",
+      "notes": ""
+    },
+    {
+      "req": "R4",
+      "stage": "Receiver",
+      "text": "The receiver shall reject values outside the physical range.",
+      "tests": 7,
+      "passed": 7,
+      "verdict": "PASS",
+      "notes": ""
+    },
+    {
+      "req": "R5",
+      "stage": "Voter",
+      "text": "With three valid sources, the voter shall output the middle value.",
+      "tests": 6,
+      "passed": 6,
+      "verdict": "PASS",
+      "notes": ""
+    },
+    {
+      "req": "R6",
+      "stage": "Voter",
+      "text": "The voter shall fail a channel that miscompares beyond threshold for longer than the persistence time.",
+      "tests": 12,
+      "passed": 12,
+      "verdict": "PASS",
+      "notes": ""
+    },
+    {
+      "req": "R7",
+      "stage": "Voter",
+      "text": "The voter shall not fail a channel on a single short spike.",
+      "tests": 5,
+      "passed": 5,
+      "verdict": "PASS",
+      "notes": ""
+    },
+    {
+      "req": "R8",
+      "stage": "Voter",
+      "text": "After one channel failure, the voter shall continue on the remaining two and annunciate.",
+      "tests": 24,
+      "passed": 24,
+      "verdict": "PASS",
+      "notes": ""
+    },
+    {
+      "req": "R9",
+      "stage": "System",
+      "text": "After a single-channel failure, the actuator reconfiguration transient shall overshoot <= 0.60 mm and settle within +/-0.25 mm in <= 0.80 s.",
+      "tests": 4,
+      "passed": 3,
+      "verdict": "OPEN DEFECT",
+      "notes": "RCA-001: integrator windup during rate saturation at rated load"
+    },
+    {
+      "req": "R10",
+      "stage": "System",
+      "text": "The actuator command shall never exceed the position or rate limits, whatever the input.",
+      "tests": 25,
+      "passed": 25,
+      "verdict": "PASS",
+      "notes": ""
+    }
+  ],
+  "results": [
+    {
+      "test": "tests/test_part_a_actuator.py::test_a1_small_signal_step_unloaded",
+      "reqs": [
+        "A1"
+      ],
+      "status": "passed",
+      "duration_s": 0.008,
+      "measured": {
+        "rise_s": 0.108,
+        "overshoot_pct": 4.4
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_a_actuator.py::test_a2_max_rate[unloaded]",
+      "reqs": [
+        "A2"
+      ],
+      "status": "passed",
+      "duration_s": 0.007,
+      "measured": {
+        "load": "unloaded",
+        "rate_mm_s": 40.0
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_a_actuator.py::test_a2_max_rate[rated]",
+      "reqs": [
+        "A2"
+      ],
+      "status": "passed",
+      "duration_s": 0.009,
+      "measured": {
+        "load": "rated",
+        "rate_mm_s": 11.7
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_a_actuator.py::test_a3_accuracy_and_backlash",
+      "reqs": [
+        "A3"
+      ],
+      "status": "passed",
+      "duration_s": 0.098,
+      "measured": {
+        "accuracy_mm": 0.05,
+        "backlash_mm": 0.101
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_a_actuator.py::test_a3_own_feedback_cannot_see_backlash",
+      "reqs": [
+        "A3"
+      ],
+      "status": "passed",
+      "duration_s": 0.03,
+      "measured": {
+        "own_feedback_hysteresis_mm": 0.001,
+        "truth_hysteresis_mm": 0.101
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_a_actuator.py::test_a4_bandwidth",
+      "reqs": [
+        "A4"
+      ],
+      "status": "passed",
+      "duration_s": 1.01,
+      "measured": {
+        "bandwidth_hz": 2.99
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_a_actuator.py::test_a5_small_signal_step_rated_load",
+      "reqs": [
+        "A5"
+      ],
+      "status": "passed",
+      "duration_s": 0.005,
+      "measured": {
+        "rise_s": 0.108,
+        "overshoot_pct": 5.1
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_a_actuator.py::test_a5_accuracy_rated_load",
+      "reqs": [
+        "A5"
+      ],
+      "status": "passed",
+      "duration_s": 0.078,
+      "measured": {
+        "accuracy_mm": 0.051
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_receiver.py::test_icd_bnr_round_trip[0.0]",
+      "reqs": [
+        "ICD-1"
+      ],
+      "status": "passed",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_receiver.py::test_icd_bnr_round_trip[2.5]",
+      "reqs": [
+        "ICD-1"
+      ],
+      "status": "passed",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_receiver.py::test_icd_bnr_round_trip[-2.5]",
+      "reqs": [
+        "ICD-1"
+      ],
+      "status": "passed",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_receiver.py::test_icd_bnr_round_trip[45.37]",
+      "reqs": [
+        "ICD-1"
+      ],
+      "status": "passed",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_receiver.py::test_icd_bnr_round_trip[-89.99]",
+      "reqs": [
+        "ICD-1"
+      ],
+      "status": "passed",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_receiver.py::test_icd_bnr_round_trip[89.99]",
+      "reqs": [
+        "ICD-1"
+      ],
+      "status": "passed",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_receiver.py::test_icd_bnr_round_trip[179.9]",
+      "reqs": [
+        "ICD-1"
+      ],
+      "status": "passed",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_receiver.py::test_icd_bnr_round_trip[-180.0]",
+      "reqs": [
+        "ICD-1"
+      ],
+      "status": "passed",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_receiver.py::test_icd_label_bits_are_reversed",
+      "reqs": [
+        "ICD-1"
+      ],
+      "status": "passed",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_receiver.py::test_icd_odd_parity",
+      "reqs": [
+        "ICD-1"
+      ],
+      "status": "passed",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_receiver.py::test_r1_bad_parity_rejected",
+      "reqs": [
+        "R1"
+      ],
+      "status": "passed",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_receiver.py::test_r2_ssm_invalid[0]",
+      "reqs": [
+        "R2"
+      ],
+      "status": "passed",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_receiver.py::test_r2_ssm_invalid[1]",
+      "reqs": [
+        "R2"
+      ],
+      "status": "passed",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_receiver.py::test_r2_ssm_normal_valid",
+      "reqs": [
+        "R2"
+      ],
+      "status": "passed",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_receiver.py::test_r3_stale_boundary",
+      "reqs": [
+        "R3"
+      ],
+      "status": "passed",
+      "duration_s": 0.0,
+      "measured": {
+        "stale_limit_ms": 60.0
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_receiver.py::test_r4_physical_range[90.0-True]",
+      "reqs": [
+        "R4"
+      ],
+      "status": "passed",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_receiver.py::test_r4_physical_range[-90.0-True]",
+      "reqs": [
+        "R4"
+      ],
+      "status": "passed",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_receiver.py::test_r4_physical_range[90.5-False]",
+      "reqs": [
+        "R4"
+      ],
+      "status": "passed",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_receiver.py::test_r4_physical_range[-120.0-False]",
+      "reqs": [
+        "R4"
+      ],
+      "status": "passed",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_system.py::test_fault_matrix[frozen-chA]",
+      "reqs": [
+        "R6",
+        "R8",
+        "R10"
+      ],
+      "status": "passed",
+      "duration_s": 0.054,
+      "measured": {
+        "max_voted_error_deg": 0.69,
+        "final_mode": "DUAL",
+        "detect_latency_ms": 1099
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_system.py::test_fault_matrix[frozen-chB]",
+      "reqs": [
+        "R6",
+        "R8",
+        "R10"
+      ],
+      "status": "passed",
+      "duration_s": 0.046,
+      "measured": {
+        "max_voted_error_deg": 1.25,
+        "final_mode": "DUAL",
+        "detect_latency_ms": 1459
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_system.py::test_fault_matrix[frozen-chC]",
+      "reqs": [
+        "R6",
+        "R8",
+        "R10"
+      ],
+      "status": "passed",
+      "duration_s": 0.045,
+      "measured": {
+        "max_voted_error_deg": 1.25,
+        "final_mode": "DUAL",
+        "detect_latency_ms": 1659
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_system.py::test_fault_matrix[drift-chA]",
+      "reqs": [
+        "R6",
+        "R8",
+        "R10"
+      ],
+      "status": "passed",
+      "duration_s": 0.045,
+      "measured": {
+        "max_voted_error_deg": 0.69,
+        "final_mode": "DUAL",
+        "detect_latency_ms": 839
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_system.py::test_fault_matrix[drift-chB]",
+      "reqs": [
+        "R6",
+        "R8",
+        "R10"
+      ],
+      "status": "passed",
+      "duration_s": 0.046,
+      "measured": {
+        "max_voted_error_deg": 1.25,
+        "final_mode": "DUAL",
+        "detect_latency_ms": 1859
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_system.py::test_fault_matrix[drift-chC]",
+      "reqs": [
+        "R6",
+        "R8",
+        "R10"
+      ],
+      "status": "passed",
+      "duration_s": 0.045,
+      "measured": {
+        "max_voted_error_deg": 1.25,
+        "final_mode": "DUAL",
+        "detect_latency_ms": 2299
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_system.py::test_fault_matrix[bias_jump-chA]",
+      "reqs": [
+        "R6",
+        "R8",
+        "R10"
+      ],
+      "status": "passed",
+      "duration_s": 0.045,
+      "measured": {
+        "max_voted_error_deg": 0.69,
+        "final_mode": "DUAL",
+        "detect_latency_ms": 99
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_system.py::test_fault_matrix[bias_jump-chB]",
+      "reqs": [
+        "R6",
+        "R8",
+        "R10"
+      ],
+      "status": "passed",
+      "duration_s": 0.046,
+      "measured": {
+        "max_voted_error_deg": 0.96,
+        "final_mode": "DUAL",
+        "detect_latency_ms": 99
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_system.py::test_fault_matrix[bias_jump-chC]",
+      "reqs": [
+        "R6",
+        "R8",
+        "R10"
+      ],
+      "status": "passed",
+      "duration_s": 0.046,
+      "measured": {
+        "max_voted_error_deg": 0.96,
+        "final_mode": "DUAL",
+        "detect_latency_ms": 99
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_system.py::test_fault_matrix[spike-chA]",
+      "reqs": [
+        "R7",
+        "R10"
+      ],
+      "status": "passed",
+      "duration_s": 0.046,
+      "measured": {
+        "max_voted_error_deg": 0.21,
+        "final_mode": "TRIPLEX"
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_system.py::test_fault_matrix[spike-chB]",
+      "reqs": [
+        "R7",
+        "R10"
+      ],
+      "status": "passed",
+      "duration_s": 0.045,
+      "measured": {
+        "max_voted_error_deg": 0.94,
+        "final_mode": "TRIPLEX"
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_system.py::test_fault_matrix[spike-chC]",
+      "reqs": [
+        "R7",
+        "R10"
+      ],
+      "status": "passed",
+      "duration_s": 0.046,
+      "measured": {
+        "max_voted_error_deg": 0.94,
+        "final_mode": "TRIPLEX"
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_system.py::test_fault_matrix[bad_parity-chA]",
+      "reqs": [
+        "R1",
+        "R8",
+        "R10"
+      ],
+      "status": "passed",
+      "duration_s": 0.045,
+      "measured": {
+        "max_voted_error_deg": 0.69,
+        "final_mode": "DUAL"
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_system.py::test_fault_matrix[bad_parity-chB]",
+      "reqs": [
+        "R1",
+        "R8",
+        "R10"
+      ],
+      "status": "passed",
+      "duration_s": 0.044,
+      "measured": {
+        "max_voted_error_deg": 0.24,
+        "final_mode": "DUAL"
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_system.py::test_fault_matrix[bad_parity-chC]",
+      "reqs": [
+        "R1",
+        "R8",
+        "R10"
+      ],
+      "status": "passed",
+      "duration_s": 0.045,
+      "measured": {
+        "max_voted_error_deg": 0.73,
+        "final_mode": "DUAL"
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_system.py::test_fault_matrix[ssm_fail-chA]",
+      "reqs": [
+        "R2",
+        "R8",
+        "R10"
+      ],
+      "status": "passed",
+      "duration_s": 0.047,
+      "measured": {
+        "max_voted_error_deg": 0.69,
+        "final_mode": "DUAL"
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_system.py::test_fault_matrix[ssm_fail-chB]",
+      "reqs": [
+        "R2",
+        "R8",
+        "R10"
+      ],
+      "status": "passed",
+      "duration_s": 0.047,
+      "measured": {
+        "max_voted_error_deg": 0.21,
+        "final_mode": "DUAL"
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_system.py::test_fault_matrix[ssm_fail-chC]",
+      "reqs": [
+        "R2",
+        "R8",
+        "R10"
+      ],
+      "status": "passed",
+      "duration_s": 0.048,
+      "measured": {
+        "max_voted_error_deg": 0.73,
+        "final_mode": "DUAL"
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_system.py::test_fault_matrix[dropout-chA]",
+      "reqs": [
+        "R3",
+        "R8",
+        "R10"
+      ],
+      "status": "passed",
+      "duration_s": 0.045,
+      "measured": {
+        "max_voted_error_deg": 0.69,
+        "final_mode": "DUAL"
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_system.py::test_fault_matrix[dropout-chB]",
+      "reqs": [
+        "R3",
+        "R8",
+        "R10"
+      ],
+      "status": "passed",
+      "duration_s": 0.048,
+      "measured": {
+        "max_voted_error_deg": 0.24,
+        "final_mode": "DUAL"
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_system.py::test_fault_matrix[dropout-chC]",
+      "reqs": [
+        "R3",
+        "R8",
+        "R10"
+      ],
+      "status": "passed",
+      "duration_s": 0.046,
+      "measured": {
+        "max_voted_error_deg": 0.73,
+        "final_mode": "DUAL"
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_system.py::test_fault_matrix[out_of_range-chA]",
+      "reqs": [
+        "R4",
+        "R8",
+        "R10"
+      ],
+      "status": "passed",
+      "duration_s": 0.055,
+      "measured": {
+        "max_voted_error_deg": 0.69,
+        "final_mode": "DUAL"
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_system.py::test_fault_matrix[out_of_range-chB]",
+      "reqs": [
+        "R4",
+        "R8",
+        "R10"
+      ],
+      "status": "passed",
+      "duration_s": 0.059,
+      "measured": {
+        "max_voted_error_deg": 0.21,
+        "final_mode": "DUAL"
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_system.py::test_fault_matrix[out_of_range-chC]",
+      "reqs": [
+        "R4",
+        "R8",
+        "R10"
+      ],
+      "status": "passed",
+      "duration_s": 0.045,
+      "measured": {
+        "max_voted_error_deg": 0.73,
+        "final_mode": "DUAL"
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_system.py::test_r9_reconfiguration_transient_baseline[unloaded]",
+      "reqs": [
+        "R9"
+      ],
+      "status": "passed",
+      "duration_s": 0.051,
+      "measured": {
+        "load": "unloaded",
+        "step_mm": 4.04,
+        "overshoot_mm": 0.307,
+        "settle_s": 0.619
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_system.py::test_r9_reconfiguration_transient_baseline[rated]",
+      "reqs": [
+        "R9"
+      ],
+      "status": "xfail",
+      "duration_s": 0.051,
+      "measured": {
+        "load": "rated",
+        "step_mm": 4.06,
+        "overshoot_mm": 0.922,
+        "settle_s": 1.164
+      },
+      "note": "RCA-001: integrator windup during rate saturation at rated load"
+    },
+    {
+      "test": "tests/test_part_b_system.py::test_r9_corrective_action_verified[unloaded]",
+      "reqs": [
+        "R9"
+      ],
+      "status": "passed",
+      "duration_s": 0.052,
+      "measured": {
+        "load": "unloaded",
+        "step_mm": 4.04,
+        "overshoot_mm": 0.259,
+        "settle_s": 0.527
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_system.py::test_r9_corrective_action_verified[rated]",
+      "reqs": [
+        "R9"
+      ],
+      "status": "passed",
+      "duration_s": 0.054,
+      "measured": {
+        "load": "rated",
+        "step_mm": 4.03,
+        "overshoot_mm": 0.017,
+        "settle_s": 0.366
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_system.py::test_r10_command_limits_worst_case_inputs",
+      "reqs": [
+        "R10"
+      ],
+      "status": "passed",
+      "duration_s": 0.002,
+      "measured": {
+        "max_cmd_mm": 22.0,
+        "max_rate_mm_s": 60.0
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_voter.py::test_r5_mid_value_select[perm0]",
+      "reqs": [
+        "R5"
+      ],
+      "status": "passed",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_voter.py::test_r5_mid_value_select[perm1]",
+      "reqs": [
+        "R5"
+      ],
+      "status": "passed",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_voter.py::test_r5_mid_value_select[perm2]",
+      "reqs": [
+        "R5"
+      ],
+      "status": "passed",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_voter.py::test_r5_mid_value_select[perm3]",
+      "reqs": [
+        "R5"
+      ],
+      "status": "passed",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_voter.py::test_r5_mid_value_select[perm4]",
+      "reqs": [
+        "R5"
+      ],
+      "status": "passed",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_voter.py::test_r5_mid_value_select[perm5]",
+      "reqs": [
+        "R5"
+      ],
+      "status": "passed",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_voter.py::test_r6_fail_after_persistence",
+      "reqs": [
+        "R6"
+      ],
+      "status": "passed",
+      "duration_s": 0.0,
+      "measured": {
+        "frames_to_latch": 5
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_voter.py::test_r6_threshold_has_margin_over_tolerance_stack",
+      "reqs": [
+        "R6"
+      ],
+      "status": "passed",
+      "duration_s": 0.0,
+      "measured": {
+        "margin_deg": 0.5
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_voter.py::test_r6_within_threshold_never_fails",
+      "reqs": [
+        "R6"
+      ],
+      "status": "passed",
+      "duration_s": 0.001,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_voter.py::test_r7_single_spike_ignored",
+      "reqs": [
+        "R7"
+      ],
+      "status": "passed",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_voter.py::test_r7_intermittent_spikes_reset_counter",
+      "reqs": [
+        "R7"
+      ],
+      "status": "passed",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_voter.py::test_r8_dual_mode_average_and_annunciate",
+      "reqs": [
+        "R8"
+      ],
+      "status": "passed",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_voter.py::test_r8_second_fault_in_dual_is_annunciated",
+      "reqs": [
+        "R8"
+      ],
+      "status": "passed",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_voter.py::test_r8_invalid_channel_excluded",
+      "reqs": [
+        "R8"
+      ],
+      "status": "passed",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    }
+  ]
+}

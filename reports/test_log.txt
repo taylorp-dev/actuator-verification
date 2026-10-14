@@ -1,0 +1,89 @@
+Actuator Verification SIL: test log
+Run (UTC):  2026-10-14T05:02:13+00:00
+Python:     3.13.16 on Linux
+Exit code:  0 (0 = all passed or expected-fail)
+Traceability matrix for this run: reports/traceability.md
+==============================================================================
+============================= test session starts ==============================
+platform linux -- Python 3.13.16, pytest-9.1.1, pluggy-1.6.0 -- /usr/bin/python3
+rootdir: /home/claude/actuator-verification-sil
+configfile: pytest.ini
+testpaths: tests
+plugins: anyio-4.15.1
+collecting ... collected 70 items
+
+tests/test_part_a_actuator.py::test_a1_small_signal_step_unloaded PASSED [  1%]
+tests/test_part_a_actuator.py::test_a2_max_rate[unloaded] PASSED         [  2%]
+tests/test_part_a_actuator.py::test_a2_max_rate[rated] PASSED            [  4%]
+tests/test_part_a_actuator.py::test_a3_accuracy_and_backlash PASSED      [  5%]
+tests/test_part_a_actuator.py::test_a3_own_feedback_cannot_see_backlash PASSED [  7%]
+tests/test_part_a_actuator.py::test_a4_bandwidth PASSED                  [  8%]
+tests/test_part_a_actuator.py::test_a5_small_signal_step_rated_load PASSED [ 10%]
+tests/test_part_a_actuator.py::test_a5_accuracy_rated_load PASSED        [ 11%]
+tests/test_part_b_receiver.py::test_icd_bnr_round_trip[0.0] PASSED       [ 12%]
+tests/test_part_b_receiver.py::test_icd_bnr_round_trip[2.5] PASSED       [ 14%]
+tests/test_part_b_receiver.py::test_icd_bnr_round_trip[-2.5] PASSED      [ 15%]
+tests/test_part_b_receiver.py::test_icd_bnr_round_trip[45.37] PASSED     [ 17%]
+tests/test_part_b_receiver.py::test_icd_bnr_round_trip[-89.99] PASSED    [ 18%]
+tests/test_part_b_receiver.py::test_icd_bnr_round_trip[89.99] PASSED     [ 20%]
+tests/test_part_b_receiver.py::test_icd_bnr_round_trip[179.9] PASSED     [ 21%]
+tests/test_part_b_receiver.py::test_icd_bnr_round_trip[-180.0] PASSED    [ 22%]
+tests/test_part_b_receiver.py::test_icd_label_bits_are_reversed PASSED   [ 24%]
+tests/test_part_b_receiver.py::test_icd_odd_parity PASSED                [ 25%]
+tests/test_part_b_receiver.py::test_r1_bad_parity_rejected PASSED        [ 27%]
+tests/test_part_b_receiver.py::test_r2_ssm_invalid[0] PASSED             [ 28%]
+tests/test_part_b_receiver.py::test_r2_ssm_invalid[1] PASSED             [ 30%]
+tests/test_part_b_receiver.py::test_r2_ssm_normal_valid PASSED           [ 31%]
+tests/test_part_b_receiver.py::test_r3_stale_boundary PASSED             [ 32%]
+tests/test_part_b_receiver.py::test_r4_physical_range[90.0-True] PASSED  [ 34%]
+tests/test_part_b_receiver.py::test_r4_physical_range[-90.0-True] PASSED [ 35%]
+tests/test_part_b_receiver.py::test_r4_physical_range[90.5-False] PASSED [ 37%]
+tests/test_part_b_receiver.py::test_r4_physical_range[-120.0-False] PASSED [ 38%]
+tests/test_part_b_system.py::test_fault_matrix[frozen-chA] PASSED        [ 40%]
+tests/test_part_b_system.py::test_fault_matrix[frozen-chB] PASSED        [ 41%]
+tests/test_part_b_system.py::test_fault_matrix[frozen-chC] PASSED        [ 42%]
+tests/test_part_b_system.py::test_fault_matrix[drift-chA] PASSED         [ 44%]
+tests/test_part_b_system.py::test_fault_matrix[drift-chB] PASSED         [ 45%]
+tests/test_part_b_system.py::test_fault_matrix[drift-chC] PASSED         [ 47%]
+tests/test_part_b_system.py::test_fault_matrix[bias_jump-chA] PASSED     [ 48%]
+tests/test_part_b_system.py::test_fault_matrix[bias_jump-chB] PASSED     [ 50%]
+tests/test_part_b_system.py::test_fault_matrix[bias_jump-chC] PASSED     [ 51%]
+tests/test_part_b_system.py::test_fault_matrix[spike-chA] PASSED         [ 52%]
+tests/test_part_b_system.py::test_fault_matrix[spike-chB] PASSED         [ 54%]
+tests/test_part_b_system.py::test_fault_matrix[spike-chC] PASSED         [ 55%]
+tests/test_part_b_system.py::test_fault_matrix[bad_parity-chA] PASSED    [ 57%]
+tests/test_part_b_system.py::test_fault_matrix[bad_parity-chB] PASSED    [ 58%]
+tests/test_part_b_system.py::test_fault_matrix[bad_parity-chC] PASSED    [ 60%]
+tests/test_part_b_system.py::test_fault_matrix[ssm_fail-chA] PASSED      [ 61%]
+tests/test_part_b_system.py::test_fault_matrix[ssm_fail-chB] PASSED      [ 62%]
+tests/test_part_b_system.py::test_fault_matrix[ssm_fail-chC] PASSED      [ 64%]
+tests/test_part_b_system.py::test_fault_matrix[dropout-chA] PASSED       [ 65%]
+tests/test_part_b_system.py::test_fault_matrix[dropout-chB] PASSED       [ 67%]
+tests/test_part_b_system.py::test_fault_matrix[dropout-chC] PASSED       [ 68%]
+tests/test_part_b_system.py::test_fault_matrix[out_of_range-chA] PASSED  [ 70%]
+tests/test_part_b_system.py::test_fault_matrix[out_of_range-chB] PASSED  [ 71%]
+tests/test_part_b_system.py::test_fault_matrix[out_of_range-chC] PASSED  [ 72%]
+tests/test_part_b_system.py::test_r9_reconfiguration_transient_baseline[unloaded] PASSED [ 74%]
+tests/test_part_b_system.py::test_r9_reconfiguration_transient_baseline[rated] XFAIL [ 75%]
+tests/test_part_b_system.py::test_r9_corrective_action_verified[unloaded] PASSED [ 77%]
+tests/test_part_b_system.py::test_r9_corrective_action_verified[rated] PASSED [ 78%]
+tests/test_part_b_system.py::test_r10_command_limits_worst_case_inputs PASSED [ 80%]
+tests/test_part_b_voter.py::test_r5_mid_value_select[perm0] PASSED       [ 81%]
+tests/test_part_b_voter.py::test_r5_mid_value_select[perm1] PASSED       [ 82%]
+tests/test_part_b_voter.py::test_r5_mid_value_select[perm2] PASSED       [ 84%]
+tests/test_part_b_voter.py::test_r5_mid_value_select[perm3] PASSED       [ 85%]
+tests/test_part_b_voter.py::test_r5_mid_value_select[perm4] PASSED       [ 87%]
+tests/test_part_b_voter.py::test_r5_mid_value_select[perm5] PASSED       [ 88%]
+tests/test_part_b_voter.py::test_r6_fail_after_persistence PASSED        [ 90%]
+tests/test_part_b_voter.py::test_r6_threshold_has_margin_over_tolerance_stack PASSED [ 91%]
+tests/test_part_b_voter.py::test_r6_within_threshold_never_fails PASSED  [ 92%]
+tests/test_part_b_voter.py::test_r7_single_spike_ignored PASSED          [ 94%]
+tests/test_part_b_voter.py::test_r7_intermittent_spikes_reset_counter PASSED [ 95%]
+tests/test_part_b_voter.py::test_r8_dual_mode_average_and_annunciate PASSED [ 97%]
+tests/test_part_b_voter.py::test_r8_second_fault_in_dual_is_annunciated PASSED [ 98%]
+tests/test_part_b_voter.py::test_r8_invalid_channel_excluded PASSED      [100%]
+
+- generated xml file: /home/claude/actuator-verification-sil/reports/junit.xml -
+=========================== short test summary info ============================
+XFAIL tests/test_part_b_system.py::test_r9_reconfiguration_transient_baseline[rated] - RCA-001: integrator windup during rate saturation at rated load
+======================== 69 passed, 1 xfailed in 2.92s =========================
