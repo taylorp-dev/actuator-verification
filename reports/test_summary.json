@@ -1,7 +1,7 @@
 {
   "summary": {
-    "generated_utc": "2026-10-16T21:01:35+00:00",
-    "git_commit": "c92fb10-dirty",
+    "generated_utc": "2026-10-16T22:32:34+00:00",
+    "git_commit": "2b7d2e9-dirty",
     "config_file": "config/sil.yaml",
     "config_sha256_12": "761c1ae3c552",
     "airframe_icd": "Generic Rotorcraft A",
@@ -9,15 +9,14 @@
       "unloaded": 0.0,
       "rated": 4550.0
     },
-    "python": "3.13.16",
-    "suite_runtime_s": 18.9,
+    "python": "3.13.3",
+    "suite_runtime_s": 39.1,
     "requirements_total": 21,
-    "requirements_traced": 20,
-    "requirements_traced_pct": 95.2,
+    "requirements_traced": 21,
+    "requirements_traced_pct": 100.0,
     "tests_total": 124,
     "tests_by_status": {
-      "skipped": 6,
-      "passed": 115,
+      "passed": 121,
       "xfail": 3
     },
     "untagged_tests": []
@@ -28,7 +27,7 @@
       "stage": "Interface",
       "text": "ARINC 429 BNR words shall be encoded per the ICD (label, SDI, sign, resolution, SSM, odd parity).",
       "tests": 11,
-      "passed": 10,
+      "passed": 11,
       "verdict": "PASS",
       "notes": ""
     },
@@ -109,7 +108,7 @@
       "stage": "Receiver",
       "text": "The receiver shall declare a label stale if not updated within 3 nominal transmit intervals.",
       "tests": 6,
-      "passed": 4,
+      "passed": 6,
       "verdict": "PASS",
       "notes": ""
     },
@@ -127,7 +126,7 @@
       "stage": "Voter",
       "text": "With three valid sources, the voter shall output the middle value.",
       "tests": 7,
-      "passed": 6,
+      "passed": 7,
       "verdict": "PASS",
       "notes": ""
     },
@@ -154,7 +153,7 @@
       "stage": "Voter",
       "text": "After one channel failure, the voter shall continue on the remaining two and annunciate.",
       "tests": 25,
-      "passed": 24,
+      "passed": 25,
       "verdict": "PASS",
       "notes": ""
     },
@@ -172,7 +171,7 @@
       "stage": "System",
       "text": "The actuator command shall never exceed the position or rate limits, whatever the input.",
       "tests": 26,
-      "passed": 25,
+      "passed": 26,
       "verdict": "PASS",
       "notes": ""
     },
@@ -181,8 +180,8 @@
       "stage": "Bench link",
       "text": "Channel A sent from a separate computer over a real Ethernet link shall decode per the ICD, arrive at the nominal label rate (mean interval within 2 %) without gaps long enough to trip the stale check, and a link loss shall be flagged stale within 3 intervals and recover automatically.",
       "tests": 6,
-      "passed": 0,
-      "verdict": "NOT RUN",
+      "passed": 6,
+      "verdict": "PASS",
       "notes": ""
     },
     {
@@ -220,9 +219,13 @@
         "L1",
         "ICD-1"
       ],
-      "status": "skipped",
-      "duration_s": 0.0,
-      "measured": {},
+      "status": "passed",
+      "duration_s": 0.008,
+      "measured": {
+        "words": 1426,
+        "sender": "192.168.2.1",
+        "pitch_mean_deg": -1.0
+      },
       "note": ""
     },
     {
@@ -230,9 +233,15 @@
       "reqs": [
         "L1"
       ],
-      "status": "skipped",
-      "duration_s": 0.0,
-      "measured": {},
+      "status": "passed",
+      "duration_s": 0.014,
+      "measured": {
+        "intervals": 712,
+        "mean_ms": 19.987,
+        "p99_jitter_ms": 2.51,
+        "max_interval_ms": 23.27,
+        "stale_limit_ms": 60.0
+      },
       "note": ""
     },
     {
@@ -241,9 +250,11 @@
         "R3",
         "L1"
       ],
-      "status": "skipped",
-      "duration_s": 0.0,
-      "measured": {},
+      "status": "passed",
+      "duration_s": 0.016,
+      "measured": {
+        "invalid_samples": 0
+      },
       "note": ""
     },
     {
@@ -252,9 +263,13 @@
         "R3",
         "L1"
       ],
-      "status": "skipped",
-      "duration_s": 0.0,
-      "measured": {},
+      "status": "passed",
+      "duration_s": 0.036,
+      "measured": {
+        "cable_out_s": 9.4,
+        "flagged_after_ms": 60.2,
+        "recovered_after_reconnect_ms": 0.4
+      },
       "note": ""
     },
     {
@@ -263,9 +278,12 @@
         "R5",
         "L1"
       ],
-      "status": "skipped",
-      "duration_s": 0.0,
-      "measured": {},
+      "status": "passed",
+      "duration_s": 0.262,
+      "measured": {
+        "replayed_s": 14.2,
+        "max_voted_error_deg": 0.066
+      },
       "note": ""
     },
     {
@@ -275,9 +293,16 @@
         "R8",
         "L1"
       ],
-      "status": "skipped",
-      "duration_s": 0.0,
-      "measured": {},
+      "status": "passed",
+      "duration_s": 0.497,
+      "measured": {
+        "modes_seen": [
+          "DUAL",
+          "TRIPLEX"
+        ],
+        "ended_in": "TRIPLEX",
+        "actuator_span_mm": 2.298
+      },
       "note": ""
     },
     {
@@ -286,7 +311,7 @@
         "M1"
       ],
       "status": "passed",
-      "duration_s": 0.008,
+      "duration_s": 0.01,
       "measured": {
         "force_n": 0.0,
         "datasheet_mm_s": 32.0,
@@ -301,7 +326,7 @@
         "M1"
       ],
       "status": "passed",
-      "duration_s": 0.008,
+      "duration_s": 0.012,
       "measured": {
         "force_n": 50.0,
         "datasheet_mm_s": 16.0,
@@ -316,7 +341,7 @@
         "M1"
       ],
       "status": "passed",
-      "duration_s": 0.008,
+      "duration_s": 0.01,
       "measured": {
         "force_n": 24.0,
         "datasheet_mm_s": 24.0,
@@ -331,7 +356,7 @@
         "M1"
       ],
       "status": "passed",
-      "duration_s": 0.058,
+      "duration_s": 0.069,
       "measured": {
         "model_backlash_param_mm": 0.25,
         "predicted_bench_hysteresis_mm": 0.19
@@ -370,7 +395,7 @@
         "A2"
       ],
       "status": "passed",
-      "duration_s": 0.008,
+      "duration_s": 0.011,
       "measured": {
         "load": "rated",
         "rate_mm_s": 11.7
@@ -383,7 +408,7 @@
         "A3"
       ],
       "status": "passed",
-      "duration_s": 0.076,
+      "duration_s": 0.131,
       "measured": {
         "accuracy_mm": 0.05,
         "backlash_mm": 0.101
@@ -396,7 +421,7 @@
         "A3"
       ],
       "status": "passed",
-      "duration_s": 0.029,
+      "duration_s": 0.051,
       "measured": {
         "own_feedback_hysteresis_mm": 0.001,
         "truth_hysteresis_mm": 0.101
@@ -409,7 +434,7 @@
         "A4"
       ],
       "status": "passed",
-      "duration_s": 0.948,
+      "duration_s": 1.628,
       "measured": {
         "bandwidth_hz": 2.99
       },
@@ -421,7 +446,7 @@
         "A5"
       ],
       "status": "passed",
-      "duration_s": 0.004,
+      "duration_s": 0.007,
       "measured": {
         "rise_s": 0.108,
         "overshoot_pct": 5.1
@@ -434,7 +459,7 @@
         "A5"
       ],
       "status": "passed",
-      "duration_s": 0.065,
+      "duration_s": 0.117,
       "measured": {
         "accuracy_mm": 0.051
       },
@@ -526,7 +551,7 @@
         "ICD-1"
       ],
       "status": "passed",
-      "duration_s": 0.0,
+      "duration_s": 0.001,
       "measured": {},
       "note": ""
     },
@@ -640,7 +665,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.053,
+      "duration_s": 0.06,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL",
@@ -656,7 +681,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.046,
+      "duration_s": 0.065,
       "measured": {
         "max_voted_error_deg": 1.25,
         "final_mode": "DUAL",
@@ -672,7 +697,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.045,
+      "duration_s": 0.058,
       "measured": {
         "max_voted_error_deg": 1.25,
         "final_mode": "DUAL",
@@ -688,7 +713,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.047,
+      "duration_s": 0.063,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL",
@@ -704,7 +729,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.047,
+      "duration_s": 0.078,
       "measured": {
         "max_voted_error_deg": 1.25,
         "final_mode": "DUAL",
@@ -720,7 +745,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.046,
+      "duration_s": 0.063,
       "measured": {
         "max_voted_error_deg": 1.25,
         "final_mode": "DUAL",
@@ -736,7 +761,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.046,
+      "duration_s": 0.068,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL",
@@ -752,7 +777,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.045,
+      "duration_s": 0.075,
       "measured": {
         "max_voted_error_deg": 0.96,
         "final_mode": "DUAL",
@@ -768,7 +793,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.046,
+      "duration_s": 0.083,
       "measured": {
         "max_voted_error_deg": 0.96,
         "final_mode": "DUAL",
@@ -783,7 +808,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.049,
+      "duration_s": 0.07,
       "measured": {
         "max_voted_error_deg": 0.21,
         "final_mode": "TRIPLEX"
@@ -797,7 +822,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.046,
+      "duration_s": 0.06,
       "measured": {
         "max_voted_error_deg": 0.94,
         "final_mode": "TRIPLEX"
@@ -811,7 +836,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.045,
+      "duration_s": 0.062,
       "measured": {
         "max_voted_error_deg": 0.94,
         "final_mode": "TRIPLEX"
@@ -826,7 +851,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.046,
+      "duration_s": 0.061,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL"
@@ -841,7 +866,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.065,
+      "duration_s": 0.058,
       "measured": {
         "max_voted_error_deg": 0.24,
         "final_mode": "DUAL"
@@ -856,7 +881,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.064,
+      "duration_s": 0.072,
       "measured": {
         "max_voted_error_deg": 0.73,
         "final_mode": "DUAL"
@@ -871,7 +896,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.066,
+      "duration_s": 0.059,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL"
@@ -886,7 +911,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.053,
+      "duration_s": 0.06,
       "measured": {
         "max_voted_error_deg": 0.21,
         "final_mode": "DUAL"
@@ -901,7 +926,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.047,
+      "duration_s": 0.063,
       "measured": {
         "max_voted_error_deg": 0.73,
         "final_mode": "DUAL"
@@ -916,7 +941,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.045,
+      "duration_s": 0.101,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL"
@@ -931,7 +956,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.047,
+      "duration_s": 0.092,
       "measured": {
         "max_voted_error_deg": 0.24,
         "final_mode": "DUAL"
@@ -946,7 +971,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.044,
+      "duration_s": 0.061,
       "measured": {
         "max_voted_error_deg": 0.73,
         "final_mode": "DUAL"
@@ -961,7 +986,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.047,
+      "duration_s": 0.064,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL"
@@ -976,7 +1001,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.046,
+      "duration_s": 0.069,
       "measured": {
         "max_voted_error_deg": 0.21,
         "final_mode": "DUAL"
@@ -991,7 +1016,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.046,
+      "duration_s": 0.061,
       "measured": {
         "max_voted_error_deg": 0.73,
         "final_mode": "DUAL"
@@ -1004,7 +1029,7 @@
         "R9"
       ],
       "status": "passed",
-      "duration_s": 0.071,
+      "duration_s": 0.075,
       "measured": {
         "load": "unloaded",
         "step_mm": 4.04,
@@ -1019,7 +1044,7 @@
         "R9"
       ],
       "status": "xfail",
-      "duration_s": 0.067,
+      "duration_s": 0.073,
       "measured": {
         "load": "rated",
         "step_mm": 4.06,
@@ -1034,7 +1059,7 @@
         "R9"
       ],
       "status": "passed",
-      "duration_s": 0.074,
+      "duration_s": 0.067,
       "measured": {
         "load": "unloaded",
         "step_mm": 4.04,
@@ -1049,7 +1074,7 @@
         "R9"
       ],
       "status": "passed",
-      "duration_s": 0.066,
+      "duration_s": 0.074,
       "measured": {
         "load": "rated",
         "step_mm": 4.03,
@@ -1064,7 +1089,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.003,
+      "duration_s": 0.002,
       "measured": {
         "max_cmd_mm": 22.0,
         "max_rate_mm_s": 60.0
@@ -1171,7 +1196,7 @@
         "R7"
       ],
       "status": "passed",
-      "duration_s": 0.0,
+      "duration_s": 0.001,
       "measured": {},
       "note": ""
     },
@@ -1181,7 +1206,7 @@
         "R7"
       ],
       "status": "passed",
-      "duration_s": 0.0,
+      "duration_s": 0.001,
       "measured": {},
       "note": ""
     },
@@ -1221,7 +1246,7 @@
         "R11"
       ],
       "status": "passed",
-      "duration_s": 0.016,
+      "duration_s": 0.017,
       "measured": {
         "load_n": 0.0,
         "stall_after_loss_n": 3250,
@@ -1236,7 +1261,7 @@
         "R11"
       ],
       "status": "xfail",
-      "duration_s": 0.016,
+      "duration_s": 0.017,
       "measured": {
         "load_n": 4550.0,
         "stall_after_loss_n": 3250,
@@ -1251,7 +1276,7 @@
         "R11"
       ],
       "status": "passed",
-      "duration_s": 0.016,
+      "duration_s": 0.015,
       "measured": {
         "load": "unloaded",
         "drifted_past_threshold": false,
@@ -1265,7 +1290,7 @@
         "R11"
       ],
       "status": "passed",
-      "duration_s": 0.013,
+      "duration_s": 0.022,
       "measured": {
         "load": "rated",
         "drifted_past_threshold": true,
@@ -1279,7 +1304,7 @@
         "R11"
       ],
       "status": "passed",
-      "duration_s": 0.014,
+      "duration_s": 0.015,
       "measured": {
         "load": "unloaded",
         "load_n": 0.0,
@@ -1295,7 +1320,7 @@
         "R11"
       ],
       "status": "passed",
-      "duration_s": 0.012,
+      "duration_s": 0.018,
       "measured": {
         "load": "rated",
         "load_n": 4550.0,
@@ -1311,7 +1336,7 @@
         "R12"
       ],
       "status": "passed",
-      "duration_s": 0.005,
+      "duration_s": 0.009,
       "measured": {
         "load": "unloaded",
         "jam_detect_s": 0.171
@@ -1324,7 +1349,7 @@
         "R12"
       ],
       "status": "passed",
-      "duration_s": 0.007,
+      "duration_s": 0.005,
       "measured": {
         "load": "unloaded",
         "jam_detect_s": 0.171
@@ -1337,7 +1362,7 @@
         "R12"
       ],
       "status": "passed",
-      "duration_s": 0.004,
+      "duration_s": 0.005,
       "measured": {
         "load": "unloaded",
         "jam_detect_s": 0.171
@@ -1350,7 +1375,7 @@
         "R12"
       ],
       "status": "passed",
-      "duration_s": 0.004,
+      "duration_s": 0.006,
       "measured": {
         "load": "rated",
         "jam_detect_s": 0.171
@@ -1363,7 +1388,7 @@
         "R12"
       ],
       "status": "passed",
-      "duration_s": 0.004,
+      "duration_s": 0.005,
       "measured": {
         "load": "rated",
         "jam_detect_s": 0.171
@@ -1376,7 +1401,7 @@
         "R12"
       ],
       "status": "passed",
-      "duration_s": 0.004,
+      "duration_s": 0.005,
       "measured": {
         "load": "rated",
         "jam_detect_s": 0.171
@@ -1389,7 +1414,7 @@
         "R12"
       ],
       "status": "passed",
-      "duration_s": 0.004,
+      "duration_s": 0.005,
       "measured": {
         "annunciated": false
       },
@@ -1401,7 +1426,7 @@
         "R12"
       ],
       "status": "passed",
-      "duration_s": 0.016,
+      "duration_s": 0.025,
       "measured": {
         "step_mm": 20.0
       },
@@ -1413,7 +1438,7 @@
         "R12"
       ],
       "status": "passed",
-      "duration_s": 0.009,
+      "duration_s": 0.015,
       "measured": {},
       "note": ""
     },
@@ -1423,7 +1448,7 @@
         "R12"
       ],
       "status": "passed",
-      "duration_s": 1.537,
+      "duration_s": 2.564,
       "measured": {
         "load_n": 0,
         "cases": 48,
@@ -1440,7 +1465,7 @@
         "R12"
       ],
       "status": "passed",
-      "duration_s": 1.606,
+      "duration_s": 2.573,
       "measured": {
         "load_n": 2275,
         "cases": 48,
@@ -1457,7 +1482,7 @@
         "R12"
       ],
       "status": "passed",
-      "duration_s": 1.628,
+      "duration_s": 2.599,
       "measured": {
         "load_n": 3412,
         "cases": 48,
@@ -1474,7 +1499,7 @@
         "R12"
       ],
       "status": "passed",
-      "duration_s": 1.671,
+      "duration_s": 2.422,
       "measured": {
         "load_n": 4550,
         "cases": 48,
@@ -1491,7 +1516,7 @@
         "R12"
       ],
       "status": "xfail",
-      "duration_s": 1.641,
+      "duration_s": 2.454,
       "measured": {
         "load_n": 3412,
         "false_alarms": 2,
@@ -1506,7 +1531,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.513,
+      "duration_s": 1.381,
       "measured": {
         "max_fight_n": 300
       },
@@ -1518,7 +1543,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.397,
+      "duration_s": 0.957,
       "measured": {
         "max_fight_n": 8454,
         "healthy_lane_disengaged_at_s": {
@@ -1533,7 +1558,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.176,
+      "duration_s": 0.448,
       "measured": {
         "disengaged": {
           "0": 0.2
@@ -1549,7 +1574,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.177,
+      "duration_s": 0.467,
       "measured": {
         "disengaged": {
           "0": 0.2
@@ -1565,7 +1590,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.21,
+      "duration_s": 0.391,
       "measured": {
         "disengaged": {
           "0": 0.2
@@ -1581,7 +1606,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.212,
+      "duration_s": 0.403,
       "measured": {
         "disengaged": {
           "0": 0.2
@@ -1597,7 +1622,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.182,
+      "duration_s": 0.435,
       "measured": {
         "disengaged": {
           "0": 0.2
@@ -1613,7 +1638,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.183,
+      "duration_s": 0.512,
       "measured": {
         "disengaged": {
           "1": 0.2
@@ -1629,7 +1654,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.194,
+      "duration_s": 0.419,
       "measured": {
         "disengaged": {
           "1": 0.2
@@ -1645,7 +1670,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.187,
+      "duration_s": 0.435,
       "measured": {
         "disengaged": {
           "1": 0.2
@@ -1661,7 +1686,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.183,
+      "duration_s": 0.415,
       "measured": {
         "disengaged": {
           "1": 0.2
@@ -1677,7 +1702,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.161,
+      "duration_s": 0.421,
       "measured": {
         "disengaged": {
           "1": 0.2
@@ -1693,7 +1718,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.167,
+      "duration_s": 0.48,
       "measured": {
         "disengaged": {
           "2": 0.2
@@ -1709,7 +1734,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.155,
+      "duration_s": 0.557,
       "measured": {
         "disengaged": {
           "2": 0.2
@@ -1725,7 +1750,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.16,
+      "duration_s": 0.481,
       "measured": {
         "disengaged": {
           "2": 0.2
@@ -1741,7 +1766,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.265,
+      "duration_s": 0.473,
       "measured": {
         "disengaged": {
           "2": 0.2
@@ -1757,7 +1782,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.177,
+      "duration_s": 0.478,
       "measured": {
         "disengaged": {
           "2": 0.2
@@ -1773,7 +1798,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.641,
+      "duration_s": 2.049,
       "measured": {
         "worst_undetected_surface_mm": 0.167
       },
@@ -1785,7 +1810,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.645,
+      "duration_s": 1.923,
       "measured": {
         "worst_undetected_surface_mm": 0.333
       },
@@ -1797,7 +1822,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.579,
+      "duration_s": 1.692,
       "measured": {
         "worst_undetected_surface_mm": 0.5
       },
@@ -1809,7 +1834,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.594,
+      "duration_s": 1.731,
       "measured": {
         "worst_undetected_surface_mm": 0.5
       },
@@ -1821,7 +1846,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.606,
+      "duration_s": 1.477,
       "measured": {
         "worst_undetected_surface_mm": 0.533
       },
@@ -1833,7 +1858,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.536,
+      "duration_s": 1.816,
       "measured": {
         "worst_undetected_surface_mm": 0.533
       },
@@ -1845,7 +1870,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.238,
+      "duration_s": 0.745,
       "measured": {
         "old_logic_lanes_disengaged": 3
       },

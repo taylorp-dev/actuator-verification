@@ -1,17 +1,17 @@
 # Requirements Traceability Matrix
 
-- Generated: 2026-10-16T21:01:35+00:00
-- Git commit: `c92fb10-dirty`
+- Generated: 2026-10-16T22:32:34+00:00
+- Git commit: `2b7d2e9-dirty`
 - Config: `config/sil.yaml` (sha256 `761c1ae3c552`)
 - ICD: Generic Rotorcraft A
 - Load conditions: {'unloaded': 0.0, 'rated': 4550.0}
-- Requirements traced: 20/21 (95.2%)
-- Tests: 124 (passed 115, skipped 6, xfail 3)
-- Suite runtime: 18.9 s
+- Requirements traced: 21/21 (100.0%)
+- Tests: 124 (passed 121, xfail 3)
+- Suite runtime: 39.1 s
 
 | Req | Stage | Requirement | Tests | Passed | Verdict | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| ICD-1 | Interface | ARINC 429 BNR words shall be encoded per the ICD (label, SDI, sign, resolution, SSM, odd parity). | 11 | 10 | **PASS** |  |
+| ICD-1 | Interface | ARINC 429 BNR words shall be encoded per the ICD (label, SDI, sign, resolution, SSM, odd parity). | 11 | 11 | **PASS** |  |
 | A1 | Actuator | Small-signal step response (1 mm, unloaded) shall have rise time <= 0.15 s and overshoot <= 10 %. | 1 | 1 | **PASS** |  |
 | A2 | Actuator | Maximum rate shall be >= 35 mm/s unloaded and >= 10 mm/s at rated opposing load. | 2 | 2 | **PASS** |  |
 | A3 | Actuator | Static position accuracy shall be <= 0.10 mm and backlash <= 0.15 mm, measured at the output rod. | 2 | 2 | **PASS** |  |
@@ -20,15 +20,15 @@
 | M1 | Model | The bench actuator model (Actuonix L16-P) shall reproduce the manufacturer datasheet speed-force points within 5 % and use the datasheet backlash. | 4 | 4 | **PASS** |  |
 | R1 | Receiver | The receiver shall reject words with bad parity. | 4 | 4 | **PASS** |  |
 | R2 | Receiver | The receiver shall treat SSM Failure Warning or No Computed Data as invalid. | 6 | 6 | **PASS** |  |
-| R3 | Receiver | The receiver shall declare a label stale if not updated within 3 nominal transmit intervals. | 6 | 4 | **PASS** |  |
+| R3 | Receiver | The receiver shall declare a label stale if not updated within 3 nominal transmit intervals. | 6 | 6 | **PASS** |  |
 | R4 | Receiver | The receiver shall reject values outside the physical range. | 7 | 7 | **PASS** |  |
-| R5 | Voter | With three valid sources, the voter shall output the middle value. | 7 | 6 | **PASS** |  |
+| R5 | Voter | With three valid sources, the voter shall output the middle value. | 7 | 7 | **PASS** |  |
 | R6 | Voter | The voter shall fail a channel that miscompares beyond threshold for longer than the persistence time. | 12 | 12 | **PASS** |  |
 | R7 | Voter | The voter shall not fail a channel on a single short spike. | 5 | 5 | **PASS** |  |
-| R8 | Voter | After one channel failure, the voter shall continue on the remaining two and annunciate. | 25 | 24 | **PASS** |  |
+| R8 | Voter | After one channel failure, the voter shall continue on the remaining two and annunciate. | 25 | 25 | **PASS** |  |
 | R9 | System | After a single-channel failure, the actuator reconfiguration transient shall overshoot <= 0.60 mm and settle within +/-0.25 mm in <= 0.80 s. | 4 | 3 | **OPEN DEFECT** | RCA-001: integrator windup during rate saturation at rated load |
-| R10 | System | The actuator command shall never exceed the position or rate limits, whatever the input. | 26 | 25 | **PASS** |  |
-| L1 | Bench link | Channel A sent from a separate computer over a real Ethernet link shall decode per the ICD, arrive at the nominal label rate (mean interval within 2 %) without gaps long enough to trip the stale check, and a link loss shall be flagged stale within 3 intervals and recover automatically. | 6 | 0 | **NOT RUN** |  |
+| R10 | System | The actuator command shall never exceed the position or rate limits, whatever the input. | 26 | 26 | **PASS** |  |
+| L1 | Bench link | Channel A sent from a separate computer over a real Ethernet link shall decode per the ICD, arrive at the nominal label rate (mean interval within 2 %) without gaps long enough to trip the stale check, and a link loss shall be flagged stale within 3 intervals and recover automatically. | 6 | 6 | **PASS** |  |
 | R11 | Actuator fault | After loss of one of two motor channels, the actuator shall hold commanded position within 0.50 mm for 5 s at every load condition up to rated. | 6 | 5 | **OPEN DEFECT** | FINDING-003: one motor's stall force is below rated load; rod is back-driven |
 | R12 | Actuator fault | The actuator monitor shall annunciate a jam within 0.30 s while the command is moving, remove motor drive, and not annunciate during normal operation (including rate-limited moves at rated load and all Part B fault cases). | 14 | 13 | **OPEN DEFECT** | FINDING-005: monitor needs the RCA-001 anti-windup fix; baseline windup gives false jam alarms |
 | R13 | Actuator fault | With three lanes active on one surface, equalization shall keep force fight between healthy lanes <= 500 N; a faulty lane shall be disengaged (only that lane) with surface error <= 0.25 mm after; a lane fault too small to detect shall cause <= 0.60 mm surface error. | 24 | 24 | **PASS** |  |
@@ -37,12 +37,12 @@
 
 | Test | Reqs | Status | Measured |
 | --- | --- | --- | --- |
-| `test_l1_words_on_the_wire_decode_per_icd` | L1, ICD-1 | skipped |  |
-| `test_l1_rate_and_jitter_on_real_link` | L1 | skipped |  |
-| `test_l1_no_false_stale_on_healthy_link` | R3, L1 | skipped |  |
-| `test_l1_cable_pull_flagged_stale_and_recovers` | R3, L1 | skipped |  |
-| `test_l1_closed_loop_with_real_channel_a` | R5, L1 | skipped |  |
-| `test_l1_closed_loop_cable_pull` | R10, R8, L1 | skipped |  |
+| `test_l1_words_on_the_wire_decode_per_icd` | L1, ICD-1 | passed | words=1426, sender=192.168.2.1, pitch_mean_deg=-1.0 |
+| `test_l1_rate_and_jitter_on_real_link` | L1 | passed | intervals=712, mean_ms=19.987, p99_jitter_ms=2.51, max_interval_ms=23.27, stale_limit_ms=60.0 |
+| `test_l1_no_false_stale_on_healthy_link` | R3, L1 | passed | invalid_samples=0 |
+| `test_l1_cable_pull_flagged_stale_and_recovers` | R3, L1 | passed | cable_out_s=9.4, flagged_after_ms=60.2, recovered_after_reconnect_ms=0.4 |
+| `test_l1_closed_loop_with_real_channel_a` | R5, L1 | passed | replayed_s=14.2, max_voted_error_deg=0.066 |
+| `test_l1_closed_loop_cable_pull` | R10, R8, L1 | passed | modes_seen=['DUAL', 'TRIPLEX'], ended_in=TRIPLEX, actuator_span_mm=2.298 |
 | `test_m1_speed_force_matches_datasheet[no_load]` | M1 | passed | force_n=0.0, datasheet_mm_s=32.0, model_mm_s=32.0, error_pct=0.0 |
 | `test_m1_speed_force_matches_datasheet[peak_power]` | M1 | passed | force_n=50.0, datasheet_mm_s=16.0, model_mm_s=15.5, error_pct=3.1 |
 | `test_m1_speed_force_matches_datasheet[peak_efficiency]` | M1 | passed | force_n=24.0, datasheet_mm_s=24.0, model_mm_s=24.1, error_pct=0.3 |
