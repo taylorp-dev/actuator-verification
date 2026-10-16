@@ -3,6 +3,7 @@ name: SIL regression
 on:
   push:
   pull_request:
+  workflow_dispatch:     # "Run workflow" button: full suite on GitHub's machines, no Pi needed
 
 jobs:
   test:
