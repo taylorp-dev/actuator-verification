@@ -1,6 +1,6 @@
 {
   "summary": {
-    "generated_utc": "2026-10-15T00:44:02+00:00",
+    "generated_utc": "2026-10-16T21:01:35+00:00",
     "git_commit": "c92fb10-dirty",
     "config_file": "config/sil.yaml",
     "config_sha256_12": "761c1ae3c552",
@@ -10,12 +10,13 @@
       "rated": 4550.0
     },
     "python": "3.13.16",
-    "suite_runtime_s": 22.4,
-    "requirements_total": 20,
+    "suite_runtime_s": 18.9,
+    "requirements_total": 21,
     "requirements_traced": 20,
-    "requirements_traced_pct": 100.0,
-    "tests_total": 118,
+    "requirements_traced_pct": 95.2,
+    "tests_total": 124,
     "tests_by_status": {
+      "skipped": 6,
       "passed": 115,
       "xfail": 3
     },
@@ -26,7 +27,7 @@
       "req": "ICD-1",
       "stage": "Interface",
       "text": "ARINC 429 BNR words shall be encoded per the ICD (label, SDI, sign, resolution, SSM, odd parity).",
-      "tests": 10,
+      "tests": 11,
       "passed": 10,
       "verdict": "PASS",
       "notes": ""
@@ -107,7 +108,7 @@
       "req": "R3",
       "stage": "Receiver",
       "text": "The receiver shall declare a label stale if not updated within 3 nominal transmit intervals.",
-      "tests": 4,
+      "tests": 6,
       "passed": 4,
       "verdict": "PASS",
       "notes": ""
@@ -125,7 +126,7 @@
       "req": "R5",
       "stage": "Voter",
       "text": "With three valid sources, the voter shall output the middle value.",
-      "tests": 6,
+      "tests": 7,
       "passed": 6,
       "verdict": "PASS",
       "notes": ""
@@ -152,7 +153,7 @@
       "req": "R8",
       "stage": "Voter",
       "text": "After one channel failure, the voter shall continue on the remaining two and annunciate.",
-      "tests": 24,
+      "tests": 25,
       "passed": 24,
       "verdict": "PASS",
       "notes": ""
@@ -170,9 +171,18 @@
       "req": "R10",
       "stage": "System",
       "text": "The actuator command shall never exceed the position or rate limits, whatever the input.",
-      "tests": 25,
+      "tests": 26,
       "passed": 25,
       "verdict": "PASS",
+      "notes": ""
+    },
+    {
+      "req": "L1",
+      "stage": "Bench link",
+      "text": "Channel A sent from a separate computer over a real Ethernet link shall decode per the ICD, arrive at the nominal label rate (mean interval within 2 %) without gaps long enough to trip the stale check, and a link loss shall be flagged stale within 3 intervals and recover automatically.",
+      "tests": 6,
+      "passed": 0,
+      "verdict": "NOT RUN",
       "notes": ""
     },
     {
@@ -205,12 +215,78 @@
   ],
   "results": [
     {
+      "test": "tests/test_bench_link.py::test_l1_words_on_the_wire_decode_per_icd",
+      "reqs": [
+        "L1",
+        "ICD-1"
+      ],
+      "status": "skipped",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_bench_link.py::test_l1_rate_and_jitter_on_real_link",
+      "reqs": [
+        "L1"
+      ],
+      "status": "skipped",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_bench_link.py::test_l1_no_false_stale_on_healthy_link",
+      "reqs": [
+        "R3",
+        "L1"
+      ],
+      "status": "skipped",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_bench_link.py::test_l1_cable_pull_flagged_stale_and_recovers",
+      "reqs": [
+        "R3",
+        "L1"
+      ],
+      "status": "skipped",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_bench_link.py::test_l1_closed_loop_with_real_channel_a",
+      "reqs": [
+        "R5",
+        "L1"
+      ],
+      "status": "skipped",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_bench_link.py::test_l1_closed_loop_cable_pull",
+      "reqs": [
+        "R10",
+        "R8",
+        "L1"
+      ],
+      "status": "skipped",
+      "duration_s": 0.0,
+      "measured": {},
+      "note": ""
+    },
+    {
       "test": "tests/test_model_bench_actuator.py::test_m1_speed_force_matches_datasheet[no_load]",
       "reqs": [
         "M1"
       ],
       "status": "passed",
-      "duration_s": 0.007,
+      "duration_s": 0.008,
       "measured": {
         "force_n": 0.0,
         "datasheet_mm_s": 32.0,
@@ -225,7 +301,7 @@
         "M1"
       ],
       "status": "passed",
-      "duration_s": 0.006,
+      "duration_s": 0.008,
       "measured": {
         "force_n": 50.0,
         "datasheet_mm_s": 16.0,
@@ -240,7 +316,7 @@
         "M1"
       ],
       "status": "passed",
-      "duration_s": 0.006,
+      "duration_s": 0.008,
       "measured": {
         "force_n": 24.0,
         "datasheet_mm_s": 24.0,
@@ -255,7 +331,7 @@
         "M1"
       ],
       "status": "passed",
-      "duration_s": 0.045,
+      "duration_s": 0.058,
       "measured": {
         "model_backlash_param_mm": 0.25,
         "predicted_bench_hysteresis_mm": 0.19
@@ -268,7 +344,7 @@
         "A1"
       ],
       "status": "passed",
-      "duration_s": 0.005,
+      "duration_s": 0.007,
       "measured": {
         "rise_s": 0.108,
         "overshoot_pct": 4.4
@@ -281,7 +357,7 @@
         "A2"
       ],
       "status": "passed",
-      "duration_s": 0.006,
+      "duration_s": 0.008,
       "measured": {
         "load": "unloaded",
         "rate_mm_s": 40.0
@@ -294,7 +370,7 @@
         "A2"
       ],
       "status": "passed",
-      "duration_s": 0.006,
+      "duration_s": 0.008,
       "measured": {
         "load": "rated",
         "rate_mm_s": 11.7
@@ -320,7 +396,7 @@
         "A3"
       ],
       "status": "passed",
-      "duration_s": 0.03,
+      "duration_s": 0.029,
       "measured": {
         "own_feedback_hysteresis_mm": 0.001,
         "truth_hysteresis_mm": 0.101
@@ -333,7 +409,7 @@
         "A4"
       ],
       "status": "passed",
-      "duration_s": 0.982,
+      "duration_s": 0.948,
       "measured": {
         "bandwidth_hz": 2.99
       },
@@ -345,7 +421,7 @@
         "A5"
       ],
       "status": "passed",
-      "duration_s": 0.005,
+      "duration_s": 0.004,
       "measured": {
         "rise_s": 0.108,
         "overshoot_pct": 5.1
@@ -358,7 +434,7 @@
         "A5"
       ],
       "status": "passed",
-      "duration_s": 0.079,
+      "duration_s": 0.065,
       "measured": {
         "accuracy_mm": 0.051
       },
@@ -564,7 +640,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.057,
+      "duration_s": 0.053,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL",
@@ -580,7 +656,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.049,
+      "duration_s": 0.046,
       "measured": {
         "max_voted_error_deg": 1.25,
         "final_mode": "DUAL",
@@ -596,7 +672,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.049,
+      "duration_s": 0.045,
       "measured": {
         "max_voted_error_deg": 1.25,
         "final_mode": "DUAL",
@@ -612,7 +688,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.051,
+      "duration_s": 0.047,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL",
@@ -628,7 +704,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.052,
+      "duration_s": 0.047,
       "measured": {
         "max_voted_error_deg": 1.25,
         "final_mode": "DUAL",
@@ -644,7 +720,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.051,
+      "duration_s": 0.046,
       "measured": {
         "max_voted_error_deg": 1.25,
         "final_mode": "DUAL",
@@ -660,7 +736,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.051,
+      "duration_s": 0.046,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL",
@@ -676,7 +752,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.05,
+      "duration_s": 0.045,
       "measured": {
         "max_voted_error_deg": 0.96,
         "final_mode": "DUAL",
@@ -692,7 +768,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.05,
+      "duration_s": 0.046,
       "measured": {
         "max_voted_error_deg": 0.96,
         "final_mode": "DUAL",
@@ -707,7 +783,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.051,
+      "duration_s": 0.049,
       "measured": {
         "max_voted_error_deg": 0.21,
         "final_mode": "TRIPLEX"
@@ -721,7 +797,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.07,
+      "duration_s": 0.046,
       "measured": {
         "max_voted_error_deg": 0.94,
         "final_mode": "TRIPLEX"
@@ -735,7 +811,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.053,
+      "duration_s": 0.045,
       "measured": {
         "max_voted_error_deg": 0.94,
         "final_mode": "TRIPLEX"
@@ -750,7 +826,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.057,
+      "duration_s": 0.046,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL"
@@ -765,7 +841,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.061,
+      "duration_s": 0.065,
       "measured": {
         "max_voted_error_deg": 0.24,
         "final_mode": "DUAL"
@@ -780,7 +856,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.056,
+      "duration_s": 0.064,
       "measured": {
         "max_voted_error_deg": 0.73,
         "final_mode": "DUAL"
@@ -795,7 +871,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.053,
+      "duration_s": 0.066,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL"
@@ -810,7 +886,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.057,
+      "duration_s": 0.053,
       "measured": {
         "max_voted_error_deg": 0.21,
         "final_mode": "DUAL"
@@ -825,7 +901,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.053,
+      "duration_s": 0.047,
       "measured": {
         "max_voted_error_deg": 0.73,
         "final_mode": "DUAL"
@@ -840,7 +916,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.05,
+      "duration_s": 0.045,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL"
@@ -855,7 +931,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.049,
+      "duration_s": 0.047,
       "measured": {
         "max_voted_error_deg": 0.24,
         "final_mode": "DUAL"
@@ -870,7 +946,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.049,
+      "duration_s": 0.044,
       "measured": {
         "max_voted_error_deg": 0.73,
         "final_mode": "DUAL"
@@ -885,7 +961,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.05,
+      "duration_s": 0.047,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL"
@@ -900,7 +976,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.05,
+      "duration_s": 0.046,
       "measured": {
         "max_voted_error_deg": 0.21,
         "final_mode": "DUAL"
@@ -915,7 +991,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.051,
+      "duration_s": 0.046,
       "measured": {
         "max_voted_error_deg": 0.73,
         "final_mode": "DUAL"
@@ -928,7 +1004,7 @@
         "R9"
       ],
       "status": "passed",
-      "duration_s": 0.061,
+      "duration_s": 0.071,
       "measured": {
         "load": "unloaded",
         "step_mm": 4.04,
@@ -943,7 +1019,7 @@
         "R9"
       ],
       "status": "xfail",
-      "duration_s": 0.06,
+      "duration_s": 0.067,
       "measured": {
         "load": "rated",
         "step_mm": 4.06,
@@ -958,7 +1034,7 @@
         "R9"
       ],
       "status": "passed",
-      "duration_s": 0.057,
+      "duration_s": 0.074,
       "measured": {
         "load": "unloaded",
         "step_mm": 4.04,
@@ -973,7 +1049,7 @@
         "R9"
       ],
       "status": "passed",
-      "duration_s": 0.061,
+      "duration_s": 0.066,
       "measured": {
         "load": "rated",
         "step_mm": 4.03,
@@ -988,7 +1064,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.002,
+      "duration_s": 0.003,
       "measured": {
         "max_cmd_mm": 22.0,
         "max_rate_mm_s": 60.0
@@ -1145,7 +1221,7 @@
         "R11"
       ],
       "status": "passed",
-      "duration_s": 0.014,
+      "duration_s": 0.016,
       "measured": {
         "load_n": 0.0,
         "stall_after_loss_n": 3250,
@@ -1160,7 +1236,7 @@
         "R11"
       ],
       "status": "xfail",
-      "duration_s": 0.014,
+      "duration_s": 0.016,
       "measured": {
         "load_n": 4550.0,
         "stall_after_loss_n": 3250,
@@ -1175,7 +1251,7 @@
         "R11"
       ],
       "status": "passed",
-      "duration_s": 0.013,
+      "duration_s": 0.016,
       "measured": {
         "load": "unloaded",
         "drifted_past_threshold": false,
@@ -1189,7 +1265,7 @@
         "R11"
       ],
       "status": "passed",
-      "duration_s": 0.014,
+      "duration_s": 0.013,
       "measured": {
         "load": "rated",
         "drifted_past_threshold": true,
@@ -1203,7 +1279,7 @@
         "R11"
       ],
       "status": "passed",
-      "duration_s": 0.013,
+      "duration_s": 0.014,
       "measured": {
         "load": "unloaded",
         "load_n": 0.0,
@@ -1219,7 +1295,7 @@
         "R11"
       ],
       "status": "passed",
-      "duration_s": 0.013,
+      "duration_s": 0.012,
       "measured": {
         "load": "rated",
         "load_n": 4550.0,
@@ -1235,7 +1311,7 @@
         "R12"
       ],
       "status": "passed",
-      "duration_s": 0.004,
+      "duration_s": 0.005,
       "measured": {
         "load": "unloaded",
         "jam_detect_s": 0.171
@@ -1248,7 +1324,7 @@
         "R12"
       ],
       "status": "passed",
-      "duration_s": 0.005,
+      "duration_s": 0.007,
       "measured": {
         "load": "unloaded",
         "jam_detect_s": 0.171
@@ -1313,7 +1389,7 @@
         "R12"
       ],
       "status": "passed",
-      "duration_s": 0.005,
+      "duration_s": 0.004,
       "measured": {
         "annunciated": false
       },
@@ -1325,7 +1401,7 @@
         "R12"
       ],
       "status": "passed",
-      "duration_s": 0.017,
+      "duration_s": 0.016,
       "measured": {
         "step_mm": 20.0
       },
@@ -1347,7 +1423,7 @@
         "R12"
       ],
       "status": "passed",
-      "duration_s": 1.86,
+      "duration_s": 1.537,
       "measured": {
         "load_n": 0,
         "cases": 48,
@@ -1364,7 +1440,7 @@
         "R12"
       ],
       "status": "passed",
-      "duration_s": 1.806,
+      "duration_s": 1.606,
       "measured": {
         "load_n": 2275,
         "cases": 48,
@@ -1381,7 +1457,7 @@
         "R12"
       ],
       "status": "passed",
-      "duration_s": 1.878,
+      "duration_s": 1.628,
       "measured": {
         "load_n": 3412,
         "cases": 48,
@@ -1398,7 +1474,7 @@
         "R12"
       ],
       "status": "passed",
-      "duration_s": 1.915,
+      "duration_s": 1.671,
       "measured": {
         "load_n": 4550,
         "cases": 48,
@@ -1415,7 +1491,7 @@
         "R12"
       ],
       "status": "xfail",
-      "duration_s": 1.976,
+      "duration_s": 1.641,
       "measured": {
         "load_n": 3412,
         "false_alarms": 2,
@@ -1430,7 +1506,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.759,
+      "duration_s": 0.513,
       "measured": {
         "max_fight_n": 300
       },
@@ -1442,7 +1518,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.469,
+      "duration_s": 0.397,
       "measured": {
         "max_fight_n": 8454,
         "healthy_lane_disengaged_at_s": {
@@ -1457,7 +1533,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.208,
+      "duration_s": 0.176,
       "measured": {
         "disengaged": {
           "0": 0.2
@@ -1473,7 +1549,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.213,
+      "duration_s": 0.177,
       "measured": {
         "disengaged": {
           "0": 0.2
@@ -1489,7 +1565,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.217,
+      "duration_s": 0.21,
       "measured": {
         "disengaged": {
           "0": 0.2
@@ -1505,7 +1581,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.224,
+      "duration_s": 0.212,
       "measured": {
         "disengaged": {
           "0": 0.2
@@ -1521,7 +1597,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.24,
+      "duration_s": 0.182,
       "measured": {
         "disengaged": {
           "0": 0.2
@@ -1537,7 +1613,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.263,
+      "duration_s": 0.183,
       "measured": {
         "disengaged": {
           "1": 0.2
@@ -1553,7 +1629,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.233,
+      "duration_s": 0.194,
       "measured": {
         "disengaged": {
           "1": 0.2
@@ -1569,7 +1645,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.238,
+      "duration_s": 0.187,
       "measured": {
         "disengaged": {
           "1": 0.2
@@ -1585,7 +1661,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.269,
+      "duration_s": 0.183,
       "measured": {
         "disengaged": {
           "1": 0.2
@@ -1601,7 +1677,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.245,
+      "duration_s": 0.161,
       "measured": {
         "disengaged": {
           "1": 0.2
@@ -1617,7 +1693,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.255,
+      "duration_s": 0.167,
       "measured": {
         "disengaged": {
           "2": 0.2
@@ -1633,7 +1709,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.221,
+      "duration_s": 0.155,
       "measured": {
         "disengaged": {
           "2": 0.2
@@ -1649,7 +1725,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.238,
+      "duration_s": 0.16,
       "measured": {
         "disengaged": {
           "2": 0.2
@@ -1665,7 +1741,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.274,
+      "duration_s": 0.265,
       "measured": {
         "disengaged": {
           "2": 0.2
@@ -1681,7 +1757,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.266,
+      "duration_s": 0.177,
       "measured": {
         "disengaged": {
           "2": 0.2
@@ -1697,7 +1773,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.921,
+      "duration_s": 0.641,
       "measured": {
         "worst_undetected_surface_mm": 0.167
       },
@@ -1709,7 +1785,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.802,
+      "duration_s": 0.645,
       "measured": {
         "worst_undetected_surface_mm": 0.333
       },
@@ -1721,7 +1797,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.729,
+      "duration_s": 0.579,
       "measured": {
         "worst_undetected_surface_mm": 0.5
       },
@@ -1733,7 +1809,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.795,
+      "duration_s": 0.594,
       "measured": {
         "worst_undetected_surface_mm": 0.5
       },
@@ -1745,7 +1821,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.7,
+      "duration_s": 0.606,
       "measured": {
         "worst_undetected_surface_mm": 0.533
       },
@@ -1757,7 +1833,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.667,
+      "duration_s": 0.536,
       "measured": {
         "worst_undetected_surface_mm": 0.533
       },
@@ -1769,7 +1845,7 @@
         "R13"
       ],
       "status": "passed",
-      "duration_s": 0.285,
+      "duration_s": 0.238,
       "measured": {
         "old_logic_lanes_disengaged": 3
       },

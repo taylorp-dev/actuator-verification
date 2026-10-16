@@ -10,6 +10,7 @@ from __future__ import annotations
 import csv
 import datetime as dt
 import json
+import os
 import platform
 import subprocess
 import sys
@@ -28,6 +29,19 @@ from sil.sim import load_config  # noqa: E402
 REPORT_DIR = ROOT / "reports"
 _results: list[dict] = []
 _t0 = time.time()
+
+
+# ------------------------------------------------------------ live bench
+def pytest_addoption(parser):
+    g = parser.getgroup("live bench (Raspberry Pi)")
+    g.addoption("--live", action="store_true",
+                help="drive the real Raspberry Pi: fresh capture with an automated link drop")
+    g.addoption("--pi", default=os.environ.get("PI_SSH", "taylor@dronepi.local"),
+                help="SSH target for controlling the Pi (Wi-Fi path)")
+    g.addoption("--data-host", default=os.environ.get("BENCH_DATA_HOST", "192.168.2.2"),
+                help="this PC's IP on the direct Ethernet cable (where the Pi sends words)")
+    g.addoption("--drop-at", type=float, default=15.0, help="seconds into the run to drop the link")
+    g.addoption("--drop-for", type=float, default=5.0, help="seconds the link stays down")
 
 
 # ---------------------------------------------------------------- fixtures
@@ -118,6 +132,8 @@ def pytest_sessionfinish(session, exitstatus):
         statuses = {t["status"] for t in tests}
         if not tests:
             verdict = "NOT TESTED"
+        elif statuses == {"skipped"}:
+            verdict = "NOT RUN"
         elif statuses & {"failed", "xpass"}:
             verdict = "FAIL"
         elif "xfail" in statuses:
@@ -130,7 +146,7 @@ def pytest_sessionfinish(session, exitstatus):
                      "verdict": verdict,
                      "notes": "; ".join(sorted({t["note"] for t in tests if t["note"]}))})
 
-    traced = sum(r["tests"] > 0 for r in rows)
+    traced = sum(r["tests"] > 0 and r["verdict"] != "NOT RUN" for r in rows)
     counts = defaultdict(int)
     for r in _results:
         counts[r["status"]] += 1

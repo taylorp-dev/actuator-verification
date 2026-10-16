@@ -77,6 +77,11 @@ class SensorChannel:
                 self._spiked.add(id(f))
         return v
 
+    def next_due(self) -> float:
+        """Time of this channel's next scheduled transmission (used by the
+        real-time sender on the Raspberry Pi to sleep until then)."""
+        return min(self._next_tx.values())
+
     def transmit(self, t: float, truth: dict[str, float]) -> list[tuple[str, int]]:
         """Return the (label name, 32-bit word) pairs sent at time t."""
         out = []

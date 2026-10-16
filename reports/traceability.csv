@@ -1,5 +1,5 @@
 req,stage,text,tests,passed,verdict,notes
-ICD-1,Interface,"ARINC 429 BNR words shall be encoded per the ICD (label, SDI, sign, resolution, SSM, odd parity).",10,10,PASS,
+ICD-1,Interface,"ARINC 429 BNR words shall be encoded per the ICD (label, SDI, sign, resolution, SSM, odd parity).",11,10,PASS,
 A1,Actuator,"Small-signal step response (1 mm, unloaded) shall have rise time <= 0.15 s and overshoot <= 10 %.",1,1,PASS,
 A2,Actuator,Maximum rate shall be >= 35 mm/s unloaded and >= 10 mm/s at rated opposing load.,2,2,PASS,
 A3,Actuator,"Static position accuracy shall be <= 0.10 mm and backlash <= 0.15 mm, measured at the output rod.",2,2,PASS,
@@ -8,14 +8,15 @@ A5,Actuator,"At rated opposing load, small-signal step overshoot shall be <= 10 
 M1,Model,The bench actuator model (Actuonix L16-P) shall reproduce the manufacturer datasheet speed-force points within 5 % and use the datasheet backlash.,4,4,PASS,
 R1,Receiver,The receiver shall reject words with bad parity.,4,4,PASS,
 R2,Receiver,The receiver shall treat SSM Failure Warning or No Computed Data as invalid.,6,6,PASS,
-R3,Receiver,The receiver shall declare a label stale if not updated within 3 nominal transmit intervals.,4,4,PASS,
+R3,Receiver,The receiver shall declare a label stale if not updated within 3 nominal transmit intervals.,6,4,PASS,
 R4,Receiver,The receiver shall reject values outside the physical range.,7,7,PASS,
-R5,Voter,"With three valid sources, the voter shall output the middle value.",6,6,PASS,
+R5,Voter,"With three valid sources, the voter shall output the middle value.",7,6,PASS,
 R6,Voter,The voter shall fail a channel that miscompares beyond threshold for longer than the persistence time.,12,12,PASS,
 R7,Voter,The voter shall not fail a channel on a single short spike.,5,5,PASS,
-R8,Voter,"After one channel failure, the voter shall continue on the remaining two and annunciate.",24,24,PASS,
+R8,Voter,"After one channel failure, the voter shall continue on the remaining two and annunciate.",25,24,PASS,
 R9,System,"After a single-channel failure, the actuator reconfiguration transient shall overshoot <= 0.60 mm and settle within +/-0.25 mm in <= 0.80 s.",4,3,OPEN DEFECT,RCA-001: integrator windup during rate saturation at rated load
-R10,System,"The actuator command shall never exceed the position or rate limits, whatever the input.",25,25,PASS,
+R10,System,"The actuator command shall never exceed the position or rate limits, whatever the input.",26,25,PASS,
+L1,Bench link,"Channel A sent from a separate computer over a real Ethernet link shall decode per the ICD, arrive at the nominal label rate (mean interval within 2 %) without gaps long enough to trip the stale check, and a link loss shall be flagged stale within 3 intervals and recover automatically.",6,0,NOT RUN,
 R11,Actuator fault,"After loss of one of two motor channels, the actuator shall hold commanded position within 0.50 mm for 5 s at every load condition up to rated.",6,5,OPEN DEFECT,FINDING-003: one motor's stall force is below rated load; rod is back-driven
 R12,Actuator fault,"The actuator monitor shall annunciate a jam within 0.30 s while the command is moving, remove motor drive, and not annunciate during normal operation (including rate-limited moves at rated load and all Part B fault cases).",14,13,OPEN DEFECT,FINDING-005: monitor needs the RCA-001 anti-windup fix; baseline windup gives false jam alarms
 R13,Actuator fault,"With three lanes active on one surface, equalization shall keep force fight between healthy lanes <= 500 N; a faulty lane shall be disengaged (only that lane) with surface error <= 0.25 mm after; a lane fault too small to detect shall cause <= 0.60 mm surface error.",24,24,PASS,

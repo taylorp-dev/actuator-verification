@@ -1,0 +1,46 @@
+name: Bench live (Raspberry Pi)
+
+# Runs the bench-link tests against the REAL Raspberry Pi, on a self-hosted
+# runner on the PC that's cabled to it. Manual trigger only (Actions tab ->
+# "Bench live (Raspberry Pi)" -> Run workflow), so normal pushes never wait
+# for hardware. Setup: docs/BENCH-GUIDE.md, "GitHub button".
+
+on:
+  workflow_dispatch:
+    inputs:
+      drop_at:
+        description: "Seconds into the run to take the Pi's Ethernet link down"
+        default: "15"
+      drop_for:
+        description: "Seconds the link stays down"
+        default: "5"
+
+jobs:
+  live:
+    runs-on: [self-hosted, windows, pi-bench]
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Python environment
+        run: |
+          python -m venv .venv-ci
+          .venv-ci\Scripts\python -m pip install -q -r requirements.txt
+
+      - name: Live bench test (drives the Pi, automated link drop)
+        run: >
+          .venv-ci\Scripts\python -m pytest tests/test_bench_link.py --live
+          --drop-at ${{ inputs.drop_at }} --drop-for ${{ inputs.drop_for }} -v
+
+      - name: Publish results to the job summary
+        if: always()
+        run: |
+          if (Test-Path reports/traceability.md) { Get-Content reports/traceability.md | Add-Content $env:GITHUB_STEP_SUMMARY }
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bench-live-${{ github.run_number }}
+          path: |
+            bench_data/
+            reports/

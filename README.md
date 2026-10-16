@@ -20,11 +20,12 @@ EMA characterization, triplex ARINC 429 sensor fault response, and actuator-leve
 - **Part A, actuator acceptance (A1-A5):** step response, max rate, accuracy and backlash, bandwidth, performance at rated load. Measured at the output rod, never the unit's own feedback.
 - **Part B, system fault response (ICD-1, R1-R10):** receiver validity checks, voter isolation, then the effect of each fault at the actuator.
 - **Part C, actuator faults (R11-R13):** loss of one of two motor channels, jam detection by a tracking monitor, and force fight between three lanes active on one surface (equalization and faulty-lane disengage).
+- **Bench link (L1):** first step off pure simulation. Channel A runs on a Raspberry Pi, a separate computer, and sends its ARINC 429 words to the laptop over a real Ethernet cable in real time. `pytest --live` drives the Pi end to end: starts the sender over SSH, records, takes the Pi's Ethernet link down and back up (automated cable pull), then checks timing and integrity, link-loss detection and recovery, and runs the recording through the same receiver, voter and actuator. Also runnable from a GitHub "Run workflow" button on a self-hosted runner. ARINC 429 is software-encoded; the physical layer is Ethernet. Guide: [docs/BENCH-GUIDE.md](docs/BENCH-GUIDE.md).
 - **Model check (M1):** the desk-rig actuator (Actuonix L16-P) model is checked against its datasheet, then used to predict the bench results ([reports/l16p_predictions.md](reports/l16p_predictions.md)) for model correlation once the rig is built.
 
 ## Results (current baseline)
 
-- 20/20 requirements traced, 118 tests (115 pass, 3 open defects kept as strict xfail), full suite ~20 s
+- 21 requirements, 124 tests (115 pass, 3 open defects kept as strict xfail, 6 bench-link tests that run once the Raspberry Pi recordings are in `bench_data/`), full suite ~20 s
 - **RCA-001:** R9 reconfiguration transient passes unloaded, **fails at rated load** (integrator windup during rate saturation). The actuator passes all its own acceptance tests. Corrective action (anti-windup) verified in the SIL.
 - **FINDING-002:** first fault-matrix run isolated the **wrong** channel. Threshold had zero margin over the sensor tolerance stack. Fixed, guarded by a test.
 - **FINDING-003:** after losing one of two motors, the actuator holds unloaded but is **back-driven at rated load** (one motor = half the stall force). Sizing option verified; open.
@@ -43,6 +44,8 @@ EMA characterization, triplex ARINC 429 sensor fault response, and actuator-leve
 | Test cases: voter (R5-R8) | [tests/test_part_b_voter.py](tests/test_part_b_voter.py) |
 | Test cases: fault matrix and system level (R9, R10) | [tests/test_part_b_system.py](tests/test_part_b_system.py) |
 | Test cases: actuator faults (R11-R13) | [tests/test_part_c_actuator_faults.py](tests/test_part_c_actuator_faults.py) |
+| Test cases: bench link, channel A on a Raspberry Pi (L1) | [tests/test_bench_link.py](tests/test_bench_link.py) |
+| Bench recordings from the Raspberry Pi (raw words, arrival times) | [bench_data/](bench_data/) |
 | Test cases: bench actuator model vs datasheet (M1) | [tests/test_model_bench_actuator.py](tests/test_model_bench_actuator.py) |
 | Predicted bench results, Actuonix L16-P | [reports/l16p_predictions.md](reports/l16p_predictions.md) |
 | Written test procedure (bandwidth) | [docs/procedures/TP-A4-bandwidth.md](docs/procedures/TP-A4-bandwidth.md) |
@@ -58,7 +61,7 @@ EMA characterization, triplex ARINC 429 sensor fault response, and actuator-leve
 
 ## Run it
 
-New to Python or the terminal? Start with **[docs/USER-GUIDE.md](docs/USER-GUIDE.md)**: setup, running, reading results, experiments, troubleshooting.
+New to Python or the terminal? Start with **[docs/USER-GUIDE.md](docs/USER-GUIDE.md)**: setup, running, reading results, experiments, troubleshooting. Running channel A on a Raspberry Pi: **[docs/BENCH-GUIDE.md](docs/BENCH-GUIDE.md)**.
 
 
 ```bash
@@ -66,6 +69,7 @@ pip install -r requirements.txt
 python tools/run_tests.py        # tests + test_log.txt + traceability.md + l16p_predictions.md
 python -m pytest                 # same tests, no saved log
 python tools/make_figures.py     # reports/figures/*.png
+python -m pytest tests/test_bench_link.py --live -v   # drive the real Raspberry Pi (setup: docs/BENCH-GUIDE.md)
 ```
 
 ## Layout
@@ -82,7 +86,12 @@ python tools/make_figures.py     # reports/figures/*.png
 | `docs/REFERENCES.md` | Public sources used to size and scope the project |
 | `tools/make_figures.py` | Presentation figures from the same code the tests run |
 | `tools/predict_bench.py` | Predicted results for the desk-rig actuator (L16-P) |
+| `tools/pi_channel_a.py` | Runs on the Raspberry Pi: channel A sender over Ethernet |
+| `tools/bench_capture.py` | Runs on the laptop: live receiver status + recording to `bench_data/` |
+| `sil/link.py` | Word-over-UDP format, capture files, replay into the SIL |
 | `.github/workflows/ci.yml` | Runs the suite on every push, publishes the matrix and report artifact |
+| `.github/workflows/bench-live.yml` | Manual "Run workflow" button: live bench test on a self-hosted runner cabled to the Pi |
+| `sil/bench.py` | Live capture and Pi control over SSH (start sender, automated link drop) |
 
 ## Framework design
 
@@ -97,4 +106,4 @@ Designed, directed, and verified by Taylor Park. Built with AI coding assistance
 
 ## Next steps
 
-Real bus hardware (bus-in-the-loop), RS-422 actuator command link and CAN health bus as plug-ins, a hardware fixture so the same tests run against the L16-P bench actuator (compare to `l16p_predictions.md`), actuator HIL on a load stand, a model-following jam monitor and two-level force-fight monitor (FINDING-004/005 open items), periodic built-in test to expose latent jams, dissimilar sensors, second-fault and common-mode cases, a second airframe ICD.
+An IMU on the Pi for real attitude data on channel A, real ARINC 429 bus hardware, RS-422 actuator command link and CAN health bus as plug-ins, a hardware fixture so the same tests run against the L16-P bench actuator (compare to `l16p_predictions.md`), actuator HIL on a load stand, a model-following jam monitor and two-level force-fight monitor (FINDING-004/005 open items), periodic built-in test to expose latent jams, dissimilar sensors, second-fault and common-mode cases, a second airframe ICD.

@@ -52,6 +52,9 @@ R9:
 R10:
   stage: System
   text: The actuator command shall never exceed the position or rate limits, whatever the input.
+L1:
+  stage: Bench link
+  text: Channel A sent from a separate computer over a real Ethernet link shall decode per the ICD, arrive at the nominal label rate (mean interval within 2 %) without gaps long enough to trip the stale check, and a link loss shall be flagged stale within 3 intervals and recover automatically.
 R11:
   stage: Actuator fault
   text: After loss of one of two motor channels, the actuator shall hold commanded position within 0.50 mm for 5 s at every load condition up to rated.

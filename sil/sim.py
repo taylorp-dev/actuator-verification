@@ -81,7 +81,11 @@ def run_scenario(cfg: dict, *, duration_s: float,
                  faults: list[Fault] | None = None,
                  load_n: float = 0.0,
                  bias_deg: list[float] | None = None,
-                 seed: int = 1) -> RunResult:
+                 seed: int = 1,
+                 channel_override: dict | None = None) -> RunResult:
+    """channel_override: {index: source} replaces a simulated channel with any
+    object that has transmit(t, truth), e.g. a ReplayChannel of words captured
+    from the Raspberry Pi over a real Ethernet link."""
     labels = label_defs(cfg)
     s_cfg = cfg["sensors"]
     biases = bias_deg if bias_deg is not None else s_cfg["bias_deg"]
@@ -92,6 +96,8 @@ def run_scenario(cfg: dict, *, duration_s: float,
                            phase_s=s_cfg["phase_offsets_s"][i], seed=seed,
                            faults=[f for f in faults if f.channel == i])
              for i in range(3)]
+    for i, src in (channel_override or {}).items():
+        chans[i] = src
     rxs = [Receiver(labels, stale_intervals=cfg["icd"]["stale_intervals"]) for _ in range(3)]
     v = cfg["voter"]
     voters = {name: MidValueVoter(v["threshold_deg"], v["persistence_s"], v["frame_s"])
