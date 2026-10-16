@@ -25,7 +25,8 @@ EMA characterization, triplex ARINC 429 sensor fault response, and actuator-leve
 
 ## Results (current baseline)
 
-- 21 requirements, 124 tests (115 pass, 3 open defects kept as strict xfail, 6 bench-link tests that run once the Raspberry Pi recordings are in `bench_data/`), full suite ~20 s
+- 21/21 requirements traced, 124 tests (121 pass, 3 open defects kept as strict xfail), full suite ~20-40 s
+- **Bench link on a real Raspberry Pi** (two live runs): words arrive every 20.0 ms with 1.0-2.5 ms p99 jitter (worst gap 26 ms vs the 60 ms stale limit); a link drop is flagged in 60.2 ms and recovers 0.4 ms after data returns, identical across runs. End-to-end recovery is bounded by the network re-connecting (3.7-4.4 s), not by the software.
 - **RCA-001:** R9 reconfiguration transient passes unloaded, **fails at rated load** (integrator windup during rate saturation). The actuator passes all its own acceptance tests. Corrective action (anti-windup) verified in the SIL.
 - **FINDING-002:** first fault-matrix run isolated the **wrong** channel. Threshold had zero margin over the sensor tolerance stack. Fixed, guarded by a test.
 - **FINDING-003:** after losing one of two motors, the actuator holds unloaded but is **back-driven at rated load** (one motor = half the stall force). Sizing option verified; open.
@@ -61,6 +62,17 @@ EMA characterization, triplex ARINC 429 sensor fault response, and actuator-leve
 
 ## Run it
 
+**Two ways to run, one rule: live = Pi, everything else = recordings.**
+
+| How | Where it runs | Uses the Pi? | What the bench-link tests do |
+| --- | --- | --- | --- |
+| `python tools/run_tests.py` or `python -m pytest` | Your PC | No | Replay the recordings in `bench_data/` |
+| Every push (automatic), or **SIL regression → Run workflow** on the Actions tab | GitHub's machines | No | Replay the recordings in `bench_data/` |
+| `python -m pytest tests/test_bench_link.py --live ...` | Your PC | **Yes** | Drive the Pi live, automated link drop, fresh recording |
+| **Bench live (Raspberry Pi) → Run workflow** on the Actions tab | Your PC, via a self-hosted runner | **Yes** | Same as `--live`, started from GitHub |
+
+The Pi can be on or off for the first two; they never touch it, so normal runs stay fast, repeatable, and can't fail because the Pi is off. The live ways need the one-time setup in [docs/BENCH-GUIDE.md](docs/BENCH-GUIDE.md), and the button also needs the runner (`run.cmd`) open.
+
 New to Python or the terminal? Start with **[docs/USER-GUIDE.md](docs/USER-GUIDE.md)**: setup, running, reading results, experiments, troubleshooting. Running channel A on a Raspberry Pi: **[docs/BENCH-GUIDE.md](docs/BENCH-GUIDE.md)**.
 
 
@@ -89,7 +101,7 @@ python -m pytest tests/test_bench_link.py --live -v   # drive the real Raspberry
 | `tools/pi_channel_a.py` | Runs on the Raspberry Pi: channel A sender over Ethernet |
 | `tools/bench_capture.py` | Runs on the laptop: live receiver status + recording to `bench_data/` |
 | `sil/link.py` | Word-over-UDP format, capture files, replay into the SIL |
-| `.github/workflows/ci.yml` | Runs the suite on every push, publishes the matrix and report artifact |
+| `.github/workflows/ci.yml` | Runs the full suite on every push (and on its "Run workflow" button), replaying `bench_data/`; publishes the matrix and report artifact |
 | `.github/workflows/bench-live.yml` | Manual "Run workflow" button: live bench test on a self-hosted runner cabled to the Pi |
 | `sil/bench.py` | Live capture and Pi control over SSH (start sender, automated link drop) |
 

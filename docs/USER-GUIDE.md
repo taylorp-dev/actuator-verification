@@ -27,7 +27,7 @@ From a fresh computer to running the tests, reading the results, and running you
 
 ## 1. What this project is
 
-A **software-in-the-loop** test bench for a flight-control actuator, written in Python. ("SIL" here means software-in-the-loop. Some companies use SIL for a *Systems Integration Lab*, which is real hardware. This project is the software step that comes before that.) Nothing here is real hardware. Every part of the chain is simulated:
+A **software-in-the-loop** test bench for a flight-control actuator, written in Python. ("SIL" here means software-in-the-loop. Some companies use SIL for a *Systems Integration Lab*, which is real hardware. This project is the software step that comes before that.) The core of it is all simulation, every part of the chain:
 
 ```
 3 attitude sensors --ARINC 429--> receivers --> voter --> command law --> actuator --> rod position
@@ -39,6 +39,8 @@ The test suite checks four things:
 - **Part B, system fault response (ICD-1, R1-R10):** when a sensor fails, does the system catch it, isolate it, and keep the actuator inside its limits?
 - **Part C, actuator faults (R11-R13):** when something inside the actuation system fails (a motor channel lost, a jam, two lanes fighting each other on one surface), is it caught and handled?
 - **Model check (M1):** does the model of the desk-rig actuator (Actuonix L16-P) match its datasheet? It gives the predictions the real bench will be compared against.
+
+One optional part uses real hardware: the **bench link (L1)** runs sensor channel A on a Raspberry Pi and sends it to the PC over a real Ethernet cable. Its recordings are saved in `bench_data/`, so the normal run replays them and you don't need the Pi to run anything in this guide. Setting up and running the Pi live: `docs/BENCH-GUIDE.md`.
 
 All numbers are representative, not from any real aircraft. The flight-class actuator is sized to the published force class of production fly-by-wire actuators (about 1,000 lbf), but it is not a model of anyone's actual actuator. The point is the **test method**. Sources: `docs/REFERENCES.md`.
 
@@ -211,7 +213,7 @@ python -m pytest
 ```
 collected 124 items
 
-tests\test_bench_link.py ssssss                                          [  4%]
+tests\test_bench_link.py ......                                          [  4%]
 tests\test_model_bench_actuator.py ....                                  [  8%]
 tests\test_part_a_actuator.py ........                                   [ 14%]
 tests\test_part_b_receiver.py ...................                        [ 29%]
@@ -223,10 +225,12 @@ tests\test_part_c_actuator_faults.py .x.................x............... [ 92%]
 XFAIL tests/test_part_b_system.py::test_r9_reconfiguration_transient_baseline[rated] - RCA-001: ...
 XFAIL tests/test_part_c_actuator_faults.py::test_r11_motor_channel_loss_hold[rated] - FINDING-003: ...
 XFAIL tests/test_part_c_actuator_faults.py::test_r12_no_false_alarm_baseline_actuator - FINDING-005: ...
-================ 115 passed, 6 skipped, 3 xfailed in 22.22s ================
+======================= 121 passed, 3 xfailed in 39.02s =======================
 ```
 
-**This is the correct, healthy result.** The 6 `s` (skipped) are the bench-link tests. They run only once real recordings from the Raspberry Pi exist in `bench_data/` (see `docs/BENCH-GUIDE.md`). After that, the result is `121 passed, 3 xfailed`. Run time varies by computer (15 to 40 seconds is normal; the Part C false-alarm sweep is the slow part).
+**This is the correct, healthy result.** The first line, `test_bench_link.py`, is the bench link: those 6 tests replay the Raspberry Pi recordings in `bench_data/`, so the Pi doesn't need to be on. If that folder is ever missing, they show as `ssssss` (skipped) and the result is `115 passed, 6 skipped, 3 xfailed`. Skipped is never counted as passed. Run time varies by computer (15 to 40 seconds is normal; the Part C false-alarm sweep is the slow part).
+
+**Live = Pi, everything else = recordings.** Nothing in this guide talks to the Pi. Only `--live` (or the "Bench live (Raspberry Pi)" button on GitHub) does, and that's covered in `docs/BENCH-GUIDE.md`.
 
 ---
 
@@ -295,7 +299,7 @@ The top of the file shows the run's **configuration evidence**:
 ```
 - Git commit: `92ac2cb`
 - Config: `config/sil.yaml` (sha256 `3efda6d32f2d`)
-- Requirements traced: 20/21 (95.2%)   <- L1 (bench link) shows NOT RUN until the Pi recordings exist
+- Requirements traced: 21/21 (100.0%)   <- L1 (bench link) shows NOT RUN if the Pi recordings are missing
 ```
 
 If anyone changes `config/sil.yaml`, the hash changes. That's how a result traces back to the exact configuration that produced it. A `-dirty` suffix on the commit means there were uncommitted changes when the tests ran.
@@ -357,7 +361,7 @@ The words in square brackets, like `[rated]`, are the **load condition** the tes
 
 All settings live in one file: `config/sil.yaml`. Open it in Notepad or VS Code. Lines starting with `#` are comments.
 
-**For each experiment:** change one value, save, run `python -m pytest`, read the result, then **change it back** and run again to confirm you're back at your baseline (`115 passed, 6 skipped, 3 xfailed`, or `121 passed, 3 xfailed` once bench recordings exist). The counts shown in the experiments below are without bench recordings.
+**For each experiment:** change one value, save, run `python -m pytest`, read the result, then **change it back** and run again to confirm you're back at your baseline: `121 passed, 3 xfailed`.
 
 > Safety net: if you lose track of what you changed and the project is in git, `git checkout config/sil.yaml` restores the file. Or just unzip a fresh copy.
 
@@ -381,7 +385,7 @@ Run the suite. You should see:
 FAILED tests/test_part_b_system.py::test_fault_matrix[frozen-chB]
 FAILED tests/test_part_b_system.py::test_fault_matrix[drift-chB]
 FAILED tests/test_part_b_voter.py::test_r6_threshold_has_margin_over_tolerance_stack
-3 failed, 112 passed, 6 skipped, 3 xfailed
+3 failed, 118 passed, 3 xfailed
 ```
 
 **What happened:** with the threshold at exactly 2x the sensor tolerance, a healthy channel sits right on the limit, noise trips it, and the voter fails the wrong channel. The third failure is the guard test added so this mistake can't slip back in. Details: `docs/rca/FINDING-002-wrong-channel-isolated.md`.
@@ -397,7 +401,7 @@ Under `actuator:`, change `anti_windup: false` to `anti_windup: true`. Run the s
 [XPASS(strict)] FINDING-005: monitor needs the RCA-001 anti-windup fix; baseline windup gives false jam alarms
 FAILED tests/test_part_b_system.py::test_r9_reconfiguration_transient_baseline[rated]
 FAILED tests/test_part_c_actuator_faults.py::test_r12_no_false_alarm_baseline_actuator
-2 failed, 115 passed, 6 skipped, 1 xfailed
+2 failed, 121 passed, 1 xfailed
 ```
 
 **What happened:** the fix works, so the "known defect" test now passes. It also closes FINDING-005: with the windup gone, the jam monitor stops false-alarming. One fix, two defects closed. Because it's marked strict, that unexpected pass is reported as a failure. On a real program, this is the moment you'd close the defect: remove the xfail marking and make the fixed design the new baseline.
@@ -406,7 +410,7 @@ Change it back to `false`.
 
 ### Experiment 3: Lighter load
 
-Under `load_conditions:`, change `rated: 4550.0` to `rated: 2275.0`. Run the suite. You should see three `XPASS(strict)` lines (RCA-001, FINDING-003, FINDING-005) and `3 failed, 115 passed, 6 skipped`.
+Under `load_conditions:`, change `rated: 4550.0` to `rated: 2275.0`. Run the suite. You should see three `XPASS(strict)` lines (RCA-001, FINDING-003, FINDING-005) and `3 failed, 121 passed`.
 
 **What happened:** at half the load, all three load-dependent defects disappear. The actuator doesn't saturate long enough for the windup to matter, and one motor can carry half the load on its own. These defects only show up with a realistic load. That's the core lesson of the project: **test environment fidelity decides what you can catch.**
 
@@ -451,7 +455,7 @@ Run `python tools\make_figures.py` after any change to see the effect in the plo
 
 | Symptom | What it means | What to do |
 | --- | --- | --- |
-| Result isn't your baseline (`115 passed, 6 skipped, 3 xfailed` without bench recordings) and you didn't change anything | Config or code changed | `git status` to see what changed; `git checkout config/sil.yaml` to restore config, or unzip a fresh copy |
+| Result isn't your baseline (`121 passed, 3 xfailed`) and you didn't change anything | Config or code changed | `git status` to see what changed; `git checkout config/sil.yaml` to restore config, or unzip a fresh copy |
 | `XPASS(strict)` | The known RCA-001 defect stopped failing | Expected if you turned on the fix or lowered the load (Experiments 2-3). Otherwise check what changed. |
 | `E` (error) instead of `F` | Test couldn't start; usually a typo in `config/sil.yaml` | YAML is picky about indentation. Use spaces, not tabs, and keep the same indent as neighboring lines. |
 | Different run time from someone else | Different computer speed | Not a problem. Results should match exactly; only timing differs. |
@@ -534,7 +538,11 @@ That's the same as a lab procedure: setup, stimulus, measure, record, compare to
 
 ### Continuous integration (optional)
 
-If you push the project to GitHub, `.github/workflows/ci.yml` runs the full suite on every push, posts the traceability matrix to the run summary, and saves the `reports` folder as a downloadable artifact. You don't need to set anything up beyond pushing the repo.
+If you push the project to GitHub, `.github/workflows/ci.yml` runs the full suite on every push, posts the traceability matrix to the run summary, and saves the `reports` folder as a downloadable artifact. You don't need to set anything up beyond pushing the repo. It replays the bench recordings, so it never needs the Pi.
+
+To run it without pushing: GitHub → **Actions** → **SIL regression** → **Run workflow**.
+
+There's a second workflow, **Bench live (Raspberry Pi)**, which runs the bench test live on the Pi through a self-hosted runner on your PC. It needs the Pi, the cable, and the runner open. See `docs/BENCH-GUIDE.md`, section 3.
 
 ---
 
