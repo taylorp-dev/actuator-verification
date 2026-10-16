@@ -8,6 +8,12 @@ name: Bench live (Raspberry Pi)
 on:
   workflow_dispatch:
     inputs:
+      pi:
+        description: "SSH target for the Pi (control path)"
+        default: "taylor@192.168.2.1"
+      data_host:
+        description: "This PC's IP on the cable to the Pi (where the Pi sends words)"
+        default: "192.168.2.10"
       drop_at:
         description: "Seconds into the run to take the Pi's Ethernet link down"
         default: "15"
@@ -30,6 +36,7 @@ jobs:
       - name: Live bench test (drives the Pi, automated link drop)
         run: >
           .venv-ci\Scripts\python -m pytest tests/test_bench_link.py --live
+          --pi ${{ inputs.pi }} --data-host ${{ inputs.data_host }}
           --drop-at ${{ inputs.drop_at }} --drop-for ${{ inputs.drop_for }} -v
 
       - name: Publish results to the job summary

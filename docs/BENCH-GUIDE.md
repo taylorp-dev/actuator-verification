@@ -62,6 +62,25 @@ python3 -m venv ~/av-env
 
 (Live mode pulls the latest code onto the Pi automatically before each run.)
 
+**No internet on the Pi?** Copy everything over the cable instead. In PowerShell on the PC, in the repo folder:
+
+```
+ssh taylor@192.168.2.1 "mkdir -p ~/actuator-verification"
+scp -r sil tools config requirements taylor@192.168.2.1:~/actuator-verification/
+ssh taylor@192.168.2.1 "python3 --version; python3 -c 'import numpy, yaml; print(123)'"
+```
+
+- Prints `123` (Raspberry Pi OS often includes them): `ssh taylor@192.168.2.1 "python3 -m venv --system-site-packages ~/av-env"`. Done.
+- Errors: download the libraries on the PC for the Pi, then copy them. Use the Python version printed above (e.g. `3.13`):
+  ```
+  pip download numpy pyyaml --only-binary=:all: --platform manylinux2014_aarch64 --platform manylinux_2_17_aarch64 --python-version 3.13 --implementation cp -d pi-wheels
+  scp -r pi-wheels taylor@192.168.2.1:~/
+  ssh taylor@192.168.2.1 "python3 -m venv ~/av-env && ~/av-env/bin/pip install --no-index --find-links ~/pi-wheels numpy pyyaml"
+  ```
+  Then delete the local `pi-wheels` folder so it isn't committed.
+
+Without internet, the automatic `git pull` before each live run prints `code unknown (git pull failed ...)` and carries on. That's fine. **When the code in `sil/`, `tools/` or `config/` changes, re-run the `scp` line** to update the Pi.
+
 ### 1c. Let the Pi take its Ethernet port down without a password
 
 The automated "cable pull" runs `ip link set eth0 down`, then `up`, which needs `sudo`. This rule allows exactly those commands and nothing else. On the Pi:
@@ -165,7 +184,7 @@ This makes your laptop a **self-hosted runner**: a machine GitHub can hand jobs 
 
 **Each time you want to use it:**
 1. PowerShell in `D:\actions-runner`: `./run.cmd`. Wait for `Listening for Jobs`.
-2. GitHub → **Actions** → **Bench live (Raspberry Pi)** → **Run workflow** → **Run workflow**.
+2. GitHub → **Actions** → **Bench live (Raspberry Pi)** → **Run workflow**. The form shows the Pi address (`taylor@192.168.2.1`), this PC's address on the cable (`192.168.2.10`), and the drop timing, pre-filled for a single-cable setup. Change them if yours differ (Wi-Fi setup: `taylor@dronepi.local` and `192.168.2.2`), then click **Run workflow**.
 3. Watch the live log. When it finishes, the traceability matrix is on the run's summary page, and the recordings and reports are under **Artifacts**.
 4. Ctrl+C in the runner window when done.
 
