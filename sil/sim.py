@@ -15,6 +15,7 @@ from typing import Callable
 import numpy as np
 import yaml
 
+from .actuator_monitor import ActuatorMonitor
 from .arinc429 import LabelDef
 from .command_law import AttitudeHold
 from .ema import EMA, EMAParams
@@ -104,6 +105,9 @@ def run_scenario(cfg: dict, *, duration_s: float,
                                      law.gain_mm_per_deg * (law.target_deg - healthy)))
     ema.reset(x0)
     law.reset(x0)
+    # Part C tracking monitor runs alongside, observe-only here (no drive inhibit),
+    # so Part B results are unchanged; it just records any false alarm.
+    mon = ActuatorMonitor.from_cfg(cfg["actuator_monitor"], DT) if "actuator_monitor" in cfg else None
 
     n = int(round(duration_s / DT))
     frame_ticks = int(round(v["frame_s"] / DT))
@@ -134,6 +138,8 @@ def run_scenario(cfg: dict, *, duration_s: float,
             cur_cmd = law.update(cur_v, v["frame_s"])
         pos[k] = ema.step(cur_cmd, DT)
         fb[k] = ema.own_feedback
+        if mon is not None and mon.update(tk, cur_cmd, fb[k]):
+            ann.add("ACT_NOT_TRACKING")
         truth[k], voted[k], cmd[k], rvoted[k] = tr["pitch"], cur_v, cur_cmd, cur_rv
         chv[k] = [r[1] for r in reads]
         val[k] = [r[0] for r in reads]

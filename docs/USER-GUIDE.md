@@ -27,18 +27,20 @@ From a fresh computer to running the tests, reading the results, and running you
 
 ## 1. What this project is
 
-A **software-in-the-loop (SIL)** test bench for a flight-control actuator, written in Python. Nothing here is real hardware. Every part of the chain is simulated:
+A **software-in-the-loop** test bench for a flight-control actuator, written in Python. ("SIL" here means software-in-the-loop. Some companies use SIL for a *Systems Integration Lab*, which is real hardware. This project is the software step that comes before that.) Nothing here is real hardware. Every part of the chain is simulated:
 
 ```
 3 attitude sensors --ARINC 429--> receivers --> voter --> command law --> actuator --> rod position
 ```
 
-The test suite checks two things:
+The test suite checks four things:
 
 - **Part A, actuator acceptance (A1-A5):** does the actuator, on its own, meet its spec? Step response, maximum rate, accuracy, backlash, bandwidth, behavior under load.
 - **Part B, system fault response (ICD-1, R1-R10):** when a sensor fails, does the system catch it, isolate it, and keep the actuator inside its limits?
+- **Part C, actuator faults (R11-R13):** when something inside the actuation system fails (a motor channel lost, a jam, two lanes fighting each other on one surface), is it caught and handled?
+- **Model check (M1):** does the model of the desk-rig actuator (Actuonix L16-P) match its datasheet? It gives the predictions the real bench will be compared against.
 
-All numbers are representative, not from any real aircraft. The point is the **test method**.
+All numbers are representative, not from any real aircraft. The flight-class actuator is sized to the published force class of production fly-by-wire actuators (about 1,000 lbf), but it is not a model of anyone's actual actuator. The point is the **test method**. Sources: `docs/REFERENCES.md`.
 
 ---
 
@@ -49,7 +51,7 @@ Think of each piece of code as a piece of lab equipment.
 | In a real lab | In this SIL | File |
 | --- | --- | --- |
 | Unit under test (actuator) | Simplified EMA model | `sil/ema.py` |
-| Load stand | `load_n` value (0 N or 700 N) | `config/sil.yaml` |
+| Load stand | `load_n` value (0 N or 4,550 N) | `config/sil.yaml` |
 | Independent position sensor (LVDT) | Rod position, measured separately from the actuator's own feedback | `sil/ema.py` |
 | Sensor boxes on the aircraft | Three simulated attitude sources | `sil/sources.py` |
 | Fault injection (breakout box, bus tool) | `Fault(...)` objects: frozen, drift, bad parity, dropout, and more | `sil/sources.py` |
@@ -207,18 +209,23 @@ python -m pytest
 ### What you should see
 
 ```
-collected 70 items
+collected 118 items
 
-tests\test_part_a_actuator.py ........                    [ 11%]
-tests\test_part_b_receiver.py ...................         [ 38%]
-tests\test_part_b_system.py .........................x... [ 80%]
-tests\test_part_b_voter.py ..............                 [100%]
+tests\test_model_bench_actuator.py ....                                  [  3%]
+tests\test_part_a_actuator.py ........                                   [ 10%]
+tests\test_part_b_receiver.py ...................                        [ 26%]
+tests\test_part_b_system.py .........................x...                [ 50%]
+tests\test_part_b_voter.py ..............                                [ 62%]
+tests\test_part_c_actuator_faults.py .x.................x............... [ 92%]
+.........                                                                [100%]
 
-XFAIL tests/test_part_b_system.py::test_r9_reconfiguration_transient_baseline[rated] - RCA-001: integrator windup during rate saturation at rated load
-======================== 69 passed, 1 xfailed in 5.45s ========================
+XFAIL tests/test_part_b_system.py::test_r9_reconfiguration_transient_baseline[rated] - RCA-001: ...
+XFAIL tests/test_part_c_actuator_faults.py::test_r11_motor_channel_loss_hold[rated] - FINDING-003: ...
+XFAIL tests/test_part_c_actuator_faults.py::test_r12_no_false_alarm_baseline_actuator - FINDING-005: ...
+======================= 115 passed, 3 xfailed in 22.22s =======================
 ```
 
-**This is the correct, healthy result.** Run time varies by computer (2 to 6 seconds is normal).
+**This is the correct, healthy result.** Run time varies by computer (15 to 40 seconds is normal; the Part C false-alarm sweep is the slow part).
 
 ---
 
@@ -237,11 +244,17 @@ Each character in the progress line is one test:
 | `E` | error | The test couldn't run at all (setup problem, missing file) |
 | `s` | skipped | Deliberately not run |
 
-### Why is there an expected failure?
+### Why are there expected failures?
 
-The one `x` is **RCA-001**, the project's headline finding: the actuator's reconfiguration transient passes with no load but fails at rated load. Rather than delete the failing test, it's kept and marked "expected to fail, here's why." This is how you keep a known open defect in regression.
+Each `x` is a known, documented open defect:
 
-The marking is **strict**. If that test ever starts passing on its own, the suite turns red with `XPASS(strict)`. That forces someone to look and ask, "Did we fix it, or did we break the test?" Then they update the test on purpose. Section 9 shows this happening.
+- **RCA-001**, the headline finding: the actuator's reconfiguration transient passes with no load but fails at rated load.
+- **FINDING-003**: after losing one of two motors, the actuator can't hold position at rated load.
+- **FINDING-005**: the jam monitor gives false alarms unless RCA-001's fix is adopted.
+
+Rather than delete a failing test, it's kept and marked "expected to fail, here's why." This is how you keep a known open defect in regression.
+
+The marking is **strict**. If one of these tests ever starts passing on its own, the suite turns red with `XPASS(strict)`. That forces someone to look and ask, "Did we fix it, or did we break the test?" Then they update the test on purpose. Section 9 shows this happening.
 
 ### When a test fails
 
@@ -266,6 +279,7 @@ Every run writes these to the `reports` folder:
 | `traceability.csv` | Same matrix as a spreadsheet | Excel |
 | `junit.xml` | Standard test result format that CI tools read | (used by CI) |
 | `test_summary.json` | Everything above, machine-readable | Any text editor |
+| `l16p_predictions.md` | Predicted bench results for the desk-rig actuator (written by `python tools\run_tests.py`) | Notepad or any Markdown viewer |
 
 Open the matrix (Windows):
 
@@ -280,7 +294,7 @@ The top of the file shows the run's **configuration evidence**:
 ```
 - Git commit: `92ac2cb`
 - Config: `config/sil.yaml` (sha256 `3efda6d32f2d`)
-- Requirements traced: 16/16 (100.0%)
+- Requirements traced: 20/20 (100.0%)
 ```
 
 If anyone changes `config/sil.yaml`, the hash changes. That's how a result traces back to the exact configuration that produced it. A `-dirty` suffix on the commit means there were uncommitted changes when the tests ran.
@@ -293,7 +307,7 @@ If anyone changes `config/sil.yaml`, the hash changes. That's how a result trace
 python tools\make_figures.py
 ```
 
-This writes seven PNGs to `reports\figures`, built from the same code the tests run. No window pops up; open the files from File Explorer.
+This writes ten PNGs to `reports\figures`, built from the same code the tests run. No window pops up; open the files from File Explorer.
 
 | Figure | Shows |
 | --- | --- |
@@ -304,6 +318,9 @@ This writes seven PNGs to `reports\figures`, built from the same code the tests 
 | `b_fault_matrix.png` | 8 fault types x 3 channels, all results |
 | `finding_loaded_vs_unloaded.png` | RCA-001: passes unloaded, fails loaded, fix verified |
 | `finding_wrong_channel_isolated.png` | FINDING-002: voter failed the wrong channel |
+| `c_motor_loss.png` | R11 / FINDING-003: one motor lost, holds unloaded, back-driven at rated load |
+| `c_jam_detection.png` | R12: jam detected, motor drive removed |
+| `c_force_fight.png` | R13: three lanes on one surface, with and without equalization, faulty lane disengaged |
 
 ---
 
@@ -313,6 +330,7 @@ This writes seven PNGs to `reports\figures`, built from the same code the tests 
 | --- | --- |
 | See every test name and result | `python -m pytest -v` |
 | Only the actuator tests | `python -m pytest tests\test_part_a_actuator.py -v` |
+| Only the actuator fault tests (Part C) | `python -m pytest tests\test_part_c_actuator_faults.py -v` |
 | Only tests with "r9" in the name | `python -m pytest -k r9 -v` |
 | Only one fault matrix case | `python -m pytest -k "frozen-chB" -v` |
 | Skip the slower closed-loop tests | `python -m pytest -m "not system"` |
@@ -327,7 +345,7 @@ test_r9_reconfiguration_transient_baseline[unloaded] PASSED
 test_r9_reconfiguration_transient_baseline[rated] XFAIL
 test_r9_corrective_action_verified[unloaded] PASSED
 test_r9_corrective_action_verified[rated] PASSED
-3 passed, 66 deselected, 1 xfailed
+3 passed, 114 deselected, 1 xfailed
 ```
 
 The words in square brackets, like `[rated]`, are the **load condition** the test ran under. One test definition runs once per load automatically.
@@ -338,7 +356,7 @@ The words in square brackets, like `[rated]`, are the **load condition** the tes
 
 All settings live in one file: `config/sil.yaml`. Open it in Notepad or VS Code. Lines starting with `#` are comments.
 
-**For each experiment:** change one value, save, run `python -m pytest`, read the result, then **change it back** and run again to confirm you're at `69 passed, 1 xfailed`.
+**For each experiment:** change one value, save, run `python -m pytest`, read the result, then **change it back** and run again to confirm you're at `115 passed, 3 xfailed`.
 
 > Safety net: if you lose track of what you changed and the project is in git, `git checkout config/sil.yaml` restores the file. Or just unzip a fresh copy.
 
@@ -362,7 +380,7 @@ Run the suite. You should see:
 FAILED tests/test_part_b_system.py::test_fault_matrix[frozen-chB]
 FAILED tests/test_part_b_system.py::test_fault_matrix[drift-chB]
 FAILED tests/test_part_b_voter.py::test_r6_threshold_has_margin_over_tolerance_stack
-3 failed, 66 passed, 1 xfailed
+3 failed, 112 passed, 3 xfailed
 ```
 
 **What happened:** with the threshold at exactly 2x the sensor tolerance, a healthy channel sits right on the limit, noise trips it, and the voter fails the wrong channel. The third failure is the guard test added so this mistake can't slip back in. Details: `docs/rca/FINDING-002-wrong-channel-isolated.md`.
@@ -375,27 +393,29 @@ Under `actuator:`, change `anti_windup: false` to `anti_windup: true`. Run the s
 
 ```
 [XPASS(strict)] RCA-001: integrator windup during rate saturation at rated load
+[XPASS(strict)] FINDING-005: monitor needs the RCA-001 anti-windup fix; baseline windup gives false jam alarms
 FAILED tests/test_part_b_system.py::test_r9_reconfiguration_transient_baseline[rated]
-1 failed, 69 passed
+FAILED tests/test_part_c_actuator_faults.py::test_r12_no_false_alarm_baseline_actuator
+2 failed, 115 passed, 1 xfailed
 ```
 
-**What happened:** the fix works, so the "known defect" test now passes. Because it's marked strict, that unexpected pass is reported as a failure. On a real program, this is the moment you'd close the defect: remove the xfail marking and make the fixed design the new baseline.
+**What happened:** the fix works, so the "known defect" test now passes. It also closes FINDING-005: with the windup gone, the jam monitor stops false-alarming. One fix, two defects closed. Because it's marked strict, that unexpected pass is reported as a failure. On a real program, this is the moment you'd close the defect: remove the xfail marking and make the fixed design the new baseline.
 
 Change it back to `false`.
 
 ### Experiment 3: Lighter load
 
-Under `load_conditions:`, change `rated: 700.0` to `rated: 350.0`. Run the suite. Same result as Experiment 2: `XPASS(strict)`.
+Under `load_conditions:`, change `rated: 4550.0` to `rated: 2275.0`. Run the suite. You should see three `XPASS(strict)` lines (RCA-001, FINDING-003, FINDING-005) and `3 failed, 115 passed`.
 
-**What happened:** at half the load, the actuator doesn't saturate long enough for the windup to matter. The defect only shows up with a realistic load. That's the core lesson of the project: **test environment fidelity decides what you can catch.**
+**What happened:** at half the load, all three load-dependent defects disappear. The actuator doesn't saturate long enough for the windup to matter, and one motor can carry half the load on its own. These defects only show up with a realistic load. That's the core lesson of the project: **test environment fidelity decides what you can catch.**
 
-Change it back to `700.0`.
+Change it back to `4550.0`.
 
 ### Ideas for further exploration
 
 - Raise `noise_sd_deg` under `sensors:` and see when the voter starts tripping on healthy channels.
 - Change `bias_deg` to `[0.2, 0.0, -0.2]` (healthier sensors) and see how the R9 reconfiguration step shrinks.
-- Lower `kp` under `actuator:` from `15.0` to `9.0`. A4 bandwidth fails, and so do A1/A5 rise time and the unloaded R9 settling time (5 failures). One design change ripples across several requirements, which is exactly why you run the whole suite, not just the test you think is affected.
+- Lower `kp` under `actuator:` from `15.0` to `9.0`. A4 bandwidth fails, and so do A1/A5 rise time, the unloaded R9 settling time, and the jam-monitor false-alarm checks (9 failures). One design change ripples across several requirements, which is exactly why you run the whole suite, not just the test you think is affected.
 
 Run `python tools\make_figures.py` after any change to see the effect in the plots.
 
@@ -430,7 +450,7 @@ Run `python tools\make_figures.py` after any change to see the effect in the plo
 
 | Symptom | What it means | What to do |
 | --- | --- | --- |
-| Result isn't `69 passed, 1 xfailed` and you didn't change anything | Config or code changed | `git status` to see what changed; `git checkout config/sil.yaml` to restore config, or unzip a fresh copy |
+| Result isn't `115 passed, 3 xfailed` and you didn't change anything | Config or code changed | `git status` to see what changed; `git checkout config/sil.yaml` to restore config, or unzip a fresh copy |
 | `XPASS(strict)` | The known RCA-001 defect stopped failing | Expected if you turned on the fix or lowered the load (Experiments 2-3). Otherwise check what changed. |
 | `E` (error) instead of `F` | Test couldn't start; usually a typo in `config/sil.yaml` | YAML is picky about indentation. Use spaces, not tabs, and keep the same indent as neighboring lines. |
 | Different run time from someone else | Different computer speed | Not a problem. Results should match exactly; only timing differs. |
@@ -457,7 +477,7 @@ That's almost always enough to diagnose it.
 ```
 actuator-verification-sil/
 ├── config/sil.yaml              <- every setting and limit (start here)
-├── requirements/requirements.yaml  <- requirement text (ICD-1, A1-A5, R1-R10)
+├── requirements/requirements.yaml  <- requirement text (ICD-1, A1-A5, M1, R1-R13)
 ├── sil/                         <- the simulated system
 │   ├── ema.py                   <-   actuator model
 │   ├── analysis.py              <-   bench measurements (step, rate, Bode, backlash)
@@ -466,18 +486,24 @@ actuator-verification-sil/
 │   ├── receiver.py              <-   parity / SSM / stale / range checks
 │   ├── voter.py                 <-   mid-value voter
 │   ├── command_law.py           <-   attitude-hold command, position and rate limits
+│   ├── actuator_monitor.py      <-   jam / not-tracking monitor (Part C)
+│   ├── force_fight.py           <-   three lanes on one surface (Part C)
 │   └── sim.py                   <-   wires it all together, runs at 1 kHz
 ├── tests/                       <- the test procedures
 │   ├── conftest.py              <-   shared setup + traceability matrix builder
 │   ├── test_part_a_actuator.py  <-   A1-A5
 │   ├── test_part_b_receiver.py  <-   ICD-1, R1-R4
 │   ├── test_part_b_voter.py     <-   R5-R8
-│   └── test_part_b_system.py    <-   fault matrix, R9, R10
+│   ├── test_part_b_system.py    <-   fault matrix, R9, R10
+│   ├── test_part_c_actuator_faults.py <- R11-R13
+│   └── test_model_bench_actuator.py   <- M1 (L16-P model vs datasheet)
 ├── tools/make_figures.py        <- presentation plots
+├── tools/predict_bench.py       <- predicted L16-P bench results
 ├── docs/
 │   ├── USER-GUIDE.md            <-   this file
 │   ├── procedures/TP-A4-bandwidth.md
-│   └── rca/                     <-   RCA-001, FINDING-002
+│   ├── REFERENCES.md            <-   public sources and what each informed
+│   └── rca/                     <-   RCA-001, FINDING-002 to 005
 ├── reports/                     <- generated by every run
 ├── .github/workflows/ci.yml     <- runs the suite automatically on GitHub
 ├── pytest.ini                   <- pytest settings

@@ -1,23 +1,23 @@
 {
   "summary": {
-    "generated_utc": "2026-10-14T05:20:10+00:00",
-    "git_commit": "84abada",
+    "generated_utc": "2026-10-15T00:44:02+00:00",
+    "git_commit": "c92fb10-dirty",
     "config_file": "config/sil.yaml",
-    "config_sha256_12": "3efda6d32f2d",
+    "config_sha256_12": "761c1ae3c552",
     "airframe_icd": "Generic Rotorcraft A",
     "load_conditions": {
       "unloaded": 0.0,
-      "rated": 700.0
+      "rated": 4550.0
     },
-    "python": "3.13.3",
-    "suite_runtime_s": 7.4,
-    "requirements_total": 16,
-    "requirements_traced": 16,
+    "python": "3.13.16",
+    "suite_runtime_s": 22.4,
+    "requirements_total": 20,
+    "requirements_traced": 20,
     "requirements_traced_pct": 100.0,
-    "tests_total": 70,
+    "tests_total": 118,
     "tests_by_status": {
-      "passed": 69,
-      "xfail": 1
+      "passed": 115,
+      "xfail": 3
     },
     "untagged_tests": []
   },
@@ -73,6 +73,15 @@
       "text": "At rated opposing load, small-signal step overshoot shall be <= 10 %, rise time <= 0.15 s, accuracy <= 0.10 mm.",
       "tests": 2,
       "passed": 2,
+      "verdict": "PASS",
+      "notes": ""
+    },
+    {
+      "req": "M1",
+      "stage": "Model",
+      "text": "The bench actuator model (Actuonix L16-P) shall reproduce the manufacturer datasheet speed-force points within 5 % and use the datasheet backlash.",
+      "tests": 4,
+      "passed": 4,
       "verdict": "PASS",
       "notes": ""
     },
@@ -165,16 +174,101 @@
       "passed": 25,
       "verdict": "PASS",
       "notes": ""
+    },
+    {
+      "req": "R11",
+      "stage": "Actuator fault",
+      "text": "After loss of one of two motor channels, the actuator shall hold commanded position within 0.50 mm for 5 s at every load condition up to rated.",
+      "tests": 6,
+      "passed": 5,
+      "verdict": "OPEN DEFECT",
+      "notes": "FINDING-003: one motor's stall force is below rated load; rod is back-driven"
+    },
+    {
+      "req": "R12",
+      "stage": "Actuator fault",
+      "text": "The actuator monitor shall annunciate a jam within 0.30 s while the command is moving, remove motor drive, and not annunciate during normal operation (including rate-limited moves at rated load and all Part B fault cases).",
+      "tests": 14,
+      "passed": 13,
+      "verdict": "OPEN DEFECT",
+      "notes": "FINDING-005: monitor needs the RCA-001 anti-windup fix; baseline windup gives false jam alarms"
+    },
+    {
+      "req": "R13",
+      "stage": "Actuator fault",
+      "text": "With three lanes active on one surface, equalization shall keep force fight between healthy lanes <= 500 N; a faulty lane shall be disengaged (only that lane) with surface error <= 0.25 mm after; a lane fault too small to detect shall cause <= 0.60 mm surface error.",
+      "tests": 24,
+      "passed": 24,
+      "verdict": "PASS",
+      "notes": ""
     }
   ],
   "results": [
+    {
+      "test": "tests/test_model_bench_actuator.py::test_m1_speed_force_matches_datasheet[no_load]",
+      "reqs": [
+        "M1"
+      ],
+      "status": "passed",
+      "duration_s": 0.007,
+      "measured": {
+        "force_n": 0.0,
+        "datasheet_mm_s": 32.0,
+        "model_mm_s": 32.0,
+        "error_pct": 0.0
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_model_bench_actuator.py::test_m1_speed_force_matches_datasheet[peak_power]",
+      "reqs": [
+        "M1"
+      ],
+      "status": "passed",
+      "duration_s": 0.006,
+      "measured": {
+        "force_n": 50.0,
+        "datasheet_mm_s": 16.0,
+        "model_mm_s": 15.5,
+        "error_pct": 3.1
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_model_bench_actuator.py::test_m1_speed_force_matches_datasheet[peak_efficiency]",
+      "reqs": [
+        "M1"
+      ],
+      "status": "passed",
+      "duration_s": 0.006,
+      "measured": {
+        "force_n": 24.0,
+        "datasheet_mm_s": 24.0,
+        "model_mm_s": 24.1,
+        "error_pct": 0.3
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_model_bench_actuator.py::test_m1_backlash_matches_datasheet",
+      "reqs": [
+        "M1"
+      ],
+      "status": "passed",
+      "duration_s": 0.045,
+      "measured": {
+        "model_backlash_param_mm": 0.25,
+        "predicted_bench_hysteresis_mm": 0.19
+      },
+      "note": ""
+    },
     {
       "test": "tests/test_part_a_actuator.py::test_a1_small_signal_step_unloaded",
       "reqs": [
         "A1"
       ],
       "status": "passed",
-      "duration_s": 0.011,
+      "duration_s": 0.005,
       "measured": {
         "rise_s": 0.108,
         "overshoot_pct": 4.4
@@ -187,7 +281,7 @@
         "A2"
       ],
       "status": "passed",
-      "duration_s": 0.012,
+      "duration_s": 0.006,
       "measured": {
         "load": "unloaded",
         "rate_mm_s": 40.0
@@ -200,7 +294,7 @@
         "A2"
       ],
       "status": "passed",
-      "duration_s": 0.011,
+      "duration_s": 0.006,
       "measured": {
         "load": "rated",
         "rate_mm_s": 11.7
@@ -213,7 +307,7 @@
         "A3"
       ],
       "status": "passed",
-      "duration_s": 0.136,
+      "duration_s": 0.076,
       "measured": {
         "accuracy_mm": 0.05,
         "backlash_mm": 0.101
@@ -226,7 +320,7 @@
         "A3"
       ],
       "status": "passed",
-      "duration_s": 0.051,
+      "duration_s": 0.03,
       "measured": {
         "own_feedback_hysteresis_mm": 0.001,
         "truth_hysteresis_mm": 0.101
@@ -239,7 +333,7 @@
         "A4"
       ],
       "status": "passed",
-      "duration_s": 1.753,
+      "duration_s": 0.982,
       "measured": {
         "bandwidth_hz": 2.99
       },
@@ -251,7 +345,7 @@
         "A5"
       ],
       "status": "passed",
-      "duration_s": 0.013,
+      "duration_s": 0.005,
       "measured": {
         "rise_s": 0.108,
         "overshoot_pct": 5.1
@@ -264,7 +358,7 @@
         "A5"
       ],
       "status": "passed",
-      "duration_s": 0.131,
+      "duration_s": 0.079,
       "measured": {
         "accuracy_mm": 0.051
       },
@@ -470,7 +564,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.463,
+      "duration_s": 0.057,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL",
@@ -486,7 +580,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.221,
+      "duration_s": 0.049,
       "measured": {
         "max_voted_error_deg": 1.25,
         "final_mode": "DUAL",
@@ -502,7 +596,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.219,
+      "duration_s": 0.049,
       "measured": {
         "max_voted_error_deg": 1.25,
         "final_mode": "DUAL",
@@ -518,7 +612,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.187,
+      "duration_s": 0.051,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL",
@@ -534,7 +628,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.187,
+      "duration_s": 0.052,
       "measured": {
         "max_voted_error_deg": 1.25,
         "final_mode": "DUAL",
@@ -550,7 +644,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.17,
+      "duration_s": 0.051,
       "measured": {
         "max_voted_error_deg": 1.25,
         "final_mode": "DUAL",
@@ -566,7 +660,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.153,
+      "duration_s": 0.051,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL",
@@ -582,7 +676,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.124,
+      "duration_s": 0.05,
       "measured": {
         "max_voted_error_deg": 0.96,
         "final_mode": "DUAL",
@@ -598,7 +692,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.098,
+      "duration_s": 0.05,
       "measured": {
         "max_voted_error_deg": 0.96,
         "final_mode": "DUAL",
@@ -613,7 +707,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.095,
+      "duration_s": 0.051,
       "measured": {
         "max_voted_error_deg": 0.21,
         "final_mode": "TRIPLEX"
@@ -627,7 +721,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.126,
+      "duration_s": 0.07,
       "measured": {
         "max_voted_error_deg": 0.94,
         "final_mode": "TRIPLEX"
@@ -641,7 +735,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.129,
+      "duration_s": 0.053,
       "measured": {
         "max_voted_error_deg": 0.94,
         "final_mode": "TRIPLEX"
@@ -656,7 +750,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.137,
+      "duration_s": 0.057,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL"
@@ -671,7 +765,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.128,
+      "duration_s": 0.061,
       "measured": {
         "max_voted_error_deg": 0.24,
         "final_mode": "DUAL"
@@ -686,7 +780,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.071,
+      "duration_s": 0.056,
       "measured": {
         "max_voted_error_deg": 0.73,
         "final_mode": "DUAL"
@@ -701,7 +795,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.091,
+      "duration_s": 0.053,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL"
@@ -716,7 +810,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.096,
+      "duration_s": 0.057,
       "measured": {
         "max_voted_error_deg": 0.21,
         "final_mode": "DUAL"
@@ -731,7 +825,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.108,
+      "duration_s": 0.053,
       "measured": {
         "max_voted_error_deg": 0.73,
         "final_mode": "DUAL"
@@ -746,7 +840,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.073,
+      "duration_s": 0.05,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL"
@@ -761,7 +855,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.071,
+      "duration_s": 0.049,
       "measured": {
         "max_voted_error_deg": 0.24,
         "final_mode": "DUAL"
@@ -776,7 +870,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.122,
+      "duration_s": 0.049,
       "measured": {
         "max_voted_error_deg": 0.73,
         "final_mode": "DUAL"
@@ -791,7 +885,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.186,
+      "duration_s": 0.05,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL"
@@ -806,7 +900,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.149,
+      "duration_s": 0.05,
       "measured": {
         "max_voted_error_deg": 0.21,
         "final_mode": "DUAL"
@@ -821,7 +915,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.147,
+      "duration_s": 0.051,
       "measured": {
         "max_voted_error_deg": 0.73,
         "final_mode": "DUAL"
@@ -834,7 +928,7 @@
         "R9"
       ],
       "status": "passed",
-      "duration_s": 0.228,
+      "duration_s": 0.061,
       "measured": {
         "load": "unloaded",
         "step_mm": 4.04,
@@ -849,7 +943,7 @@
         "R9"
       ],
       "status": "xfail",
-      "duration_s": 0.129,
+      "duration_s": 0.06,
       "measured": {
         "load": "rated",
         "step_mm": 4.06,
@@ -864,7 +958,7 @@
         "R9"
       ],
       "status": "passed",
-      "duration_s": 0.128,
+      "duration_s": 0.057,
       "measured": {
         "load": "unloaded",
         "step_mm": 4.04,
@@ -879,7 +973,7 @@
         "R9"
       ],
       "status": "passed",
-      "duration_s": 0.098,
+      "duration_s": 0.061,
       "measured": {
         "load": "rated",
         "step_mm": 4.03,
@@ -894,7 +988,7 @@
         "R10"
       ],
       "status": "passed",
-      "duration_s": 0.003,
+      "duration_s": 0.002,
       "measured": {
         "max_cmd_mm": 22.0,
         "max_rate_mm_s": 60.0
@@ -1043,6 +1137,642 @@
       "status": "passed",
       "duration_s": 0.0,
       "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r11_motor_channel_loss_hold[unloaded]",
+      "reqs": [
+        "R11"
+      ],
+      "status": "passed",
+      "duration_s": 0.014,
+      "measured": {
+        "load_n": 0.0,
+        "stall_after_loss_n": 3250,
+        "max_deviation_mm": 0.0,
+        "monitor_trip_after_s": null
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r11_motor_channel_loss_hold[rated]",
+      "reqs": [
+        "R11"
+      ],
+      "status": "xfail",
+      "duration_s": 0.014,
+      "measured": {
+        "load_n": 4550.0,
+        "stall_after_loss_n": 3250,
+        "max_deviation_mm": 1.697,
+        "monitor_trip_after_s": 2.97
+      },
+      "note": "FINDING-003: one motor's stall force is below rated load; rod is back-driven"
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r11_if_position_is_lost_it_is_annunciated[unloaded]",
+      "reqs": [
+        "R11"
+      ],
+      "status": "passed",
+      "duration_s": 0.013,
+      "measured": {
+        "load": "unloaded",
+        "drifted_past_threshold": false,
+        "monitor_trip_after_s": null
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r11_if_position_is_lost_it_is_annunciated[rated]",
+      "reqs": [
+        "R11"
+      ],
+      "status": "passed",
+      "duration_s": 0.014,
+      "measured": {
+        "load": "rated",
+        "drifted_past_threshold": true,
+        "monitor_trip_after_s": 2.97
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r11_corrective_option_verified[unloaded]",
+      "reqs": [
+        "R11"
+      ],
+      "status": "passed",
+      "duration_s": 0.013,
+      "measured": {
+        "load": "unloaded",
+        "load_n": 0.0,
+        "stall_after_loss_n": 6500,
+        "max_deviation_mm": 0.0,
+        "monitor_trip_after_s": null
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r11_corrective_option_verified[rated]",
+      "reqs": [
+        "R11"
+      ],
+      "status": "passed",
+      "duration_s": 0.013,
+      "measured": {
+        "load": "rated",
+        "load_n": 4550.0,
+        "stall_after_loss_n": 6500,
+        "max_deviation_mm": 0.0,
+        "monitor_trip_after_s": null
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r12_jam_detected_and_drive_removed[unloaded-near-retract]",
+      "reqs": [
+        "R12"
+      ],
+      "status": "passed",
+      "duration_s": 0.004,
+      "measured": {
+        "load": "unloaded",
+        "jam_detect_s": 0.171
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r12_jam_detected_and_drive_removed[unloaded-mid]",
+      "reqs": [
+        "R12"
+      ],
+      "status": "passed",
+      "duration_s": 0.005,
+      "measured": {
+        "load": "unloaded",
+        "jam_detect_s": 0.171
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r12_jam_detected_and_drive_removed[unloaded-near-extend]",
+      "reqs": [
+        "R12"
+      ],
+      "status": "passed",
+      "duration_s": 0.004,
+      "measured": {
+        "load": "unloaded",
+        "jam_detect_s": 0.171
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r12_jam_detected_and_drive_removed[rated-near-retract]",
+      "reqs": [
+        "R12"
+      ],
+      "status": "passed",
+      "duration_s": 0.004,
+      "measured": {
+        "load": "rated",
+        "jam_detect_s": 0.171
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r12_jam_detected_and_drive_removed[rated-mid]",
+      "reqs": [
+        "R12"
+      ],
+      "status": "passed",
+      "duration_s": 0.004,
+      "measured": {
+        "load": "rated",
+        "jam_detect_s": 0.171
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r12_jam_detected_and_drive_removed[rated-near-extend]",
+      "reqs": [
+        "R12"
+      ],
+      "status": "passed",
+      "duration_s": 0.004,
+      "measured": {
+        "load": "rated",
+        "jam_detect_s": 0.171
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r12_jam_with_stationary_command_is_latent",
+      "reqs": [
+        "R12"
+      ],
+      "status": "passed",
+      "duration_s": 0.005,
+      "measured": {
+        "annunciated": false
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r12_no_false_alarm_on_rate_limited_move_at_rated_load",
+      "reqs": [
+        "R12"
+      ],
+      "status": "passed",
+      "duration_s": 0.017,
+      "measured": {
+        "step_mm": 20.0
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r12_no_false_alarm_on_bandwidth_sine",
+      "reqs": [
+        "R12"
+      ],
+      "status": "passed",
+      "duration_s": 0.009,
+      "measured": {},
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r12_no_false_alarm_across_part_b_faults[0pct_rated]",
+      "reqs": [
+        "R12"
+      ],
+      "status": "passed",
+      "duration_s": 1.86,
+      "measured": {
+        "load_n": 0,
+        "cases": 48,
+        "false_alarms": 0,
+        "worst_healthy_mm": 0.659,
+        "worst_case": "frozen-chB-maneuver",
+        "margin_mm": 0.341
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r12_no_false_alarm_across_part_b_faults[50pct_rated]",
+      "reqs": [
+        "R12"
+      ],
+      "status": "passed",
+      "duration_s": 1.806,
+      "measured": {
+        "load_n": 2275,
+        "cases": 48,
+        "false_alarms": 0,
+        "worst_healthy_mm": 0.659,
+        "worst_case": "frozen-chB-maneuver",
+        "margin_mm": 0.341
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r12_no_false_alarm_across_part_b_faults[75pct_rated]",
+      "reqs": [
+        "R12"
+      ],
+      "status": "passed",
+      "duration_s": 1.878,
+      "measured": {
+        "load_n": 3412,
+        "cases": 48,
+        "false_alarms": 0,
+        "worst_healthy_mm": 0.659,
+        "worst_case": "frozen-chB-maneuver",
+        "margin_mm": 0.341
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r12_no_false_alarm_across_part_b_faults[100pct_rated]",
+      "reqs": [
+        "R12"
+      ],
+      "status": "passed",
+      "duration_s": 1.915,
+      "measured": {
+        "load_n": 4550,
+        "cases": 48,
+        "false_alarms": 0,
+        "worst_healthy_mm": 0.659,
+        "worst_case": "frozen-chB-maneuver",
+        "margin_mm": 0.341
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r12_no_false_alarm_baseline_actuator",
+      "reqs": [
+        "R12"
+      ],
+      "status": "xfail",
+      "duration_s": 1.976,
+      "measured": {
+        "load_n": 3412,
+        "false_alarms": 2,
+        "worst_healthy_mm": 4.895,
+        "worst_case": "drift-chA-maneuver"
+      },
+      "note": "FINDING-005: monitor needs the RCA-001 anti-windup fix; baseline windup gives false jam alarms"
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r13_healthy_lanes_share_load_with_equalization",
+      "reqs": [
+        "R13"
+      ],
+      "status": "passed",
+      "duration_s": 0.759,
+      "measured": {
+        "max_fight_n": 300
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r13_without_equalization_healthy_lanes_fight_and_trip",
+      "reqs": [
+        "R13"
+      ],
+      "status": "passed",
+      "duration_s": 0.469,
+      "measured": {
+        "max_fight_n": 8454,
+        "healthy_lane_disengaged_at_s": {
+          "0": 0.67
+        }
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r13_faulty_lane_disengaged[laneA+2mm]",
+      "reqs": [
+        "R13"
+      ],
+      "status": "passed",
+      "duration_s": 0.208,
+      "measured": {
+        "disengaged": {
+          "0": 0.2
+        },
+        "peak_surface_mm": 0.83,
+        "final_surface_mm": 0.1
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r13_faulty_lane_disengaged[laneA-2mm]",
+      "reqs": [
+        "R13"
+      ],
+      "status": "passed",
+      "duration_s": 0.213,
+      "measured": {
+        "disengaged": {
+          "0": 0.2
+        },
+        "peak_surface_mm": 0.74,
+        "final_surface_mm": 0.1
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r13_faulty_lane_disengaged[laneA+5mm]",
+      "reqs": [
+        "R13"
+      ],
+      "status": "passed",
+      "duration_s": 0.217,
+      "measured": {
+        "disengaged": {
+          "0": 0.2
+        },
+        "peak_surface_mm": 1.85,
+        "final_surface_mm": 0.1
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r13_faulty_lane_disengaged[laneA-5mm]",
+      "reqs": [
+        "R13"
+      ],
+      "status": "passed",
+      "duration_s": 0.224,
+      "measured": {
+        "disengaged": {
+          "0": 0.2
+        },
+        "peak_surface_mm": 1.85,
+        "final_surface_mm": 0.1
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r13_faulty_lane_disengaged[laneA+10mm]",
+      "reqs": [
+        "R13"
+      ],
+      "status": "passed",
+      "duration_s": 0.24,
+      "measured": {
+        "disengaged": {
+          "0": 0.2
+        },
+        "peak_surface_mm": 3.69,
+        "final_surface_mm": 0.1
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r13_faulty_lane_disengaged[laneB+2mm]",
+      "reqs": [
+        "R13"
+      ],
+      "status": "passed",
+      "duration_s": 0.263,
+      "measured": {
+        "disengaged": {
+          "1": 0.2
+        },
+        "peak_surface_mm": 0.9,
+        "final_surface_mm": -0.0
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r13_faulty_lane_disengaged[laneB-2mm]",
+      "reqs": [
+        "R13"
+      ],
+      "status": "passed",
+      "duration_s": 0.233,
+      "measured": {
+        "disengaged": {
+          "1": 0.2
+        },
+        "peak_surface_mm": 0.74,
+        "final_surface_mm": -0.0
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r13_faulty_lane_disengaged[laneB+5mm]",
+      "reqs": [
+        "R13"
+      ],
+      "status": "passed",
+      "duration_s": 0.238,
+      "measured": {
+        "disengaged": {
+          "1": 0.2
+        },
+        "peak_surface_mm": 1.85,
+        "final_surface_mm": -0.0
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r13_faulty_lane_disengaged[laneB-5mm]",
+      "reqs": [
+        "R13"
+      ],
+      "status": "passed",
+      "duration_s": 0.269,
+      "measured": {
+        "disengaged": {
+          "1": 0.2
+        },
+        "peak_surface_mm": 1.85,
+        "final_surface_mm": -0.0
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r13_faulty_lane_disengaged[laneB+10mm]",
+      "reqs": [
+        "R13"
+      ],
+      "status": "passed",
+      "duration_s": 0.245,
+      "measured": {
+        "disengaged": {
+          "1": 0.2
+        },
+        "peak_surface_mm": 3.69,
+        "final_surface_mm": -0.0
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r13_faulty_lane_disengaged[laneC+2mm]",
+      "reqs": [
+        "R13"
+      ],
+      "status": "passed",
+      "duration_s": 0.255,
+      "measured": {
+        "disengaged": {
+          "2": 0.2
+        },
+        "peak_surface_mm": 0.98,
+        "final_surface_mm": -0.1
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r13_faulty_lane_disengaged[laneC-2mm]",
+      "reqs": [
+        "R13"
+      ],
+      "status": "passed",
+      "duration_s": 0.221,
+      "measured": {
+        "disengaged": {
+          "2": 0.2
+        },
+        "peak_surface_mm": 0.82,
+        "final_surface_mm": -0.1
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r13_faulty_lane_disengaged[laneC+5mm]",
+      "reqs": [
+        "R13"
+      ],
+      "status": "passed",
+      "duration_s": 0.238,
+      "measured": {
+        "disengaged": {
+          "2": 0.2
+        },
+        "peak_surface_mm": 1.85,
+        "final_surface_mm": -0.1
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r13_faulty_lane_disengaged[laneC-5mm]",
+      "reqs": [
+        "R13"
+      ],
+      "status": "passed",
+      "duration_s": 0.274,
+      "measured": {
+        "disengaged": {
+          "2": 0.2
+        },
+        "peak_surface_mm": 1.85,
+        "final_surface_mm": -0.1
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r13_faulty_lane_disengaged[laneC+10mm]",
+      "reqs": [
+        "R13"
+      ],
+      "status": "passed",
+      "duration_s": 0.266,
+      "measured": {
+        "disengaged": {
+          "2": 0.2
+        },
+        "peak_surface_mm": 3.69,
+        "final_surface_mm": -0.1
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r13_undetected_lane_fault_stays_small[0.5]",
+      "reqs": [
+        "R13"
+      ],
+      "status": "passed",
+      "duration_s": 0.921,
+      "measured": {
+        "worst_undetected_surface_mm": 0.167
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r13_undetected_lane_fault_stays_small[1.0]",
+      "reqs": [
+        "R13"
+      ],
+      "status": "passed",
+      "duration_s": 0.802,
+      "measured": {
+        "worst_undetected_surface_mm": 0.333
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r13_undetected_lane_fault_stays_small[1.5]",
+      "reqs": [
+        "R13"
+      ],
+      "status": "passed",
+      "duration_s": 0.729,
+      "measured": {
+        "worst_undetected_surface_mm": 0.5
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r13_undetected_lane_fault_stays_small[-1.5]",
+      "reqs": [
+        "R13"
+      ],
+      "status": "passed",
+      "duration_s": 0.795,
+      "measured": {
+        "worst_undetected_surface_mm": 0.5
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r13_undetected_lane_fault_stays_small[1.6]",
+      "reqs": [
+        "R13"
+      ],
+      "status": "passed",
+      "duration_s": 0.7,
+      "measured": {
+        "worst_undetected_surface_mm": 0.533
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r13_undetected_lane_fault_stays_small[-1.6]",
+      "reqs": [
+        "R13"
+      ],
+      "status": "passed",
+      "duration_s": 0.667,
+      "measured": {
+        "worst_undetected_surface_mm": 0.533
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_c_actuator_faults.py::test_r13_guard_monitor_isolates_only_the_largest_outlier",
+      "reqs": [
+        "R13"
+      ],
+      "status": "passed",
+      "duration_s": 0.285,
+      "measured": {
+        "old_logic_lanes_disengaged": 3
+      },
       "note": ""
     }
   ]

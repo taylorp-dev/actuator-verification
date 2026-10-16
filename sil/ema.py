@@ -20,14 +20,15 @@ from dataclasses import dataclass, field
 class EMAParams:
     stroke_mm: float = 25.0          # mechanical limit, +/- from neutral
     v0_mm_s: float = 40.0            # no-load max rate
-    stall_force_n: float = 1000.0    # force at which extension rate drops to zero
+    stall_force_n: float = 6500.0    # force at which extension rate drops to zero
     kp: float = 15.0                 # position loop gain, 1/s
     ki: float = 30.0                 # integral gain, 1/s^2 (removes droop under load)
     tau_motor_s: float = 0.010       # motor/velocity loop lag
     backlash_mm: float = 0.10        # total free play between motor and rod
-    damping_n_s_per_mm: float = 2000.0  # back-drive under load causes slow droop
+    damping_n_s_per_mm: float = 13000.0 # back-drive under load causes slow droop
     supply_v_nominal: float = 28.0
     anti_windup: bool = False        # conditional integration (corrective action in RCA-001)
+    n_motors: int = 2                # motors summing torque on one screw (stall force is the total)
 
     @classmethod
     def from_dict(cls, d: dict) -> "EMAParams":
@@ -55,13 +56,37 @@ class EMA:
         self.load_n = load_n
         self.supply_v = supply_v if supply_v is not None else self.p.supply_v_nominal
         self.s = EMAState()
+        self.motors_healthy = self.p.n_motors
+        self.jammed = False
+        self.drive_inhibited = False
+
+    # ---- actuator-level faults (Part C) ----------------------------------
+    def fail_motor(self) -> None:
+        """Lose one motor channel. Stall force drops in proportion; no-load speed
+        is unchanged because the remaining motor still turns the same screw."""
+        self.motors_healthy = max(0, self.motors_healthy - 1)
+
+    def jam(self) -> None:
+        """Mechanical jam (screw/nut): output and motor side stop moving."""
+        self.jammed = True
+
+    def inhibit_drive(self) -> None:
+        """Monitor response: remove motor drive and stop integrating."""
+        self.drive_inhibited = True
+
+    @property
+    def stall_force_effective(self) -> float:
+        return self.p.stall_force_n * self.motors_healthy / self.p.n_motors
 
     # ---- characteristics -------------------------------------------------
     def v_max(self, direction: float) -> float:
         """Achievable rate in a given direction under the current load and supply."""
         v0 = self.p.v0_mm_s * (self.supply_v / self.p.supply_v_nominal)
         if direction > 0:   # extending against the load
-            return max(0.0, v0 * (1.0 - self.load_n / self.p.stall_force_n))
+            stall = self.stall_force_effective
+            if stall <= 0.0:
+                return 0.0
+            return max(0.0, v0 * (1.0 - self.load_n / stall))
         return v0           # retracting, load aids; capped at no-load rate
 
     # ---- simulation ------------------------------------------------------
@@ -77,9 +102,16 @@ class EMA:
         raw = p.kp * err + p.ki * (s.integ + err * dt)
         lim_hi, lim_lo = self.v_max(1.0), -self.v_max(-1.0)
         saturated = raw > lim_hi or raw < lim_lo
-        if not (p.anti_windup and saturated):
+        if not (p.anti_windup and saturated) and not self.drive_inhibited:
             s.integ += err * dt                  # baseline design integrates through saturation
         demand = max(lim_lo, min(lim_hi, p.kp * err + p.ki * s.integ))
+        if self.drive_inhibited:
+            demand = 0.0
+        self.last_demand = demand
+
+        if self.jammed:                          # nothing moves, whatever the demand
+            s.v = 0.0
+            return s.x
 
         s.v += (demand - s.v) * (dt / p.tau_motor_s)
         droop = self.load_n / p.damping_n_s_per_mm   # load back-drives toward retract

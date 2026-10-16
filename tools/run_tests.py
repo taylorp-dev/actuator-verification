@@ -1,6 +1,7 @@
 """Run the full test suite and save a readable log.
 
     python tools/run_tests.py     -> runs pytest -v, prints it, saves reports/test_log.txt
+                                     and refreshes reports/l16p_predictions.md
 
 The log is plain text so it reads cleanly in a browser on GitHub. It records
 when the run happened, on what machine/Python, and every test's result.
@@ -34,6 +35,8 @@ def main() -> int:
         + "=" * 78 + "\n"
     )
     LOG.write_text(header + output, encoding="utf-8")
+    subprocess.run([sys.executable, str(ROOT / "tools" / "predict_bench.py")],
+                   cwd=ROOT, capture_output=True, text=True)
     print(output)
     print(f"Log saved to {LOG.relative_to(ROOT)}")
     return proc.returncode

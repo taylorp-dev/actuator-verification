@@ -2,9 +2,9 @@
 
 [![SIL regression](https://github.com/taylorp-dev/actuator-verification/actions/workflows/ci.yml/badge.svg)](https://github.com/taylorp-dev/actuator-verification/actions/workflows/ci.yml)
 
-EMA characterization and triplex ARINC 429 sensor fault response, in a Python/pytest software-in-the-loop.
+EMA characterization, triplex ARINC 429 sensor fault response, and actuator-level faults, in a Python/pytest **software-in-the-loop** (SIL here means software-in-the-loop, not a hardware Systems Integration Lab; this is the software step that comes before one).
 
-> Simplified plant, representative numbers. The point is the **test method**, not the actuator model or anyone's real architecture.
+> Simplified plant, representative numbers. The flight-class actuator is sized to the published force class of production fly-by-wire actuators (about 1,000 lbf), but it is not a model of anyone's actual actuator or architecture. The point is the **test method**. Sources: [docs/REFERENCES.md](docs/REFERENCES.md).
 
 ## What it does
 
@@ -19,12 +19,17 @@ EMA characterization and triplex ARINC 429 sensor fault response, in a Python/py
 
 - **Part A, actuator acceptance (A1-A5):** step response, max rate, accuracy and backlash, bandwidth, performance at rated load. Measured at the output rod, never the unit's own feedback.
 - **Part B, system fault response (ICD-1, R1-R10):** receiver validity checks, voter isolation, then the effect of each fault at the actuator.
+- **Part C, actuator faults (R11-R13):** loss of one of two motor channels, jam detection by a tracking monitor, and force fight between three lanes active on one surface (equalization and faulty-lane disengage).
+- **Model check (M1):** the desk-rig actuator (Actuonix L16-P) model is checked against its datasheet, then used to predict the bench results ([reports/l16p_predictions.md](reports/l16p_predictions.md)) for model correlation once the rig is built.
 
 ## Results (current baseline)
 
-- 16/16 requirements traced, 70 tests, full suite ~3 s
+- 20/20 requirements traced, 118 tests (115 pass, 3 open defects kept as strict xfail), full suite ~20 s
 - **RCA-001:** R9 reconfiguration transient passes unloaded, **fails at rated load** (integrator windup during rate saturation). The actuator passes all its own acceptance tests. Corrective action (anti-windup) verified in the SIL.
 - **FINDING-002:** first fault-matrix run isolated the **wrong** channel. Threshold had zero margin over the sensor tolerance stack. Fixed, guarded by a test.
+- **FINDING-003:** after losing one of two motors, the actuator holds unloaded but is **back-driven at rated load** (one motor = half the stall force). Sizing option verified; open.
+- **FINDING-004:** first force-fight monitor disengaged **all three** lanes on a large fault. Now isolates only the largest outlier; guarded by a test.
+- **FINDING-005:** jam monitor false-alarmed on healthy actuators. Cause: the RCA-001 windup, worst at 75 % load, not at rated. With RCA-001's fix the threshold is sized from data with margin.
 
 ## Test evidence
 
@@ -37,9 +42,16 @@ EMA characterization and triplex ARINC 429 sensor fault response, in a Python/py
 | Test cases: ARINC 429 receiver (ICD-1, R1-R4) | [tests/test_part_b_receiver.py](tests/test_part_b_receiver.py) |
 | Test cases: voter (R5-R8) | [tests/test_part_b_voter.py](tests/test_part_b_voter.py) |
 | Test cases: fault matrix and system level (R9, R10) | [tests/test_part_b_system.py](tests/test_part_b_system.py) |
+| Test cases: actuator faults (R11-R13) | [tests/test_part_c_actuator_faults.py](tests/test_part_c_actuator_faults.py) |
+| Test cases: bench actuator model vs datasheet (M1) | [tests/test_model_bench_actuator.py](tests/test_model_bench_actuator.py) |
+| Predicted bench results, Actuonix L16-P | [reports/l16p_predictions.md](reports/l16p_predictions.md) |
 | Written test procedure (bandwidth) | [docs/procedures/TP-A4-bandwidth.md](docs/procedures/TP-A4-bandwidth.md) |
 | RCA-001: loaded reconfiguration transient | [docs/rca/RCA-001-reconfig-transient-under-load.md](docs/rca/RCA-001-reconfig-transient-under-load.md) |
 | FINDING-002: wrong channel isolated | [docs/rca/FINDING-002-wrong-channel-isolated.md](docs/rca/FINDING-002-wrong-channel-isolated.md) |
+| FINDING-003: motor channel loss at rated load | [docs/rca/FINDING-003-motor-loss-at-rated-load.md](docs/rca/FINDING-003-motor-loss-at-rated-load.md) |
+| FINDING-004: force-fight monitor dropped all lanes | [docs/rca/FINDING-004-force-fight-monitor-dropped-all-lanes.md](docs/rca/FINDING-004-force-fight-monitor-dropped-all-lanes.md) |
+| FINDING-005: jam monitor false alarm | [docs/rca/FINDING-005-jam-monitor-false-alarm.md](docs/rca/FINDING-005-jam-monitor-false-alarm.md) |
+| References (public sources and what each informed) | [docs/REFERENCES.md](docs/REFERENCES.md) |
 | Figures | [reports/figures/](reports/figures/) |
 | Configuration under control (all parameters and limits) | [config/sil.yaml](config/sil.yaml) |
 | Automated runs on GitHub (fresh run on every push, full logs, downloadable reports) | [Actions tab](https://github.com/taylorp-dev/actuator-verification/actions) |
@@ -51,7 +63,7 @@ New to Python or the terminal? Start with **[docs/USER-GUIDE.md](docs/USER-GUIDE
 
 ```bash
 pip install -r requirements.txt
-python tools/run_tests.py        # tests + reports/test_log.txt + reports/traceability.md
+python tools/run_tests.py        # tests + test_log.txt + traceability.md + l16p_predictions.md
 python -m pytest                 # same tests, no saved log
 python tools/make_figures.py     # reports/figures/*.png
 ```
@@ -60,14 +72,16 @@ python tools/make_figures.py     # reports/figures/*.png
 
 | Path | What |
 | --- | --- |
-| `sil/` | EMA model, ARINC 429 encode/decode, sources + faults, receiver, voter, command law, closed-loop sim |
+| `sil/` | EMA model (with motor-loss and jam faults), ARINC 429 encode/decode, sources + faults, receiver, voter, command law, actuator tracking monitor, three-lane force-fight model, closed-loop sim |
 | `config/sil.yaml` | All parameters and limits, under version control; its hash is stamped on every report |
 | `requirements/requirements.yaml` | Requirement text, source for the traceability matrix |
 | `tests/` | Part A and Part B suites; `conftest.py` holds fixtures and the traceability hook |
 | `docs/USER-GUIDE.md` | Step-by-step setup, running, experiments, troubleshooting |
 | `docs/procedures/` | Written test procedure (TP-A4) |
-| `docs/rca/` | RCA-001 and FINDING-002 |
+| `docs/rca/` | RCA-001 and FINDING-002 to FINDING-005 |
+| `docs/REFERENCES.md` | Public sources used to size and scope the project |
 | `tools/make_figures.py` | Presentation figures from the same code the tests run |
+| `tools/predict_bench.py` | Predicted results for the desk-rig actuator (L16-P) |
 | `.github/workflows/ci.yml` | Runs the suite on every push, publishes the matrix and report artifact |
 
 ## Framework design
@@ -83,4 +97,4 @@ Designed, directed, and verified by Taylor Park. Built with AI coding assistance
 
 ## Next steps
 
-Real bus hardware (bus-in-the-loop), RS-422 actuator command link and CAN health bus as plug-ins, actuator HIL on a load stand, dissimilar sensors, second-fault and common-mode cases, a second airframe ICD.
+Real bus hardware (bus-in-the-loop), RS-422 actuator command link and CAN health bus as plug-ins, a hardware fixture so the same tests run against the L16-P bench actuator (compare to `l16p_predictions.md`), actuator HIL on a load stand, a model-following jam monitor and two-level force-fight monitor (FINDING-004/005 open items), periodic built-in test to expose latent jams, dissimilar sensors, second-fault and common-mode cases, a second airframe ICD.

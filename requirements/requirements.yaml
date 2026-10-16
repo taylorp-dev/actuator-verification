@@ -19,6 +19,9 @@ A4:
 A5:
   stage: Actuator
   text: At rated opposing load, small-signal step overshoot shall be <= 10 %, rise time <= 0.15 s, accuracy <= 0.10 mm.
+M1:
+  stage: Model
+  text: The bench actuator model (Actuonix L16-P) shall reproduce the manufacturer datasheet speed-force points within 5 % and use the datasheet backlash.
 R1:
   stage: Receiver
   text: The receiver shall reject words with bad parity.
@@ -49,3 +52,12 @@ R9:
 R10:
   stage: System
   text: The actuator command shall never exceed the position or rate limits, whatever the input.
+R11:
+  stage: Actuator fault
+  text: After loss of one of two motor channels, the actuator shall hold commanded position within 0.50 mm for 5 s at every load condition up to rated.
+R12:
+  stage: Actuator fault
+  text: The actuator monitor shall annunciate a jam within 0.30 s while the command is moving, remove motor drive, and not annunciate during normal operation (including rate-limited moves at rated load and all Part B fault cases).
+R13:
+  stage: Actuator fault
+  text: With three lanes active on one surface, equalization shall keep force fight between healthy lanes <= 500 N; a faulty lane shall be disengaged (only that lane) with surface error <= 0.25 mm after; a lane fault too small to detect shall cause <= 0.60 mm surface error.

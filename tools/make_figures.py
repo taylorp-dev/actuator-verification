@@ -25,6 +25,7 @@ from sil import analysis as an  # noqa: E402
 from sil.ema import EMA, EMAParams  # noqa: E402
 from sil.sim import load_config, run_scenario  # noqa: E402
 from sil.sources import Fault  # noqa: E402
+from sil.force_fight import ForceFightParams, run_force_fight  # noqa: E402
 
 OUT = ROOT / "reports" / "figures"
 
@@ -46,7 +47,7 @@ plt.rcParams.update({
 
 
 def footer(fig, cfg, note="", y=-0.06):
-    fig.text(0.01, y, f"Simulated SIL, representative values. config sha256 {cfg['_hash']}"
+    fig.text(0.01, y, f"Software-in-the-loop simulation, representative values. config sha256 {cfg['_hash']}"
              + (f"  |  {note}" if note else ""), color=MUTED, fontsize=7.5)
 
 
@@ -265,6 +266,90 @@ def fig_fault_matrix(cfg):
     save(fig, "b_fault_matrix.png")
 
 
+# ------------------------------------------------------------- Part C figures
+def fig_motor_loss(cfg):
+    import tests.test_part_c_actuator_faults as pc
+    spec = cfg["system_spec"]
+    fig, ax = plt.subplots(figsize=(8, 3.8))
+    rated = cfg["load_conditions"]["rated"]
+    fixed = copy.deepcopy(cfg)
+    fixed["actuator"]["stall_force_n"] *= 2
+    for c, load, col, lab in ((cfg, 0.0, AQUA, "unloaded (holds at 0, under the blue line)"),
+                              (cfg, rated, CRIT, f"rated {rated:,.0f} N, baseline motors"),
+                              (fixed, rated, BLUE, f"rated {rated:,.0f} N, each motor sized for full load")):
+        t, x, mon, _ = pc.motor_loss_run(c, load)
+        ax.plot(t, x, color=col, label=lab)
+        if mon.trip_t is not None:
+            ax.axvline(mon.trip_t, color=col, ls=":", lw=1.2)
+            ax.annotate("monitor annunciates", (mon.trip_t, x[int(mon.trip_t / 0.001)]),
+                        xytext=(mon.trip_t - 1.9, -1.3), color=col, fontsize=8.5,
+                        arrowprops=dict(arrowstyle="->", color=col))
+    ax.axhspan(-spec["R11_hold_max_mm"], spec["R11_hold_max_mm"], color=AQUA, alpha=0.08)
+    ax.axhline(-spec["R11_hold_max_mm"], color=MUTED, ls="--", lw=1)
+    ax.axvline(1.0, color=INK2, lw=1)
+    ax.text(1.05, 0.3, "one motor lost", color=INK2, fontsize=8.5)
+    ax.set_xlabel("time (s)"); ax.set_ylabel("rod position (mm)")
+    ax.set_ylim(-2.0, 0.6)
+    ax.set_title("R11 motor channel loss: holds unloaded, back-driven at rated load (FINDING-003)")
+    ax.legend(loc="lower left", fontsize=8.5)
+    footer(fig, cfg, "band = R11 hold limit +/-0.5 mm")
+    save(fig, "c_motor_loss.png")
+
+
+def fig_jam(cfg):
+    import tests.test_part_c_actuator_faults as pc
+    t, cmd, x, demand, _, mon = pc.jam_run(cfg, cfg["load_conditions"]["rated"])
+    fig, (a1, a2) = plt.subplots(2, 1, figsize=(8, 4.6), sharex=True,
+                                 gridspec_kw={"height_ratios": [2, 1]})
+    a1.plot(t, cmd, color=MUTED, ls="--", lw=1.4, label="command (10 mm/s ramp)")
+    a1.plot(t, x, color=BLUE, label="rod position")
+    a1.axvline(0.5, color=CRIT, lw=1.2)
+    a1.text(0.51, -4.6, "jam", color=CRIT, fontsize=9)
+    a1.axvline(mon.trip_t, color=ORANGE, lw=1.2)
+    a1.text(mon.trip_t + 0.02, -3.2, f"JAM annunciated\n+{(mon.trip_t - 0.5) * 1000:.0f} ms",
+            color=ORANGE, fontsize=9)
+    a1.set_ylabel("position (mm)"); a1.legend(loc="upper left", fontsize=8.5)
+    a1.set_title("R12 jam at rated load: detected, motor drive removed")
+    a2.plot(t, demand, color=ORANGE)
+    a2.axvline(0.5, color=CRIT, lw=1.2); a2.axvline(mon.trip_t, color=ORANGE, lw=1.2)
+    a2.set_ylabel("drive (mm/s)"); a2.set_xlabel("time (s)")
+    fig.tight_layout()
+    footer(fig, cfg, "monitor threshold 1.0 mm, sized from the healthy envelope (FINDING-005)", y=-0.03)
+    save(fig, "c_jam_detection.png")
+
+
+def fig_force_fight(cfg):
+    base = dict(cfg["force_fight"])
+    offs = base["rig_offsets_mm"]
+    fig, axes = plt.subplots(1, 3, figsize=(12, 3.9), sharey=True)
+    cases = [
+        ("No equalization, all lanes healthy", dict(eq_gain_mm_per_n=0.0), {}, 6.0),
+        ("Equalization on, all lanes healthy", {}, {}, 6.0),
+        ("Equalization on, lane A sensor +5 mm", {}, dict(fault_lane=0, fault_offset_mm=5.0, fault_t=1.0), 3.0),
+    ]
+    for ax, (title, over, fault, dur) in zip(axes, cases):
+        p = ForceFightParams.from_dict({**base, **over})
+        r = run_force_fight(p, rig_offsets_mm=offs, duration_s=dur, **fault)
+        for i, col in enumerate((BLUE, ORANGE, AQUA)):
+            ax.plot(r.t, r.force[:, i], color=col, label=f"lane {'ABC'[i]}")
+        for lane, td in r.disengaged.items():
+            ax.axvline(td, color=CRIT, lw=1.2)
+            ax.text(td + 0.05, -3600, f"lane {'ABC'[lane]} disengaged", color=CRIT, fontsize=8.5)
+        if "fault_t" in fault:
+            ax.axvline(1.0, color=INK2, lw=1)
+        ax.set_title(title, fontsize=10.5)
+        ax.set_ylim(-4200, 6200)
+        ax.set_xlabel("time (s)")
+    axes[0].set_ylabel("lane force (N)")
+    axes[1].legend(loc="upper right", fontsize=8.5, ncol=3)
+    axes[0].text(1.5, -1900, "lane A was healthy:\nfalse disengage", color=CRIT, fontsize=8.5)
+    fig.suptitle("R13 force fight: three lanes on one surface, rated load shared",
+                 x=0.01, ha="left", fontweight="bold", fontsize=12)
+    fig.tight_layout(rect=(0, 0, 1, 0.93))
+    footer(fig, cfg, "rig tolerance +/-0.2 mm between lanes", y=-0.03)
+    save(fig, "c_force_fight.png")
+
+
 if __name__ == "__main__":
     cfg = load_config()
     fig_step(cfg)
@@ -274,3 +359,6 @@ if __name__ == "__main__":
     fig_finding(cfg)
     fig_wrong_channel(cfg)
     fig_fault_matrix(cfg)
+    fig_motor_loss(cfg)
+    fig_jam(cfg)
+    fig_force_fight(cfg)
