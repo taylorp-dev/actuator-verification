@@ -350,6 +350,62 @@ def fig_force_fight(cfg):
     save(fig, "c_force_fight.png")
 
 
+# ------------------------------------------------------------- bench link (real Pi)
+def fig_bench_link(cfg):
+    """Link-drop timeline from the real Raspberry Pi recording (bench_data/cable_pull.csv).
+    Skipped if the recording isn't there."""
+    import os
+    from sil.link import label_lookup, label_of, read_capture
+    from sil.sim import label_defs
+    import tests.test_bench_link as tb
+    bench = Path(os.environ.get("BENCH_DATA_DIR", ROOT / "bench_data"))
+    path = bench / "cable_pull.csv"
+    if not path.exists():
+        print("skip bench_link_drop.png (no bench_data/cable_pull.csv)")
+        return
+    rows, meta = read_capture(path)
+    labels = label_defs(cfg)
+    ld = labels["pitch"]
+    pt = tb.pitch_times(rows, labels)
+    dt = np.diff(pt) * 1000.0
+    stale_ms = cfg["icd"]["stale_intervals"] / ld.rate_hz * 1000.0
+    i = int(np.argmax(dt))
+    t_last, t_back = pt[i], pt[i + 1]
+    run = tb.replay(cfg, rows, rows[-1][0])
+    ts, valid = tb.receiver_trace(rows, cfg, labels, rows[-1][0])
+    t_flag = float(ts[(ts > t_last) & ~valid][0])
+
+    fig, (a1, a2) = plt.subplots(2, 1, figsize=(7.2, 4.9), sharex=True,
+                                 gridspec_kw={"height_ratios": [2.2, 1]})
+    a1.axvspan(t_last, t_back, color=CRIT, alpha=0.08)
+    keep = dt < 200
+    a1.plot(pt[1:][keep], dt[keep], ".", ms=2.5, color=BLUE, label="interval between words (ms)")
+    a1.axhline(20.0, color=MUTED, lw=1, ls=":")
+    a1.axhline(stale_ms, color=CRIT, lw=1.2, ls="--", label=f"stale limit {stale_ms:.0f} ms")
+    a1.set_ylim(0, stale_ms * 1.35)
+    a1.set_ylabel("ms between words")
+    a1.text(t_last + 0.15, stale_ms * 1.12, f"link down (Pi eth0 down/up)\nno words for {t_back - t_last:.1f} s",
+            color=CRIT, fontsize=9)
+    a1.legend(loc="lower left", fontsize=8.5)
+    a1.set_title(f"Real Raspberry Pi over Ethernet: link drop flagged in {(t_flag - t_last) * 1000:.1f} ms")
+    # receiver validity and voter mode
+    mode = np.array([{"TRIPLEX": 3, "DUAL": 2, "SIMPLEX": 1, "FAIL": 0}[m.value] for m in run.mode])
+    a2.step(run.t, mode, where="post", color=ORANGE, label="voter channels in use")
+    a2.step(ts, valid.astype(float) * 0.6 + 0.3, where="post", color=AQUA, lw=1.5, label="ch. A receiver valid")
+    a2.set_yticks([2, 3])
+    a2.set_yticklabels(["2", "3"])
+    a2.text(run.t[-1], 0.95, "valid", color=AQUA, fontsize=8, ha="right", va="bottom")
+    a2.set_ylim(0, 3.5)
+    a2.set_ylabel("voter")
+    a2.set_xlabel("time from first word (s)")
+    a2.legend(loc="center", bbox_to_anchor=(0.5, 0.42), fontsize=8, ncol=2)
+    fig.tight_layout()
+    fig.text(0.01, -0.03, f"Real hardware recording: {path.name}, {meta.get('recorded_utc', '')}, "
+             f"sender {meta.get('sender', '')}. Voter and actuator replayed through the SIL. "
+             f"config sha256 {cfg['_hash']}", color=MUTED, fontsize=7.5)
+    save(fig, "bench_link_drop.png")
+
+
 if __name__ == "__main__":
     cfg = load_config()
     fig_step(cfg)
@@ -362,3 +418,4 @@ if __name__ == "__main__":
     fig_motor_loss(cfg)
     fig_jam(cfg)
     fig_force_fight(cfg)
+    fig_bench_link(cfg)
