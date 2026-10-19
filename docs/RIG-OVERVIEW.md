@@ -87,9 +87,11 @@ Steps 1-4 run with one real hardware piece (the Pi on channel A). Steps 5-7 are 
 2. **Real-time where it matters.** The actuator loop runs on the Teensy, not on Linux or Windows. The bench jitter finding (below) is a live example of why.
 3. **Bus hygiene.** Twisted pairs, CAN terminated at both ends, one reference ground. Classic rig-caused failures: "the unit failed, but it was the setup."
 
-## Note on the diagram's jitter label
+## Pi link timing (measured)
 
-The diagram says the Pi link was "measured over two runs: p99 jitter 1.0-2.5 ms". That was true on 2026-10-16. After 15 live runs, jitter ranges from 1.0 to 14.6 ms (worst gap 43 ms, still under the 60 ms stale limit). An A/B test showed the rise is mostly the bench setup on 2026-10-18, with a smaller effect from the live monitor. It's an open finding; see the README results and [docs/procedures/bench-link.md](procedures/bench-link.md).
+The diagram's Pi link note shows the measured timing over 15 live runs: words arrive every 20.0 ms on average, p99 jitter is 1.0-14.6 ms, and the worst gap is 43 ms, still under the 60 ms stale limit. A live monitor checks every word as it arrives.
+
+Jitter was 1.0-2.5 ms on 2026-10-16 and rose on 2026-10-18. An A/B test showed the rise is mostly the bench setup that night, with a smaller effect from the live monitor. It's an open finding; see the README results and [docs/procedures/bench-link.md](procedures/bench-link.md).
 
 ## Related
 
