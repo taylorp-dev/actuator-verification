@@ -1,15 +1,15 @@
 # Requirements Traceability Matrix
 
-- **Run: FULL RUN (125 of 125 tests), record**
-- Generated: 2026-10-19T04:21:49+00:00
-- Git commit: `8f3a2df`
+- **Run: FULL RUN (127 of 127 tests), record**
+- Generated: 2026-10-19T16:14:37+00:00
+- Git commit: `19de3ef`
 - Config: `config/sil.yaml` (sha256 `baae11ef69bb`)
 - ICD: Generic Rotorcraft A
 - Load conditions: {'unloaded': 0.0, 'rated': 4550.0}
 - Requirements traced: 22/22 (100.0%)
-- Tests: 125 (passed 122, xfail 3)
-- Tests by level: Unit 46, System 72, Bench 7
-- Suite runtime: 37.4 s
+- Tests: 127 (passed 124, xfail 3)
+- Tests by level: Unit 47, System 73, Bench 7
+- Suite runtime: 72.2 s
 
 Levels: **Unit** = one component alone; **System** = components together in closed loop; **Bench** = real hardware data (Raspberry Pi over a real Ethernet cable). Written procedures for every test: [docs/procedures/](../docs/procedures/README.md).
 
@@ -19,7 +19,7 @@ Levels: **Unit** = one component alone; **System** = components together in clos
 | A1 | Actuator | Small-signal step response (1 mm, unloaded) shall have rise time <= 0.15 s and overshoot <= 10 %. | Unit | 1 | `test_a1_small_signal_step_unloaded` | 1 | **PASS** |  |
 | A2 | Actuator | Maximum rate shall be >= 35 mm/s unloaded and >= 10 mm/s at rated opposing load. | Unit | 2 | `test_a2_max_rate` x2 | 2 | **PASS** |  |
 | A3 | Actuator | Static position accuracy shall be <= 0.10 mm and backlash <= 0.15 mm, measured at the output rod. | Unit | 2 | `test_a3_accuracy_and_backlash`, `test_a3_own_feedback_cannot_see_backlash` | 2 | **PASS** |  |
-| A4 | Actuator | Position bandwidth (-3 dB) shall be >= 2.5 Hz. | Unit | 1 | `test_a4_bandwidth` | 1 | **PASS** |  |
+| A4 | Actuator | Position bandwidth (-3 dB) shall be >= 2.5 Hz. | Unit | 2 | `test_a4_bandwidth` x2 | 2 | **PASS** |  |
 | A5 | Actuator | At rated opposing load, small-signal step overshoot shall be <= 10 %, rise time <= 0.15 s, accuracy <= 0.10 mm. | Unit | 2 | `test_a5_small_signal_step_rated_load`, `test_a5_accuracy_rated_load` | 2 | **PASS** |  |
 | M1 | Model | The bench actuator model (Actuonix L16-P) shall reproduce the manufacturer datasheet speed-force points within 5 % and use the datasheet backlash. | Unit | 4 | `test_m1_speed_force_matches_datasheet` x3, `test_m1_backlash_matches_datasheet` | 4 | **PASS** |  |
 | R1 | Receiver | The receiver shall reject words with bad parity. | Unit + System | 4 | `test_r1_bad_parity_rejected`, `test_fault_matrix` x3 | 4 | **PASS** |  |
@@ -27,7 +27,7 @@ Levels: **Unit** = one component alone; **System** = components together in clos
 | R3 | Receiver | The receiver shall declare a label stale if not updated within 3 nominal transmit intervals. | Unit + System + Bench | 6 | `test_l1_no_false_stale_on_healthy_link`, `test_l1_cable_pull_flagged_stale_and_recovers`, `test_r3_stale_boundary`, `test_fault_matrix` x3 | 6 | **PASS** |  |
 | R4 | Receiver | The receiver shall reject values outside the physical range. | Unit + System | 7 | `test_r4_physical_range` x4, `test_fault_matrix` x3 | 7 | **PASS** |  |
 | R5 | Voter | With three valid sources, the voter shall output the middle value. | Unit + Bench | 7 | `test_l1_closed_loop_with_real_channel_a`, `test_r5_mid_value_select` x6 | 7 | **PASS** |  |
-| R6 | Voter | The voter shall fail a channel that miscompares beyond threshold for longer than the persistence time. | Unit + System | 12 | `test_fault_matrix` x9, `test_r6_fail_after_persistence`, `test_r6_threshold_has_margin_over_tolerance_stack`, `test_r6_within_threshold_never_fails` | 12 | **PASS** |  |
+| R6 | Voter | The voter shall fail a channel that miscompares beyond threshold for longer than the persistence time. | Unit + System | 13 | `test_fault_matrix` x9, `test_finding002_reproduced_at_old_threshold`, `test_r6_fail_after_persistence`, `test_r6_threshold_has_margin_over_tolerance_stack`, `test_r6_within_threshold_never_fails` | 13 | **PASS** |  |
 | R7 | Voter | The voter shall not fail a channel on a single short spike. | Unit + System | 5 | `test_fault_matrix` x3, `test_r7_single_spike_ignored`, `test_r7_intermittent_spikes_reset_counter` | 5 | **PASS** |  |
 | R8 | Voter | After one channel failure, the voter shall continue on the remaining two and annunciate. | Unit + System + Bench | 25 | `test_l1_closed_loop_cable_pull`, `test_fault_matrix` x21, `test_r8_dual_mode_average_and_annunciate`, `test_r8_second_fault_in_dual_is_annunciated`, `test_r8_invalid_channel_excluded` | 25 | **PASS** |  |
 | R9 | System | After a single-channel failure, the actuator reconfiguration transient shall overshoot <= 0.60 mm and settle within +/-0.25 mm in <= 0.80 s. | System | 4 | `test_r9_reconfiguration_transient_baseline` x2, `test_r9_corrective_action_verified` x2 | 3 | **OPEN DEFECT** | RCA-001: integrator windup during rate saturation at rated load |
@@ -42,13 +42,13 @@ Levels: **Unit** = one component alone; **System** = components together in clos
 
 | Test | Reqs | Level | Status | Measured |
 | --- | --- | --- | --- | --- |
-| `test_l1_words_on_the_wire_decode_per_icd` | L1, ICD-1 | Bench | passed | words=1396, sender=192.168.2.1, pitch_mean_deg=-0.999, live_decode_errors=0 |
-| `test_l1_rate_and_jitter_on_real_link` | L1 | Bench | passed | intervals=697, mean_ms=20.0, p99_jitter_ms=12.77, max_interval_ms=38.74, stale_limit_ms=60.0, live_max_check_gap_ms=4.24 |
+| `test_l1_words_on_the_wire_decode_per_icd` | L1, ICD-1 | Bench | passed | words=1438, sender=192.168.2.1, pitch_mean_deg=-0.999, live_decode_errors=0 |
+| `test_l1_rate_and_jitter_on_real_link` | L1 | Bench | passed | intervals=718, mean_ms=20.0, p99_jitter_ms=9.52, max_interval_ms=33.75, stale_limit_ms=60.0, live_max_check_gap_ms=20.61 |
 | `test_l1_no_false_stale_on_healthy_link` | R3, L1 | Bench | passed | invalid_samples=0, live_false_stale=0 |
-| `test_l1_cable_pull_flagged_stale_and_recovers` | R3, L1 | Bench | passed | cable_out_s=8.7, flagged_after_ms=60.9, recovered_after_reconnect_ms=0.4, live_flagged_after_ms=61.9, live_recovered_after_reconnect_ms=0.1 |
-| `test_l1_closed_loop_with_real_channel_a` | R5, L1 | Bench | passed | replayed_s=13.9, max_voted_error_deg=0.066 |
-| `test_l1_closed_loop_cable_pull` | R10, R8, L1 | Bench | passed | modes_seen=['DUAL', 'TRIPLEX'], ended_in=TRIPLEX, actuator_span_mm=2.366 |
-| `test_l2_live_vs_replay_agree` | L2 | Bench | passed | words_live_vs_replay=2334 vs 2334, flag_ms_live_vs_replay=61.9 vs 60.9, recover_ms_live_vs_replay=0.1 vs 0.4, flag_diff_ms=1.0, recover_diff_ms=0.3, live_max_check_gap_ms=4.24, false_stale_live_vs_replay=0 vs 0, tol_ms=5.0 |
+| `test_l1_cable_pull_flagged_stale_and_recovers` | R3, L1 | Bench | passed | cable_out_s=8.82, flagged_after_ms=60.6, recovered_after_reconnect_ms=0.5, live_flagged_after_ms=61.1, live_recovered_after_reconnect_ms=0.1 |
+| `test_l1_closed_loop_with_real_channel_a` | R5, L1 | Bench | passed | replayed_s=14.4, max_voted_error_deg=0.066 |
+| `test_l1_closed_loop_cable_pull` | R10, R8, L1 | Bench | passed | modes_seen=['DUAL', 'TRIPLEX'], ended_in=TRIPLEX, actuator_span_mm=2.342 |
+| `test_l2_live_vs_replay_agree` | L2 | Bench | passed | words_live_vs_replay=2321 vs 2321, flag_ms_live_vs_replay=61.1 vs 60.6, recover_ms_live_vs_replay=0.1 vs 0.5, flag_diff_ms=0.5, recover_diff_ms=0.4, live_max_check_gap_ms=20.61, false_stale_live_vs_replay=0 vs 0, tol_ms=5.0 |
 | `test_m1_speed_force_matches_datasheet[no_load]` | M1 | Unit | passed | force_n=0.0, datasheet_mm_s=32.0, model_mm_s=32.0, error_pct=0.0 |
 | `test_m1_speed_force_matches_datasheet[peak_power]` | M1 | Unit | passed | force_n=50.0, datasheet_mm_s=16.0, model_mm_s=15.5, error_pct=3.1 |
 | `test_m1_speed_force_matches_datasheet[peak_efficiency]` | M1 | Unit | passed | force_n=24.0, datasheet_mm_s=24.0, model_mm_s=24.1, error_pct=0.3 |
@@ -57,8 +57,9 @@ Levels: **Unit** = one component alone; **System** = components together in clos
 | `test_a2_max_rate[unloaded]` | A2 | Unit | passed | load=unloaded, rate_mm_s=40.0 |
 | `test_a2_max_rate[rated]` | A2 | Unit | passed | load=rated, rate_mm_s=11.7 |
 | `test_a3_accuracy_and_backlash` | A3 | Unit | passed | accuracy_mm=0.05, backlash_mm=0.101 |
-| `test_a3_own_feedback_cannot_see_backlash` | A3 | Unit | passed | own_feedback_hysteresis_mm=0.001, truth_hysteresis_mm=0.101 |
-| `test_a4_bandwidth` | A4 | Unit | passed | bandwidth_hz=2.99 |
+| `test_a3_own_feedback_cannot_see_backlash` | A3 | Unit | passed | own_feedback_hysteresis_mm=0.001, truth_hysteresis_mm=0.101, sine_truth_hysteresis_mm=0.113, sine_own_feedback_hysteresis_mm=0.013 |
+| `test_a4_bandwidth[unloaded]` | A4 | Unit | passed | load=unloaded, bandwidth_hz=2.99 |
+| `test_a4_bandwidth[rated]` | A4 | Unit | passed | load=rated, bandwidth_hz=2.85 |
 | `test_a5_small_signal_step_rated_load` | A5 | Unit | passed | rise_s=0.108, overshoot_pct=5.1 |
 | `test_a5_accuracy_rated_load` | A5 | Unit | passed | accuracy_mm=0.051 |
 | `test_icd_bnr_round_trip[0.0]` | ICD-1 | Unit | passed |  |
@@ -104,6 +105,7 @@ Levels: **Unit** = one component alone; **System** = components together in clos
 | `test_fault_matrix[out_of_range-chA]` | R4, R8, R10 | System | passed | max_voted_error_deg=0.69, final_mode=DUAL |
 | `test_fault_matrix[out_of_range-chB]` | R4, R8, R10 | System | passed | max_voted_error_deg=0.21, final_mode=DUAL |
 | `test_fault_matrix[out_of_range-chC]` | R4, R8, R10 | System | passed | max_voted_error_deg=0.73, final_mode=DUAL |
+| `test_finding002_reproduced_at_old_threshold` | R6 | System | passed | old_threshold_deg=2.0, old_failed_channel=C, old_max_voted_error_deg=3.24, configured_threshold_deg=2.5, configured_failed_channel=B, configured_max_voted_error_deg=1.25 |
 | `test_r9_reconfiguration_transient_baseline[unloaded]` | R9 | System | passed | load=unloaded, step_mm=4.04, overshoot_mm=0.307, settle_s=0.619 |
 | `test_r9_reconfiguration_transient_baseline[rated]` | R9 | System | xfail | load=rated, step_mm=4.06, overshoot_mm=0.922, settle_s=1.164 |
 | `test_r9_corrective_action_verified[unloaded]` | R9 | System | passed | load=unloaded, step_mm=4.04, overshoot_mm=0.259, settle_s=0.527 |

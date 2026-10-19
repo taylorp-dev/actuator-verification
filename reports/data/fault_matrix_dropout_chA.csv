@@ -1,0 +1,17 @@
+# file: fault_matrix_dropout_chA.csv
+# test: tests/test_part_b_system.py::test_fault_matrix[dropout-chA]
+# test_status: passed
+# run: FULL RUN (127 of 127 tests), record
+# run_type: FULL RUN
+# git_commit: 19de3ef
+# record: True
+# config_sha256_12: baae11ef69bb
+# generated_utc: 2026-10-19T16:14:37+00:00
+# kind: dropout
+# channel: A
+# expect: exclude
+# failed: none
+# excluded_by_receiver: True
+# detect_latency_ms: None
+# max_voted_error_deg: 0.6897466872347868
+# final_mode: DUAL

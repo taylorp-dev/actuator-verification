@@ -1,9 +1,10 @@
 {
   "summary": {
-    "generated_utc": "2026-10-19T04:21:49+00:00",
+    "generated_utc": "2026-10-19T16:14:37+00:00",
     "run_type": "FULL RUN",
-    "run_label": "FULL RUN (125 of 125 tests), record",
-    "git_commit": "8f3a2df",
+    "run_label": "FULL RUN (127 of 127 tests), record",
+    "git_commit": "19de3ef",
+    "record": true,
     "config_file": "config/sil.yaml",
     "config_sha256_12": "baae11ef69bb",
     "airframe_icd": "Generic Rotorcraft A",
@@ -12,18 +13,18 @@
       "rated": 4550.0
     },
     "python": "3.13.3",
-    "suite_runtime_s": 37.4,
+    "suite_runtime_s": 72.2,
     "requirements_total": 22,
     "requirements_traced": 22,
     "requirements_traced_pct": 100.0,
-    "tests_total": 125,
+    "tests_total": 127,
     "tests_by_status": {
-      "passed": 122,
+      "passed": 124,
       "xfail": 3
     },
     "tests_by_level": {
-      "Unit": 46,
-      "System": 72,
+      "Unit": 47,
+      "System": 73,
       "Bench": 7
     },
     "untagged_tests": []
@@ -78,9 +79,9 @@
       "stage": "Actuator",
       "text": "Position bandwidth (-3 dB) shall be >= 2.5 Hz.",
       "levels": "Unit",
-      "tests": 1,
-      "test_names": "test_a4_bandwidth",
-      "passed": 1,
+      "tests": 2,
+      "test_names": "test_a4_bandwidth x2",
+      "passed": 2,
       "verdict": "PASS",
       "notes": ""
     },
@@ -166,9 +167,9 @@
       "stage": "Voter",
       "text": "The voter shall fail a channel that miscompares beyond threshold for longer than the persistence time.",
       "levels": "Unit + System",
-      "tests": 12,
-      "test_names": "test_fault_matrix x9, test_r6_fail_after_persistence, test_r6_threshold_has_margin_over_tolerance_stack, test_r6_within_threshold_never_fails",
-      "passed": 12,
+      "tests": 13,
+      "test_names": "test_fault_matrix x9, test_finding002_reproduced_at_old_threshold, test_r6_fail_after_persistence, test_r6_threshold_has_margin_over_tolerance_stack, test_r6_within_threshold_never_fails",
+      "passed": 13,
       "verdict": "PASS",
       "notes": ""
     },
@@ -281,9 +282,9 @@
       ],
       "level": "Bench",
       "status": "passed",
-      "duration_s": 0.009,
+      "duration_s": 0.011,
       "measured": {
-        "words": 1396,
+        "words": 1438,
         "sender": "192.168.2.1",
         "pitch_mean_deg": -0.999,
         "live_decode_errors": 0
@@ -297,14 +298,14 @@
       ],
       "level": "Bench",
       "status": "passed",
-      "duration_s": 0.012,
+      "duration_s": 0.016,
       "measured": {
-        "intervals": 697,
+        "intervals": 718,
         "mean_ms": 20.0,
-        "p99_jitter_ms": 12.77,
-        "max_interval_ms": 38.74,
+        "p99_jitter_ms": 9.52,
+        "max_interval_ms": 33.75,
         "stale_limit_ms": 60.0,
-        "live_max_check_gap_ms": 4.24
+        "live_max_check_gap_ms": 20.61
       },
       "note": ""
     },
@@ -316,7 +317,7 @@
       ],
       "level": "Bench",
       "status": "passed",
-      "duration_s": 0.018,
+      "duration_s": 0.034,
       "measured": {
         "invalid_samples": 0,
         "live_false_stale": 0
@@ -331,12 +332,12 @@
       ],
       "level": "Bench",
       "status": "passed",
-      "duration_s": 0.043,
+      "duration_s": 0.058,
       "measured": {
-        "cable_out_s": 8.7,
-        "flagged_after_ms": 60.9,
-        "recovered_after_reconnect_ms": 0.4,
-        "live_flagged_after_ms": 61.9,
+        "cable_out_s": 8.82,
+        "flagged_after_ms": 60.6,
+        "recovered_after_reconnect_ms": 0.5,
+        "live_flagged_after_ms": 61.1,
         "live_recovered_after_reconnect_ms": 0.1
       },
       "note": ""
@@ -349,9 +350,9 @@
       ],
       "level": "Bench",
       "status": "passed",
-      "duration_s": 0.201,
+      "duration_s": 0.348,
       "measured": {
-        "replayed_s": 13.9,
+        "replayed_s": 14.4,
         "max_voted_error_deg": 0.066
       },
       "note": ""
@@ -365,14 +366,14 @@
       ],
       "level": "Bench",
       "status": "passed",
-      "duration_s": 0.511,
+      "duration_s": 0.746,
       "measured": {
         "modes_seen": [
           "DUAL",
           "TRIPLEX"
         ],
         "ended_in": "TRIPLEX",
-        "actuator_span_mm": 2.366
+        "actuator_span_mm": 2.342
       },
       "note": ""
     },
@@ -383,14 +384,14 @@
       ],
       "level": "Bench",
       "status": "passed",
-      "duration_s": 0.047,
+      "duration_s": 0.064,
       "measured": {
-        "words_live_vs_replay": "2334 vs 2334",
-        "flag_ms_live_vs_replay": "61.9 vs 60.9",
-        "recover_ms_live_vs_replay": "0.1 vs 0.4",
-        "flag_diff_ms": 1.0,
-        "recover_diff_ms": 0.3,
-        "live_max_check_gap_ms": 4.24,
+        "words_live_vs_replay": "2321 vs 2321",
+        "flag_ms_live_vs_replay": "61.1 vs 60.6",
+        "recover_ms_live_vs_replay": "0.1 vs 0.5",
+        "flag_diff_ms": 0.5,
+        "recover_diff_ms": 0.4,
+        "live_max_check_gap_ms": 20.61,
         "false_stale_live_vs_replay": "0 vs 0",
         "tol_ms": 5.0
       },
@@ -403,7 +404,7 @@
       ],
       "level": "Unit",
       "status": "passed",
-      "duration_s": 0.011,
+      "duration_s": 0.012,
       "measured": {
         "force_n": 0.0,
         "datasheet_mm_s": 32.0,
@@ -419,7 +420,7 @@
       ],
       "level": "Unit",
       "status": "passed",
-      "duration_s": 0.01,
+      "duration_s": 0.014,
       "measured": {
         "force_n": 50.0,
         "datasheet_mm_s": 16.0,
@@ -435,7 +436,7 @@
       ],
       "level": "Unit",
       "status": "passed",
-      "duration_s": 0.009,
+      "duration_s": 0.014,
       "measured": {
         "force_n": 24.0,
         "datasheet_mm_s": 24.0,
@@ -451,7 +452,7 @@
       ],
       "level": "Unit",
       "status": "passed",
-      "duration_s": 0.075,
+      "duration_s": 0.092,
       "measured": {
         "model_backlash_param_mm": 0.25,
         "predicted_bench_hysteresis_mm": 0.19
@@ -465,7 +466,7 @@
       ],
       "level": "Unit",
       "status": "passed",
-      "duration_s": 0.012,
+      "duration_s": 0.013,
       "measured": {
         "rise_s": 0.108,
         "overshoot_pct": 4.4
@@ -479,7 +480,7 @@
       ],
       "level": "Unit",
       "status": "passed",
-      "duration_s": 0.011,
+      "duration_s": 0.012,
       "measured": {
         "load": "unloaded",
         "rate_mm_s": 40.0
@@ -493,7 +494,7 @@
       ],
       "level": "Unit",
       "status": "passed",
-      "duration_s": 0.011,
+      "duration_s": 0.015,
       "measured": {
         "load": "rated",
         "rate_mm_s": 11.7
@@ -507,7 +508,7 @@
       ],
       "level": "Unit",
       "status": "passed",
-      "duration_s": 0.141,
+      "duration_s": 0.152,
       "measured": {
         "accuracy_mm": 0.05,
         "backlash_mm": 0.101
@@ -521,23 +522,40 @@
       ],
       "level": "Unit",
       "status": "passed",
-      "duration_s": 0.056,
+      "duration_s": 0.173,
       "measured": {
         "own_feedback_hysteresis_mm": 0.001,
-        "truth_hysteresis_mm": 0.101
+        "truth_hysteresis_mm": 0.101,
+        "sine_truth_hysteresis_mm": 0.113,
+        "sine_own_feedback_hysteresis_mm": 0.013
       },
       "note": ""
     },
     {
-      "test": "tests/test_part_a_actuator.py::test_a4_bandwidth",
+      "test": "tests/test_part_a_actuator.py::test_a4_bandwidth[unloaded]",
       "reqs": [
         "A4"
       ],
       "level": "Unit",
       "status": "passed",
-      "duration_s": 1.713,
+      "duration_s": 3.035,
       "measured": {
+        "load": "unloaded",
         "bandwidth_hz": 2.99
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_a_actuator.py::test_a4_bandwidth[rated]",
+      "reqs": [
+        "A4"
+      ],
+      "level": "Unit",
+      "status": "passed",
+      "duration_s": 2.922,
+      "measured": {
+        "load": "rated",
+        "bandwidth_hz": 2.85
       },
       "note": ""
     },
@@ -548,7 +566,7 @@
       ],
       "level": "Unit",
       "status": "passed",
-      "duration_s": 0.012,
+      "duration_s": 0.01,
       "measured": {
         "rise_s": 0.108,
         "overshoot_pct": 5.1
@@ -562,7 +580,7 @@
       ],
       "level": "Unit",
       "status": "passed",
-      "duration_s": 0.136,
+      "duration_s": 0.213,
       "measured": {
         "accuracy_mm": 0.051
       },
@@ -597,7 +615,7 @@
       ],
       "level": "Unit",
       "status": "passed",
-      "duration_s": 0.0,
+      "duration_s": 0.001,
       "measured": {},
       "note": ""
     },
@@ -608,7 +626,7 @@
       ],
       "level": "Unit",
       "status": "passed",
-      "duration_s": 0.0,
+      "duration_s": 0.001,
       "measured": {},
       "note": ""
     },
@@ -729,7 +747,7 @@
       ],
       "level": "Unit",
       "status": "passed",
-      "duration_s": 0.0,
+      "duration_s": 0.001,
       "measured": {
         "stale_limit_ms": 60.0
       },
@@ -742,7 +760,7 @@
       ],
       "level": "Unit",
       "status": "passed",
-      "duration_s": 0.0,
+      "duration_s": 0.001,
       "measured": {},
       "note": ""
     },
@@ -753,7 +771,7 @@
       ],
       "level": "Unit",
       "status": "passed",
-      "duration_s": 0.0,
+      "duration_s": 0.001,
       "measured": {},
       "note": ""
     },
@@ -788,7 +806,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.069,
+      "duration_s": 0.182,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL",
@@ -805,7 +823,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.069,
+      "duration_s": 0.154,
       "measured": {
         "max_voted_error_deg": 1.25,
         "final_mode": "DUAL",
@@ -822,7 +840,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.07,
+      "duration_s": 0.112,
       "measured": {
         "max_voted_error_deg": 1.25,
         "final_mode": "DUAL",
@@ -839,7 +857,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.068,
+      "duration_s": 0.168,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL",
@@ -856,7 +874,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.069,
+      "duration_s": 0.153,
       "measured": {
         "max_voted_error_deg": 1.25,
         "final_mode": "DUAL",
@@ -873,7 +891,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.068,
+      "duration_s": 0.12,
       "measured": {
         "max_voted_error_deg": 1.25,
         "final_mode": "DUAL",
@@ -890,7 +908,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.068,
+      "duration_s": 0.122,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL",
@@ -907,7 +925,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.074,
+      "duration_s": 0.09,
       "measured": {
         "max_voted_error_deg": 0.96,
         "final_mode": "DUAL",
@@ -924,7 +942,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.087,
+      "duration_s": 0.096,
       "measured": {
         "max_voted_error_deg": 0.96,
         "final_mode": "DUAL",
@@ -940,7 +958,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.085,
+      "duration_s": 0.117,
       "measured": {
         "max_voted_error_deg": 0.21,
         "final_mode": "TRIPLEX"
@@ -955,7 +973,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.087,
+      "duration_s": 0.179,
       "measured": {
         "max_voted_error_deg": 0.94,
         "final_mode": "TRIPLEX"
@@ -970,7 +988,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.081,
+      "duration_s": 0.125,
       "measured": {
         "max_voted_error_deg": 0.94,
         "final_mode": "TRIPLEX"
@@ -986,7 +1004,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.079,
+      "duration_s": 0.114,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL"
@@ -1002,7 +1020,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.078,
+      "duration_s": 0.119,
       "measured": {
         "max_voted_error_deg": 0.24,
         "final_mode": "DUAL"
@@ -1018,7 +1036,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.076,
+      "duration_s": 0.09,
       "measured": {
         "max_voted_error_deg": 0.73,
         "final_mode": "DUAL"
@@ -1034,7 +1052,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.078,
+      "duration_s": 0.096,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL"
@@ -1050,7 +1068,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.077,
+      "duration_s": 0.103,
       "measured": {
         "max_voted_error_deg": 0.21,
         "final_mode": "DUAL"
@@ -1066,7 +1084,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.075,
+      "duration_s": 0.105,
       "measured": {
         "max_voted_error_deg": 0.73,
         "final_mode": "DUAL"
@@ -1082,7 +1100,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.068,
+      "duration_s": 0.087,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL"
@@ -1098,7 +1116,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.067,
+      "duration_s": 0.104,
       "measured": {
         "max_voted_error_deg": 0.24,
         "final_mode": "DUAL"
@@ -1114,7 +1132,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.065,
+      "duration_s": 0.087,
       "measured": {
         "max_voted_error_deg": 0.73,
         "final_mode": "DUAL"
@@ -1130,7 +1148,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.065,
+      "duration_s": 0.112,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL"
@@ -1146,7 +1164,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.066,
+      "duration_s": 0.126,
       "measured": {
         "max_voted_error_deg": 0.21,
         "final_mode": "DUAL"
@@ -1162,10 +1180,28 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.067,
+      "duration_s": 0.17,
       "measured": {
         "max_voted_error_deg": 0.73,
         "final_mode": "DUAL"
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_part_b_system.py::test_finding002_reproduced_at_old_threshold",
+      "reqs": [
+        "R6"
+      ],
+      "level": "System",
+      "status": "passed",
+      "duration_s": 0.322,
+      "measured": {
+        "old_threshold_deg": 2.0,
+        "old_failed_channel": "C",
+        "old_max_voted_error_deg": 3.24,
+        "configured_threshold_deg": 2.5,
+        "configured_failed_channel": "B",
+        "configured_max_voted_error_deg": 1.25
       },
       "note": ""
     },
@@ -1176,7 +1212,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.071,
+      "duration_s": 0.135,
       "measured": {
         "load": "unloaded",
         "step_mm": 4.04,
@@ -1192,7 +1228,7 @@
       ],
       "level": "System",
       "status": "xfail",
-      "duration_s": 0.074,
+      "duration_s": 0.11,
       "measured": {
         "load": "rated",
         "step_mm": 4.06,
@@ -1208,7 +1244,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.082,
+      "duration_s": 0.167,
       "measured": {
         "load": "unloaded",
         "step_mm": 4.04,
@@ -1224,7 +1260,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.084,
+      "duration_s": 0.117,
       "measured": {
         "load": "rated",
         "step_mm": 4.03,
@@ -1254,7 +1290,7 @@
       ],
       "level": "Unit",
       "status": "passed",
-      "duration_s": 0.0,
+      "duration_s": 0.001,
       "measured": {},
       "note": ""
     },
@@ -1309,7 +1345,7 @@
       ],
       "level": "Unit",
       "status": "passed",
-      "duration_s": 0.001,
+      "duration_s": 0.0,
       "measured": {},
       "note": ""
     },
@@ -1346,7 +1382,7 @@
       ],
       "level": "Unit",
       "status": "passed",
-      "duration_s": 0.001,
+      "duration_s": 0.003,
       "measured": {},
       "note": ""
     },
@@ -1357,7 +1393,7 @@
       ],
       "level": "Unit",
       "status": "passed",
-      "duration_s": 0.0,
+      "duration_s": 0.001,
       "measured": {},
       "note": ""
     },
@@ -1368,7 +1404,7 @@
       ],
       "level": "Unit",
       "status": "passed",
-      "duration_s": 0.0,
+      "duration_s": 0.001,
       "measured": {},
       "note": ""
     },
@@ -1379,7 +1415,7 @@
       ],
       "level": "Unit",
       "status": "passed",
-      "duration_s": 0.0,
+      "duration_s": 0.001,
       "measured": {},
       "note": ""
     },
@@ -1412,7 +1448,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.021,
+      "duration_s": 0.041,
       "measured": {
         "load_n": 0.0,
         "stall_after_loss_n": 3250,
@@ -1428,7 +1464,7 @@
       ],
       "level": "System",
       "status": "xfail",
-      "duration_s": 0.026,
+      "duration_s": 0.042,
       "measured": {
         "load_n": 4550.0,
         "stall_after_loss_n": 3250,
@@ -1459,7 +1495,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.021,
+      "duration_s": 0.035,
       "measured": {
         "load": "rated",
         "drifted_past_threshold": true,
@@ -1474,7 +1510,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.023,
+      "duration_s": 0.034,
       "measured": {
         "load": "unloaded",
         "load_n": 0.0,
@@ -1491,7 +1527,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.024,
+      "duration_s": 0.045,
       "measured": {
         "load": "rated",
         "load_n": 4550.0,
@@ -1508,7 +1544,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.007,
+      "duration_s": 0.019,
       "measured": {
         "load": "unloaded",
         "jam_detect_s": 0.171
@@ -1522,7 +1558,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.007,
+      "duration_s": 0.017,
       "measured": {
         "load": "unloaded",
         "jam_detect_s": 0.171
@@ -1536,7 +1572,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.007,
+      "duration_s": 0.011,
       "measured": {
         "load": "unloaded",
         "jam_detect_s": 0.171
@@ -1550,7 +1586,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.01,
+      "duration_s": 0.008,
       "measured": {
         "load": "rated",
         "jam_detect_s": 0.171
@@ -1564,7 +1600,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.007,
+      "duration_s": 0.008,
       "measured": {
         "load": "rated",
         "jam_detect_s": 0.171
@@ -1578,7 +1614,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.007,
+      "duration_s": 0.025,
       "measured": {
         "load": "rated",
         "jam_detect_s": 0.171
@@ -1592,7 +1628,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.01,
+      "duration_s": 0.038,
       "measured": {
         "annunciated": false
       },
@@ -1605,7 +1641,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.027,
+      "duration_s": 0.095,
       "measured": {
         "step_mm": 20.0
       },
@@ -1618,7 +1654,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.016,
+      "duration_s": 0.052,
       "measured": {},
       "note": ""
     },
@@ -1629,7 +1665,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 2.54,
+      "duration_s": 4.941,
       "measured": {
         "load_n": 0,
         "cases": 48,
@@ -1647,7 +1683,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 2.658,
+      "duration_s": 3.534,
       "measured": {
         "load_n": 2275,
         "cases": 48,
@@ -1665,7 +1701,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 2.582,
+      "duration_s": 4.824,
       "measured": {
         "load_n": 3412,
         "cases": 48,
@@ -1683,7 +1719,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 2.554,
+      "duration_s": 5.297,
       "measured": {
         "load_n": 4550,
         "cases": 48,
@@ -1701,7 +1737,7 @@
       ],
       "level": "System",
       "status": "xfail",
-      "duration_s": 2.598,
+      "duration_s": 5.753,
       "measured": {
         "load_n": 3412,
         "false_alarms": 2,
@@ -1717,7 +1753,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 1.314,
+      "duration_s": 2.426,
       "measured": {
         "max_fight_n": 300
       },
@@ -1730,7 +1766,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 1.001,
+      "duration_s": 1.772,
       "measured": {
         "max_fight_n": 8454,
         "healthy_lane_disengaged_at_s": {
@@ -1746,7 +1782,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.42,
+      "duration_s": 0.789,
       "measured": {
         "disengaged": {
           "0": 0.2
@@ -1763,7 +1799,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.389,
+      "duration_s": 0.693,
       "measured": {
         "disengaged": {
           "0": 0.2
@@ -1780,7 +1816,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.412,
+      "duration_s": 0.768,
       "measured": {
         "disengaged": {
           "0": 0.2
@@ -1797,7 +1833,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.508,
+      "duration_s": 0.788,
       "measured": {
         "disengaged": {
           "0": 0.2
@@ -1814,7 +1850,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.432,
+      "duration_s": 0.936,
       "measured": {
         "disengaged": {
           "0": 0.2
@@ -1831,7 +1867,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.401,
+      "duration_s": 0.712,
       "measured": {
         "disengaged": {
           "1": 0.2
@@ -1848,7 +1884,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.422,
+      "duration_s": 0.653,
       "measured": {
         "disengaged": {
           "1": 0.2
@@ -1865,7 +1901,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.411,
+      "duration_s": 0.917,
       "measured": {
         "disengaged": {
           "1": 0.2
@@ -1882,7 +1918,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.435,
+      "duration_s": 0.994,
       "measured": {
         "disengaged": {
           "1": 0.2
@@ -1899,7 +1935,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.48,
+      "duration_s": 0.92,
       "measured": {
         "disengaged": {
           "1": 0.2
@@ -1916,7 +1952,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.42,
+      "duration_s": 1.17,
       "measured": {
         "disengaged": {
           "2": 0.2
@@ -1933,7 +1969,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.386,
+      "duration_s": 0.937,
       "measured": {
         "disengaged": {
           "2": 0.2
@@ -1950,7 +1986,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.384,
+      "duration_s": 1.026,
       "measured": {
         "disengaged": {
           "2": 0.2
@@ -1967,7 +2003,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.413,
+      "duration_s": 0.933,
       "measured": {
         "disengaged": {
           "2": 0.2
@@ -1984,7 +2020,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.45,
+      "duration_s": 0.677,
       "measured": {
         "disengaged": {
           "2": 0.2
@@ -2001,7 +2037,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 1.536,
+      "duration_s": 3.396,
       "measured": {
         "worst_undetected_surface_mm": 0.167
       },
@@ -2014,7 +2050,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 1.691,
+      "duration_s": 3.366,
       "measured": {
         "worst_undetected_surface_mm": 0.333
       },
@@ -2027,7 +2063,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 1.351,
+      "duration_s": 2.855,
       "measured": {
         "worst_undetected_surface_mm": 0.5
       },
@@ -2040,7 +2076,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 1.42,
+      "duration_s": 2.5,
       "measured": {
         "worst_undetected_surface_mm": 0.5
       },
@@ -2053,7 +2089,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 1.521,
+      "duration_s": 2.436,
       "measured": {
         "worst_undetected_surface_mm": 0.533
       },
@@ -2066,7 +2102,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 1.359,
+      "duration_s": 1.804,
       "measured": {
         "worst_undetected_surface_mm": 0.533
       },
@@ -2079,7 +2115,7 @@
       ],
       "level": "System",
       "status": "passed",
-      "duration_s": 0.656,
+      "duration_s": 0.849,
       "measured": {
         "old_logic_lanes_disengaged": 3
       },

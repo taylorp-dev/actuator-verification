@@ -3,7 +3,7 @@ ICD-1,Interface,"ARINC 429 BNR words shall be encoded per the ICD (label, SDI, s
 A1,Actuator,"Small-signal step response (1 mm, unloaded) shall have rise time <= 0.15 s and overshoot <= 10 %.",Unit,1,test_a1_small_signal_step_unloaded,1,PASS,
 A2,Actuator,Maximum rate shall be >= 35 mm/s unloaded and >= 10 mm/s at rated opposing load.,Unit,2,test_a2_max_rate x2,2,PASS,
 A3,Actuator,"Static position accuracy shall be <= 0.10 mm and backlash <= 0.15 mm, measured at the output rod.",Unit,2,"test_a3_accuracy_and_backlash, test_a3_own_feedback_cannot_see_backlash",2,PASS,
-A4,Actuator,Position bandwidth (-3 dB) shall be >= 2.5 Hz.,Unit,1,test_a4_bandwidth,1,PASS,
+A4,Actuator,Position bandwidth (-3 dB) shall be >= 2.5 Hz.,Unit,2,test_a4_bandwidth x2,2,PASS,
 A5,Actuator,"At rated opposing load, small-signal step overshoot shall be <= 10 %, rise time <= 0.15 s, accuracy <= 0.10 mm.",Unit,2,"test_a5_small_signal_step_rated_load, test_a5_accuracy_rated_load",2,PASS,
 M1,Model,The bench actuator model (Actuonix L16-P) shall reproduce the manufacturer datasheet speed-force points within 5 % and use the datasheet backlash.,Unit,4,"test_m1_speed_force_matches_datasheet x3, test_m1_backlash_matches_datasheet",4,PASS,
 R1,Receiver,The receiver shall reject words with bad parity.,Unit + System,4,"test_r1_bad_parity_rejected, test_fault_matrix x3",4,PASS,
@@ -11,7 +11,7 @@ R2,Receiver,The receiver shall treat SSM Failure Warning or No Computed Data as 
 R3,Receiver,The receiver shall declare a label stale if not updated within 3 nominal transmit intervals.,Unit + System + Bench,6,"test_l1_no_false_stale_on_healthy_link, test_l1_cable_pull_flagged_stale_and_recovers, test_r3_stale_boundary, test_fault_matrix x3",6,PASS,
 R4,Receiver,The receiver shall reject values outside the physical range.,Unit + System,7,"test_r4_physical_range x4, test_fault_matrix x3",7,PASS,
 R5,Voter,"With three valid sources, the voter shall output the middle value.",Unit + Bench,7,"test_l1_closed_loop_with_real_channel_a, test_r5_mid_value_select x6",7,PASS,
-R6,Voter,The voter shall fail a channel that miscompares beyond threshold for longer than the persistence time.,Unit + System,12,"test_fault_matrix x9, test_r6_fail_after_persistence, test_r6_threshold_has_margin_over_tolerance_stack, test_r6_within_threshold_never_fails",12,PASS,
+R6,Voter,The voter shall fail a channel that miscompares beyond threshold for longer than the persistence time.,Unit + System,13,"test_fault_matrix x9, test_finding002_reproduced_at_old_threshold, test_r6_fail_after_persistence, test_r6_threshold_has_margin_over_tolerance_stack, test_r6_within_threshold_never_fails",13,PASS,
 R7,Voter,The voter shall not fail a channel on a single short spike.,Unit + System,5,"test_fault_matrix x3, test_r7_single_spike_ignored, test_r7_intermittent_spikes_reset_counter",5,PASS,
 R8,Voter,"After one channel failure, the voter shall continue on the remaining two and annunciate.",Unit + System + Bench,25,"test_l1_closed_loop_cable_pull, test_fault_matrix x21, test_r8_dual_mode_average_and_annunciate, test_r8_second_fault_in_dual_is_annunciated, test_r8_invalid_channel_excluded",25,PASS,
 R9,System,"After a single-channel failure, the actuator reconfiguration transient shall overshoot <= 0.60 mm and settle within +/-0.25 mm in <= 0.80 s.",System,4,"test_r9_reconfiguration_transient_baseline x2, test_r9_corrective_action_verified x2",3,OPEN DEFECT,RCA-001: integrator windup during rate saturation at rated load
