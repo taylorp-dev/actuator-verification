@@ -2,7 +2,7 @@
 
 These tests check channel A when it comes from a real, separate computer: a Raspberry Pi sending ARINC 429 words over a real Ethernet cable. All 7 are **Bench** level, in `tests/test_bench_link.py`. They run either live (pytest drives the Pi, records, and pulls the link) or on the last recordings in `bench_data/` (replay). A live monitor also checks the words while they arrive; its results are checked when they come from the same run as the recording.
 
-Last results below come from the pre-commit check run on 2026-10-18 (all 125 tests, same code and config as this commit). The official record is [reports/traceability.md](../../reports/traceability.md).
+Last results below come from the record run: FULL RUN, 125 of 125 tests, commit `8f3a2df`, generated 2026-10-19T04:21:49 UTC (Oct 18 evening Pacific). The official record is [reports/traceability.md](../../reports/traceability.md).
 
 | TC | Requirement(s) | Test function | Cases | Last result |
 |---|---|---|---|---|
@@ -12,9 +12,9 @@ Last results below come from the pre-commit check run on 2026-10-18 (all 125 tes
 | [TC-L1-B03](#tc-l1-b03-link-loss-flagged-stale-then-recovers) | L1, R3 | `test_l1_cable_pull_flagged_stale_and_recovers` | 1 | PASS |
 | [TC-L1-B04](#tc-l1-b04-closed-loop-with-the-real-channel-a) | L1, R5 | `test_l1_closed_loop_with_real_channel_a` | 1 | PASS |
 | [TC-L1-B05](#tc-l1-b05-closed-loop-through-the-link-loss) | L1, R8, R10 | `test_l1_closed_loop_cable_pull` | 1 | PASS |
-| [TC-L2-B01](#tc-l2-b01-live-checks-agree-with-the-replay) | L2 | `test_l2_live_vs_replay_agree` | 1 | NOT RUN |
+| [TC-L2-B01](#tc-l2-b01-live-checks-agree-with-the-replay) | L2 | `test_l2_live_vs_replay_agree` | 1 | PASS |
 
-In every TC, the live-monitor rows are marked "(live results only, when present)". The committed recording was made on 2026-10-16, before the live monitor existed, so there is no `bench_data/live_monitor.json` yet. Those rows did not run in the last run: their result is "pending the first live run with the live monitor".
+In every TC, the live-monitor rows are marked "(live results only, when present)". They run when `bench_data/live_monitor.json` comes from the same run as the recording. For the current recording it does, so they ran in the record run.
 
 **Common setup for this file** (pytest does this before every test):
 
@@ -35,7 +35,7 @@ Limits from `config/sil.yaml`: pitch label 324 octal at `icd.labels.pitch.rate_h
 
 | Header | Value |
 |---|---|
-| recorded_utc | 2026-10-16T22:28:41+00:00 |
+| recorded_utc | 2026-10-19T04:13:20+00:00 (Oct 18 evening Pacific) |
 | mode | live, automated (pytest --live) |
 | sender | 192.168.2.1 |
 | pi_ssh | taylor@192.168.2.1 |
@@ -43,11 +43,11 @@ Limits from `config/sil.yaml`: pitch label 324 octal at `icd.labels.pitch.rate_h
 | receiver_host / receiver_os | razor / Windows 11 |
 | link | direct Ethernet cable, UDP, one ARINC 429 word per datagram |
 | link_drop | Pi eth0 down at 15 s for 5 s (ip link set) |
-| recorded_s | not in this header (added to the code later). Replay uses the last word, 32.0 s, as the end |
-| config_sha256_12 | 761c1ae3c552 (the config has changed since this recording) |
-| words | cable_pull.csv 2367 (0 to 32.0 s); healthy.csv 1426 (0 to 14.2 s, "portion of the live run before the link drop") |
+| recorded_s | 32.0 (replay end) |
+| config_sha256_12 | baae11ef69bb |
+| words | cable_pull.csv 2334 (0 to 32.0 s); healthy.csv 1396 (0 to 13.9 s, "portion of the live run before the link drop") |
 
-There is no `live_monitor.json` for this recording.
+`bench_data/live_monitor.json` is from the same run (`recorded_utc` 2026-10-19T04:13:20+00:00), so the live rows are checked.
 
 ---
 
@@ -142,7 +142,7 @@ Expected output: `1 passed`. (A single test is a partial run: its report goes to
 
 **Pass criteria:** every step gives its expected result. Each check is an `assert`; if any one fails, the test fails.
 
-**Last result (2026-10-18):** PASS, on `bench_data/healthy.csv` (recorded 2026-10-16T22:28:41 UTC). 1426 words, sender 192.168.2.1, mean pitch -1.0°. Steps 13–15: pending the first live run with the live monitor.
+**Last result (2026-10-18):** PASS, on `bench_data/healthy.csv` (recorded 2026-10-19T04:13:20 UTC, Oct 18 evening Pacific) and the live results from the same run. 1396 words, sender 192.168.2.1, mean pitch -0.999°. Live decode errors 0.
 
 ---
 
@@ -204,7 +204,9 @@ Expected output: `1 passed`. (Partial run: report goes to `reports/dev/`, not fo
 
 **Pass criteria:** every step gives its expected result. Each check is an `assert`; if any one fails, the test fails.
 
-**Last result (2026-10-18):** PASS, on `bench_data/healthy.csv` (recorded 2026-10-16T22:28:41 UTC). 712 intervals, mean 19.987 ms, 99th percentile jitter 2.51 ms, longest interval 23.27 ms, stale limit 60.0 ms. Step 10: pending the first live run with the live monitor.
+**Last result (2026-10-18):** PASS, on `bench_data/healthy.csv` (recorded 2026-10-19T04:13:20 UTC, Oct 18 evening Pacific) and the live results from the same run. 697 intervals, mean 20.0 ms, 99th percentile jitter 12.77 ms, longest interval 38.74 ms, stale limit 60.0 ms. Longest gap between live checks 4.24 ms.
+
+Note on jitter (open finding): across 15 live runs on 2026-10-16/18, 99th percentile jitter ranged 1.0–14.6 ms and the worst gap 23–43 ms, always under the 60 ms stale limit, with zero false stale. An A/B with the live monitor off (3 runs, using a temporary switch that is not in the code) gave 4.9–8.2 ms. So the rise is mostly the bench setup that night, with a smaller effect from the monitor. This test only checks the mean rate and the worst gap, not jitter. Next steps: timestamp words in their own thread, a real-time target, a repeat on a quiet PC, a jitter requirement, and soak runs.
 
 ---
 
@@ -265,7 +267,7 @@ Expected output: `1 passed`. (Partial run: report goes to `reports/dev/`, not fo
 
 **Pass criteria:** every step gives its expected result. Each check is an `assert`; if any one fails, the test fails.
 
-**Last result (2026-10-18):** PASS, on `bench_data/healthy.csv` (recorded 2026-10-16T22:28:41 UTC). 0 invalid samples. Steps 6–8: pending the first live run with the live monitor.
+**Last result (2026-10-18):** PASS, on `bench_data/healthy.csv` (recorded 2026-10-19T04:13:20 UTC, Oct 18 evening Pacific) and the live results from the same run. 0 invalid samples; live false stale 0.
 
 Loopback check (2026-10-18, local sender standing in for the Pi, not a Pi result): a 150 ms glitch after recovery made this test fail at step 8.
 
@@ -336,9 +338,9 @@ Expected output: `1 passed`. (Partial run: report goes to `reports/dev/`, not fo
 
 **Pass criteria:** every step gives its expected result. Each check is an `assert` (or `pytest.fail` in step 2b); if any one fails, the test fails.
 
-**Last result (2026-10-18):** PASS, on `bench_data/cable_pull.csv` (recorded 2026-10-16T22:28:41 UTC). Link out 9.4 s, flagged stale 60.2 ms after the last word, valid again 0.4 ms after the first word back. Steps 7–12: pending the first live run with the live monitor.
+**Last result (2026-10-18):** PASS, on `bench_data/cable_pull.csv` (recorded 2026-10-19T04:13:20 UTC, Oct 18 evening Pacific) and the live results from the same run. Link out 8.7 s. Replay: flagged stale 60.9 ms after the last word, valid again 0.4 ms after the first word back. Live: flagged 61.9 ms, valid again 0.1 ms.
 
-Note: the port was down for 5 s, but words were missing for 9.4 s. The extra time is most likely the Pi's Ethernet link and network coming back up after `ip link set eth0 up`; the test does not check it. Loopback check (2026-10-18, not a Pi result): when the link never recovered, this test failed at step 2b with "the link never came back".
+Note: the port was down for 5 s, but words were missing for 8.7 s. The extra time is most likely the Pi's Ethernet link and network coming back up after `ip link set eth0 up`; the test does not check it. Loopback check (2026-10-18, not a Pi result): when the link never recovered, this test failed at step 2b with "the link never came back".
 
 ---
 
@@ -388,7 +390,7 @@ Expected output: `1 passed`. (Partial run: report goes to `reports/dev/`, not fo
 | Step | Action | Python command | Expected result | Line |
 |---|---|---|---|---|
 | 1 | Get the healthy recording | `rows, _ = capture(bench, "healthy")` | Recording loaded (skip if missing) | 304 |
-| 2 | Length of the replay: the recording, capped at 30 s | `dur = min(rows[-1][0], REPLAY_MAX_S)` | About 14.2 s | 305 |
+| 2 | Length of the replay: the recording, capped at 30 s | `dur = min(rows[-1][0], REPLAY_MAX_S)` | About 13.9 s | 305 |
 | 3 | Run the whole system with the recording as channel A, true pitch -2.0° | `run = replay(cfg, rows, dur)` | Run completes | 306 |
 | 3a | *(inside the run)* Channel A is replaced by the recording; B and C are simulated (bias 0.0° and -1.0°, noise 0.02°) | `chans[i] = src` | A = real words, B and C = simulated | sil/sim.py 93–100 |
 | 3b | *(inside the run)* Every 1 ms step, the recording hands over every word whose recorded arrival time has come, with the same values, timing and gaps | `ReplayChannel.transmit(t, truth)` | Words reach receiver A as they arrived | sil/link.py 84–92; sil/sim.py 132–134 |
@@ -401,7 +403,7 @@ Expected output: `1 passed`. (Partial run: report goes to `reports/dev/`, not fo
 
 **Pass criteria:** every step gives its expected result. Each check is an `assert`; if any one fails, the test fails.
 
-**Last result (2026-10-18):** PASS, on `bench_data/healthy.csv` (recorded 2026-10-16T22:28:41 UTC). Replayed 14.2 s, largest voted error 0.066°.
+**Last result (2026-10-18):** PASS, on `bench_data/healthy.csv` (recorded 2026-10-19T04:13:20 UTC, Oct 18 evening Pacific). Replayed 13.9 s, largest voted error 0.066°.
 
 ---
 
@@ -468,7 +470,7 @@ Expected output: `1 passed`. (Partial run: report goes to `reports/dev/`, not fo
 
 **Pass criteria:** every step gives its expected result. Each check is an `assert` (or `pytest.fail` inside step 2); if any one fails, the test fails.
 
-**Last result (2026-10-18):** PASS, on `bench_data/cable_pull.csv` (recorded 2026-10-16T22:28:41 UTC). Modes seen DUAL and TRIPLEX, ended in TRIPLEX, actuator travel 2.298 mm.
+**Last result (2026-10-18):** PASS, on `bench_data/cable_pull.csv` (recorded 2026-10-19T04:13:20 UTC, Oct 18 evening Pacific). Modes seen DUAL and TRIPLEX, ended in TRIPLEX, actuator travel 2.366 mm.
 
 Note: R10 covers position and rate limits; this test checks only the position limit. Loopback check (2026-10-18, not a Pi result): when the link never recovered, this test failed at step 2 with "the link never came back".
 
@@ -499,11 +501,11 @@ Note: R10 covers position and rate limits; this test checks only the position li
 - Pi on and reachable over SSH, sender code up to date.
 - Firewall rule allows UDP 42900 from the Pi.
 - Pi allows `ip link` without a password, which makes the automated cable pull work.
-- Replay only: `bench_data/live_monitor.json` exists with the same `recorded_utc` as `cable_pull.csv`, or the test is skipped (NOT RUN). Today it does not exist.
+- Replay only: `bench_data/live_monitor.json` exists with the same `recorded_utc` as `cable_pull.csv`, or the test is skipped (NOT RUN). For the current recording it exists.
 
 **How to run (PowerShell, from the repo folder):**
 
-Live (all 7 tests, fresh capture; this is the only way to get live results today):
+Live (all 7 tests, fresh capture):
 ```
 python -m pytest tests/test_bench_link.py --live -v --pi taylor@192.168.2.1 --data-host 192.168.2.10
 ```
@@ -511,7 +513,7 @@ Replay (this test only):
 ```
 python -m pytest "tests/test_bench_link.py::test_l2_live_vs_replay_agree" -v
 ```
-Expected output today: `1 skipped`. After a live run with the live monitor is committed: `1 passed`. (Partial run: report goes to `reports/dev/`, not for record.)
+Expected output: `1 passed` (`1 skipped` if there are no live results from the same run). (Partial run: report goes to `reports/dev/`, not for record.)
 
 **Part 1: Capture (live mode only):** steps C1–C15 in [Part 1](#part-1-capture-live-mode-only-shared-by-all-tcs). This test needs both the recordings (C13) and the live monitor's results from the same run (C8a, C8b, C14).
 
@@ -543,7 +545,7 @@ If there are no live results, the test stops at step 2 and is skipped. Every ste
 
 **Pass criteria:** every step gives its expected result. Each check is an `assert` (or `pytest.fail` inside step 6); if any one fails, the test fails.
 
-**Last result (2026-10-18):** NOT RUN. Skip reason: "no live monitor results for this recording yet: run with --live". The committed recording (2026-10-16T22:28:41 UTC) was made before the live monitor existed, so it has no `live_monitor.json`. Steps 3–17: pending the first live run with the live monitor.
+**Last result (2026-10-18):** PASS, on `bench_data/cable_pull.csv` (recorded 2026-10-19T04:13:20 UTC, Oct 18 evening Pacific) and `bench_data/live_monitor.json` from the same run. Words 2334 live vs 2334 replay (fingerprints match). Stale flag 61.9 ms live vs 60.9 ms replay, 1.0 ms apart. Recovery 0.1 ms live vs 0.4 ms replay, 0.3 ms apart. False stale 0 vs 0. Longest gap between live checks 4.24 ms. Tolerance 5.0 ms.
 
 **Loopback check (not a Pi result, not for record):** on 2026-10-18, a local sender on the PC stood in for the Pi. It is not the Pi and not the real cable, so it does not count as an L2 result. Live flagged the drop at 60.1 ms and replay at 60.9 ms, 0.8 ms apart (inside 5 ms). With the old 50 ms live check period, the same check failed: 39.7 ms apart. That is why the live check period is now 1 ms (`bench_link.live_check_period_s` = 0.001).
 

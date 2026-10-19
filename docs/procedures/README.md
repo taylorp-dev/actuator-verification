@@ -4,7 +4,7 @@ Plain-language procedures for every automated test in this repo: purpose, setup,
 
 - **Levels:** **Unit** = one component alone (encoder, receiver, voter, actuator model, command law). **System** = components working together in closed loop. **Bench** = real hardware data (a Raspberry Pi sending channel A over a real Ethernet cable). The traceability matrix shows the same levels.
 - **TC IDs:** `TC-<requirement>-<U|S|B><nn>`, one per test function. A parametrized test (several cases, or both load conditions) is one TC with a table of its cases.
-- **Last result** in each TC comes from the pre-commit check run on 2026-10-18. The official, current result is always the record: [reports/traceability.md](../../reports/traceability.md).
+- **Last result** in each TC comes from the pre-commit check run on 2026-10-18; the bench TCs (Raspberry Pi) come from the record run, commit `8f3a2df`. The official, current result is always the record: [reports/traceability.md](../../reports/traceability.md).
 - **Running one test** (the "How to run" line in each TC) is a partial run: its report goes to `reports/dev/`, not for record. The record is a full run on committed code (USER-GUIDE section 7).
 - Lab-rig style procedure for the bandwidth test, written for real hardware: [TP-A4-bandwidth.md](TP-A4-bandwidth.md).
 
@@ -74,4 +74,4 @@ Plain-language procedures for every automated test in this repo: purpose, setup,
 | [TC-L1-B03](bench-link.md#tc-l1-b03-link-loss-flagged-stale-then-recovers) | L1, R3 | Bench | `test_l1_cable_pull_flagged_stale_and_recovers` | 1 | PASS |
 | [TC-L1-B04](bench-link.md#tc-l1-b04-closed-loop-with-the-real-channel-a) | L1, R5 | Bench | `test_l1_closed_loop_with_real_channel_a` | 1 | PASS |
 | [TC-L1-B05](bench-link.md#tc-l1-b05-closed-loop-through-the-link-loss) | L1, R8, R10 | Bench | `test_l1_closed_loop_cable_pull` | 1 | PASS |
-| [TC-L2-B01](bench-link.md#tc-l2-b01-live-checks-agree-with-the-replay) | L2 | Bench | `test_l2_live_vs_replay_agree` | 1 | NOT RUN |
+| [TC-L2-B01](bench-link.md#tc-l2-b01-live-checks-agree-with-the-replay) | L2 | Bench | `test_l2_live_vs_replay_agree` | 1 | PASS |

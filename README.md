@@ -25,9 +25,10 @@ EMA characterization, triplex ARINC 429 sensor fault response, and actuator-leve
 
 ## Results (current baseline)
 
-- 22 requirements, 125 tests (121 pass, 3 open defects kept as strict xfail, 1 not run), full suite ~20-40 s. 21/22 traced: **L2** (live monitor agrees with replay) shows NOT RUN until the first live run with the live monitor is committed.
+- 22/22 requirements traced, 125 tests (122 pass, 3 open defects kept as strict xfail), full suite ~20-40 s. Record run: commit `8f3a2df`, [reports/traceability.md](reports/traceability.md).
 - Tests by level: Unit 46, System 72, Bench 7. Every test has a written procedure: [docs/procedures/](docs/procedures/README.md).
-- **Bench link on a real Raspberry Pi** (two live runs): words arrive every 20.0 ms with 1.0-2.5 ms p99 jitter (worst gap 26 ms vs the 60 ms stale limit); a link drop is flagged in 60.2 ms and recovers 0.4 ms after data returns, identical across runs. End-to-end recovery is bounded by the network re-connecting (3.7-4.4 s), not by the software.
+- **Bench link on a real Raspberry Pi** (15 live runs, 2026-10-16 and 10-18): a link drop is flagged at 60.0-61.0 ms and recovers within 1 ms after data returns, with zero false stale, every run. With the live monitor on, live and replay agreed within 1.8 ms (L2, limit 5 ms). End-to-end recovery is bounded by the network re-connecting (about 3.5-4.5 s), not by the software.
+- **Open bench finding, jitter:** p99 jitter was 1.0-2.5 ms on 10-16 and 6.3-14.6 ms on 10-18 (worst gap 43 ms, still under the 60 ms stale limit). An A/B with the live monitor off gave 4.9-8.2 ms: mostly the bench setup that night, a smaller effect from the monitor. Next: timestamp words in their own thread, live checks on a real-time target, repeat on a quiet PC, a jitter requirement so a regression fails, longer soak runs.
 - **RCA-001:** R9 reconfiguration transient passes unloaded, **fails at rated load** (integrator windup during rate saturation). The actuator passes all its own acceptance tests. Corrective action (anti-windup) verified in the SIL.
 - **FINDING-002:** first fault-matrix run isolated the **wrong** channel. Threshold had zero margin over the sensor tolerance stack. Fixed, guarded by a test.
 - **FINDING-003:** after losing one of two motors, the actuator holds unloaded but is **back-driven at rated load** (one motor = half the stall force). Sizing option verified; open.

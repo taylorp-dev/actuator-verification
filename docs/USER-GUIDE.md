@@ -213,7 +213,7 @@ python -m pytest
 ```
 collected 125 items
 
-tests\test_bench_link.py ......s                                         [  5%]
+tests\test_bench_link.py .......                                         [  5%]
 tests\test_model_bench_actuator.py ....                                  [  8%]
 tests\test_part_a_actuator.py ........                                   [ 14%]
 tests\test_part_b_receiver.py ...................                        [ 29%]
@@ -222,14 +222,13 @@ tests\test_part_b_voter.py ..............                                [ 64%]
 tests\test_part_c_actuator_faults.py .x.................x............... [ 92%]
 .........                                                                [100%]
 
-SKIPPED [1] tests/test_bench_link.py:333: no live monitor results for this recording yet: run with --live
 XFAIL tests/test_part_b_system.py::test_r9_reconfiguration_transient_baseline[rated] - RCA-001: ...
 XFAIL tests/test_part_c_actuator_faults.py::test_r11_motor_channel_loss_hold[rated] - FINDING-003: ...
 XFAIL tests/test_part_c_actuator_faults.py::test_r12_no_false_alarm_baseline_actuator - FINDING-005: ...
-================== 121 passed, 1 skipped, 3 xfailed in 22.29s ==================
+======================= 122 passed, 3 xfailed in 37.4s ========================
 ```
 
-**This is the correct, healthy result.** The first line, `test_bench_link.py`, is the bench link: those 7 tests replay the Raspberry Pi recordings in `bench_data/`, so the Pi doesn't need to be on. The one `s` is L2 (live checks agree with the replay): it needs `bench_data/live_monitor.json` from the same live run as the recording, which only a `--live` run makes. Once a live run with the live monitor is committed, it runs and the result is `122 passed, 3 xfailed`. If `bench_data/` is ever missing, all 7 show as `s` and the result is `115 passed, 7 skipped, 3 xfailed`. Skipped is never counted as passed. Run time varies by computer (15 to 40 seconds is normal; the Part C false-alarm sweep is the slow part).
+**This is the correct, healthy result.** The first line, `test_bench_link.py`, is the bench link: those 7 tests replay the Raspberry Pi recordings in `bench_data/`, so the Pi doesn't need to be on. L2 (live checks agree with the replay) also reads `bench_data/live_monitor.json`, saved by the same live run as the recording; if that file is missing or from a different run, L2 shows as `s` (skipped) and the result is `121 passed, 1 skipped, 3 xfailed`. If `bench_data/` is ever missing, all 7 show as `s` and the result is `115 passed, 7 skipped, 3 xfailed`. Skipped is never counted as passed. Run time varies by computer (15 to 40 seconds is normal; the Part C false-alarm sweep is the slow part).
 
 **Live = Pi, everything else = recordings.** Nothing in this guide talks to the Pi. Only `--live` (or the "Bench live (Raspberry Pi)" button on GitHub) does, and that's covered in `docs/BENCH-GUIDE.md`.
 
@@ -375,7 +374,7 @@ All of these are **partial runs**: their matrix goes to `reports\dev\`, not `rep
 
 All settings live in one file: `config/sil.yaml`. Open it in Notepad or VS Code. Lines starting with `#` are comments.
 
-**For each experiment:** change one value, save, run `python -m pytest`, read the result, then **change it back** and run again to confirm you're back at your baseline: `121 passed, 1 skipped, 3 xfailed` (or `122 passed, 3 xfailed` once a live-monitor run is committed).
+**For each experiment:** change one value, save, run `python -m pytest`, read the result, then **change it back** and run again to confirm you're back at your baseline: `122 passed, 3 xfailed`.
 
 > Safety net: if you lose track of what you changed and the project is in git, `git checkout config/sil.yaml` restores the file. Or just unzip a fresh copy.
 
@@ -399,7 +398,7 @@ Run the suite. You should see:
 FAILED tests/test_part_b_system.py::test_fault_matrix[frozen-chB]
 FAILED tests/test_part_b_system.py::test_fault_matrix[drift-chB]
 FAILED tests/test_part_b_voter.py::test_r6_threshold_has_margin_over_tolerance_stack
-3 failed, 118 passed, 1 skipped, 3 xfailed
+3 failed, 119 passed, 3 xfailed
 ```
 
 **What happened:** with the threshold at exactly 2x the sensor tolerance, a healthy channel sits right on the limit, noise trips it, and the voter fails the wrong channel. The third failure is the guard test added so this mistake can't slip back in. Details: `docs/rca/FINDING-002-wrong-channel-isolated.md`.
@@ -415,7 +414,7 @@ Under `actuator:`, change `anti_windup: false` to `anti_windup: true`. Run the s
 [XPASS(strict)] FINDING-005: monitor needs the RCA-001 anti-windup fix; baseline windup gives false jam alarms
 FAILED tests/test_part_b_system.py::test_r9_reconfiguration_transient_baseline[rated]
 FAILED tests/test_part_c_actuator_faults.py::test_r12_no_false_alarm_baseline_actuator
-2 failed, 121 passed, 1 skipped, 1 xfailed
+2 failed, 122 passed, 1 xfailed
 ```
 
 **What happened:** the fix works, so the "known defect" test now passes. It also closes FINDING-005: with the windup gone, the jam monitor stops false-alarming. One fix, two defects closed. Because it's marked strict, that unexpected pass is reported as a failure. On a real program, this is the moment you'd close the defect: remove the xfail marking and make the fixed design the new baseline.
@@ -424,7 +423,7 @@ Change it back to `false`.
 
 ### Experiment 3: Lighter load
 
-Under `load_conditions:`, change `rated: 4550.0` to `rated: 2275.0`. Run the suite. You should see three `XPASS(strict)` lines (RCA-001, FINDING-003, FINDING-005) and `3 failed, 121 passed, 1 skipped`.
+Under `load_conditions:`, change `rated: 4550.0` to `rated: 2275.0`. Run the suite. You should see three `XPASS(strict)` lines (RCA-001, FINDING-003, FINDING-005) and `3 failed, 122 passed`.
 
 **What happened:** at half the load, all three load-dependent defects disappear. The actuator doesn't saturate long enough for the windup to matter, and one motor can carry half the load on its own. These defects only show up with a realistic load. That's the core lesson of the project: **test environment fidelity decides what you can catch.**
 
@@ -469,7 +468,7 @@ Run `python tools\make_figures.py` after any change to see the effect in the plo
 
 | Symptom | What it means | What to do |
 | --- | --- | --- |
-| Result isn't your baseline (`121 passed, 1 skipped, 3 xfailed`, see section 5) and you didn't change anything | Config or code changed | `git status` to see what changed; `git checkout config/sil.yaml` to restore config, or unzip a fresh copy |
+| Result isn't your baseline (`122 passed, 3 xfailed`) and you didn't change anything | Config or code changed | `git status` to see what changed; `git checkout config/sil.yaml` to restore config, or unzip a fresh copy |
 | `XPASS(strict)` | The known RCA-001 defect stopped failing | Expected if you turned on the fix or lowered the load (Experiments 2-3). Otherwise check what changed. |
 | `E` (error) instead of `F` | Test couldn't start; usually a typo in `config/sil.yaml` | YAML is picky about indentation. Use spaces, not tabs, and keep the same indent as neighboring lines. |
 | Different run time from someone else | Different computer speed | Not a problem. Results should match exactly; only timing differs. |
