@@ -11,7 +11,7 @@ These tests check the model of the desk rig actuator (Actuonix L16-P) against th
 
 | Item | Python command | Where |
 |---|---|---|
-| Load settings (once per session, shared by all tests) | `load_config()` | conftest.py lines 56–59 (`cfg` fixture) |
+| Load settings (once per session, shared by all tests) | `load_config()` | conftest.py lines 68–71 (`cfg` fixture) |
 | Recorder for measured values (built into pytest) | `record_property(name, value)` | pytest built-in, values go to the report |
 | Helper: build the L16-P model with a given opposing load | `EMA(EMAParams.from_dict(cfg["bench_actuator_l16p"]["params"]), load_n=load_n)` | test file lines 15–16 (`l16p`) |
 | Helper: list the datasheet speed-force points, no-load point first | `[(0.0, ds["no_load_speed_mm_s"])] + [tuple(p) for p in ds["points_n_mm_s"]]` | test file lines 19–21 (`_points`) |

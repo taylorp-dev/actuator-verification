@@ -18,7 +18,7 @@ These tests cover the triplex mid-value-select voter, requirements R5 to R8. The
 
 | Item | Python command | Where |
 |---|---|---|
-| Load settings from `config/sil.yaml` (once per run, shared by all tests) | `load_config()` | conftest.py line 59 |
+| Load settings from `config/sil.yaml` (once per run, shared by all tests) | `load_config()` | conftest.py line 71 |
 | Read the voter settings | `v = cfg["voter"]` | test file line 12 |
 | Create a fresh voter for each test: threshold 2.5°, persistence 0.10 s, frame 0.02 s | `MidValueVoter(v["threshold_deg"], v["persistence_s"], v["frame_s"])` | test file line 13 |
 | Helper used by several tests: send the same three values, all marked valid, for `n` frames in a row, and return the output of the last frame | `frames(voter, values, n)`: loops `voter.update([(True, x) for x in values])` | test file lines 16–20 |
@@ -143,7 +143,7 @@ Expected output: `1 passed`. (A single test is a partial run: its report goes to
 
 **Initial condition:** baseline configuration loaded.
 
-**Setup (done automatically by pytest before step 1):** only the settings load from the common setup (`load_config()`, conftest.py line 59). This test does not use the voter fixture.
+**Setup (done automatically by pytest before step 1):** only the settings load from the common setup (`load_config()`, conftest.py line 71). This test does not use the voter fixture.
 
 **Steps:**
 

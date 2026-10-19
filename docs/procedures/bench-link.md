@@ -20,11 +20,11 @@ In every TC, the live-monitor rows are marked "(live results only, when present)
 
 | Item | Python command | Where |
 |---|---|---|
-| Load settings (once per session) | `load_config()` | conftest.py lines 56–59 |
+| Load settings (once per session) | `load_config()` | conftest.py lines 68–71 |
 | Get the bench data (once per session). Live: do the capture (Part 1). Replay: read `healthy.csv` and `cable_pull.csv`, and `live_monitor.json` only if its `recorded_utc` matches the recording's | `bench(request, cfg)` | test file lines 121–136 |
-| Live mode switch and options | `--live`, `--pi` (default `taylor@dronepi.local`), `--data-host` (default `192.168.2.2`), `--drop-at` (15.0 s), `--drop-for` (5.0 s) | conftest.py lines 43–52 |
-| Pick one recording; skip the test (NOT RUN) if it doesn't exist | `capture(bench, name)` | test file lines 139–143 |
-| Get the live results from the same run, or `None` | `live_results(bench)` | test file lines 146–148 |
+| Live mode switch and options | `--live`, `--pi` (default `taylor@dronepi.local`), `--data-host` (default `192.168.2.2`), `--drop-at` (15.0 s), `--drop-for` (5.0 s) | conftest.py lines 55–64 |
+| Pick one recording; skip the test (NOT RUN) if it doesn't exist | `capture(bench, name)` | test file lines 147–151 |
+| Get the live results from the same run, or `None` | `live_results(bench)` | test file lines 154–156 |
 | Save measured values to the report | `record_property` (built into pytest) | |
 
 Fixed values in the test file: `TRUE_PITCH = -2.0` (what the Pi sends by default, line 49), `PULL_MIN_GAP_S = 0.5` (a gap this long is the link drop, line 50), `REPLAY_MAX_S = 30.0` (line 51).
@@ -86,7 +86,7 @@ The capture runs **once per pytest session**, inside the `bench` fixture (test f
 | Requirements | ICD-1: ARINC 429 BNR words shall be encoded per the ICD (label, SDI, sign, resolution, SSM, odd parity). L1: Channel A sent from a separate computer over a real Ethernet link shall decode per the ICD, arrive at the nominal label rate (mean interval within 2 %) without gaps long enough to trip the stale check, and a link loss shall be flagged stale within 3 intervals and recover automatically. |
 | Level | Bench (hardware in the loop) |
 | Test file | `tests/test_bench_link.py` |
-| Test function | `test_l1_words_on_the_wire_decode_per_icd` (lines 212–234) |
+| Test function | `test_l1_words_on_the_wire_decode_per_icd` (lines 221–243) |
 
 **Purpose:** show that every word that came over the real cable has a known label, good parity, SDI 1 and Normal SSM, and that the pitch value is what the Pi was told to send.
 
@@ -124,21 +124,21 @@ Expected output: `1 passed`. (A single test is a partial run: its report goes to
 
 | Step | Action | Python command | Expected result | Line |
 |---|---|---|---|---|
-| 1 | Get the healthy recording | `rows, meta = capture(bench, "healthy")` | Recording loaded (skip if missing) | 215 |
-| 2 | Build the label list and the label number → name lookup | `labels = label_defs(cfg)` / `lookup = label_lookup(labels)` | pitch 324, roll 325 (octal) | 216–217 |
-| 3 | List words whose label is not in the ICD | `bad_label = [w for _, w in rows if label_of(w) not in lookup]` | List made | 218 |
-| 4 | Decode every word with a known label | `decoded = [decode_bnr(w, labels[lookup[label_of(w)]]) for _, w in rows if ...]` | Decoded list | 219 |
-| 5 | Work out the expected pitch: true pitch plus channel A's bias (`sensors.bias_deg[0]`) | `expect = TRUE_PITCH + cfg["sensors"]["bias_deg"][0]` | -2.0 + 1.0 = -1.0° | 220 |
-| 6 | Pick out the pitch values | `pitch = [d.value for ... if lookup[label_of(w)] == "pitch"]` | Pitch list | 221–222 |
-| 7 | Save word count, sender address, mean pitch | `record_property("words", len(rows))` ... | Saved | 223–225 |
-| 8 | Check labels | `assert not bad_label` | No word has a label outside the ICD | 226 |
-| 9 | Check parity | `assert all(d.parity_ok for d in decoded)` | Every word has good (odd) parity | 227 |
-| 10 | Check SDI | `assert all(d.sdi == 1 for d in decoded)` | Every word has SDI 1 (channel A) | 228 |
-| 11 | Check SSM | `assert all(d.ssm == SSM.NORMAL for d in decoded)` | Every word has SSM Normal | 229 |
-| 12 | Check the mean pitch | `assert abs(np.mean(pitch) - expect) < 0.05` | Mean pitch between -1.05° and -0.95° (0.05° limit is in the test file) | 230 |
-| 13 | *(live results only, when present)* Get the live results from the same run | `live = live_results(bench)` | Present only with a matching `live_monitor.json` | 231 |
-| 14 | *(live results only, when present)* Save the total live decode errors | `record_property("live_decode_errors", sum(live["decode_errors"].values()))` | Saved | 233 |
-| 15 | *(live results only, when present)* Check the live checks found no decode errors | `assert not any(live["decode_errors"].values())` | All four counts are 0: label not in ICD, parity, SDI not 1, SSM not Normal | 234 |
+| 1 | Get the healthy recording | `rows, meta = capture(bench, "healthy")` | Recording loaded (skip if missing) | 224 |
+| 2 | Build the label list and the label number → name lookup | `labels = label_defs(cfg)` / `lookup = label_lookup(labels)` | pitch 324, roll 325 (octal) | 225–226 |
+| 3 | List words whose label is not in the ICD | `bad_label = [w for _, w in rows if label_of(w) not in lookup]` | List made | 227 |
+| 4 | Decode every word with a known label | `decoded = [decode_bnr(w, labels[lookup[label_of(w)]]) for _, w in rows if ...]` | Decoded list | 228 |
+| 5 | Work out the expected pitch: true pitch plus channel A's bias (`sensors.bias_deg[0]`) | `expect = TRUE_PITCH + cfg["sensors"]["bias_deg"][0]` | -2.0 + 1.0 = -1.0° | 229 |
+| 6 | Pick out the pitch values | `pitch = [d.value for ... if lookup[label_of(w)] == "pitch"]` | Pitch list | 230–231 |
+| 7 | Save word count, sender address, mean pitch | `record_property("words", len(rows))` ... | Saved | 232–234 |
+| 8 | Check labels | `assert not bad_label` | No word has a label outside the ICD | 235 |
+| 9 | Check parity | `assert all(d.parity_ok for d in decoded)` | Every word has good (odd) parity | 236 |
+| 10 | Check SDI | `assert all(d.sdi == 1 for d in decoded)` | Every word has SDI 1 (channel A) | 237 |
+| 11 | Check SSM | `assert all(d.ssm == SSM.NORMAL for d in decoded)` | Every word has SSM Normal | 238 |
+| 12 | Check the mean pitch | `assert abs(np.mean(pitch) - expect) < 0.05` | Mean pitch between -1.05° and -0.95° (0.05° limit is in the test file) | 239 |
+| 13 | *(live results only, when present)* Get the live results from the same run | `live = live_results(bench)` | Present only with a matching `live_monitor.json` | 240 |
+| 14 | *(live results only, when present)* Save the total live decode errors | `record_property("live_decode_errors", sum(live["decode_errors"].values()))` | Saved | 242 |
+| 15 | *(live results only, when present)* Check the live checks found no decode errors | `assert not any(live["decode_errors"].values())` | All four counts are 0: label not in ICD, parity, SDI not 1, SSM not Normal | 243 |
 
 **Pass criteria:** every step gives its expected result. Each check is an `assert`; if any one fails, the test fails.
 
@@ -153,7 +153,7 @@ Expected output: `1 passed`. (A single test is a partial run: its report goes to
 | Requirement | L1: Channel A sent from a separate computer over a real Ethernet link shall decode per the ICD, arrive at the nominal label rate (mean interval within 2 %) without gaps long enough to trip the stale check, and a link loss shall be flagged stale within 3 intervals and recover automatically. |
 | Level | Bench (hardware in the loop) |
 | Test file | `tests/test_bench_link.py` |
-| Test function | `test_l1_rate_and_jitter_on_real_link` (lines 238–256) |
+| Test function | `test_l1_rate_and_jitter_on_real_link` (lines 247–265) |
 
 **Purpose:** show that pitch words arrive at 50 Hz on average and that no healthy gap is long enough to trip the 60 ms stale check.
 
@@ -191,16 +191,16 @@ Expected output: `1 passed`. (Partial run: report goes to `reports/dev/`, not fo
 
 | Step | Action | Python command | Expected result | Line |
 |---|---|---|---|---|
-| 1 | Get the healthy recording | `rows, _ = capture(bench, "healthy")` | Recording loaded (skip if missing) | 240 |
-| 2 | Get the pitch label | `ld = labels["pitch"]` | 50 Hz | 241–242 |
-| 3 | Time between each pair of pitch words | `dt = np.diff(pitch_times(rows, labels))` | Interval list (helper `pitch_times`, lines 151–153: arrival times of words with the pitch label) | 243 |
-| 4 | Nominal interval and stale limit | `nominal = 1.0 / ld.rate_hz` / `stale_limit = cfg["icd"]["stale_intervals"] / ld.rate_hz` | 20 ms / 60 ms | 244–245 |
-| 5 | How far each interval is from 20 ms | `jitter = np.abs(dt - nominal)` | Jitter list | 246 |
-| 6 | Save interval count, mean, 99th percentile jitter, longest interval, stale limit | `record_property("intervals", len(dt))` ... | Saved (jitter is recorded, not checked) | 247–251 |
-| 7 | Check the mean rate (limit from L1, 2 % in the test file) | `assert abs(dt.mean() - nominal) / nominal <= 0.02` | Mean interval between 19.6 and 20.4 ms | 252 |
-| 8 | Check the longest gap | `assert dt.max() < stale_limit` | Longest interval under 60 ms (`icd.stale_intervals` 3 / `rate_hz` 50) | 253 |
-| 9 | *(live results only, when present)* Get the live results from the same run | `live = live_results(bench)` | Present only with a matching `live_monitor.json` | 254 |
-| 10 | *(live results only, when present)* Save the longest gap between the monitor's own checks (the PC is not real-time, so it is measured) | `record_property("live_max_check_gap_ms", live["max_check_gap_ms"])` | Saved (recorded only, no limit checked here) | 256 |
+| 1 | Get the healthy recording | `rows, _ = capture(bench, "healthy")` | Recording loaded (skip if missing) | 249 |
+| 2 | Get the pitch label | `ld = labels["pitch"]` | 50 Hz | 250–251 |
+| 3 | Time between each pair of pitch words | `dt = np.diff(pitch_times(rows, labels))` | Interval list (helper `pitch_times`, lines 159–161: arrival times of words with the pitch label) | 252 |
+| 4 | Nominal interval and stale limit | `nominal = 1.0 / ld.rate_hz` / `stale_limit = cfg["icd"]["stale_intervals"] / ld.rate_hz` | 20 ms / 60 ms | 253–254 |
+| 5 | How far each interval is from 20 ms | `jitter = np.abs(dt - nominal)` | Jitter list | 255 |
+| 6 | Save interval count, mean, 99th percentile jitter, longest interval, stale limit | `record_property("intervals", len(dt))` ... | Saved (jitter is recorded, not checked) | 256–260 |
+| 7 | Check the mean rate (limit from L1, 2 % in the test file) | `assert abs(dt.mean() - nominal) / nominal <= 0.02` | Mean interval between 19.6 and 20.4 ms | 261 |
+| 8 | Check the longest gap | `assert dt.max() < stale_limit` | Longest interval under 60 ms (`icd.stale_intervals` 3 / `rate_hz` 50) | 262 |
+| 9 | *(live results only, when present)* Get the live results from the same run | `live = live_results(bench)` | Present only with a matching `live_monitor.json` | 263 |
+| 10 | *(live results only, when present)* Save the longest gap between the monitor's own checks (the PC is not real-time, so it is measured) | `record_property("live_max_check_gap_ms", live["max_check_gap_ms"])` | Saved (recorded only, no limit checked here) | 265 |
 
 **Pass criteria:** every step gives its expected result. Each check is an `assert`; if any one fails, the test fails.
 
@@ -217,7 +217,7 @@ Note on jitter (open finding): across 15 live runs on 2026-10-16/18, 99th percen
 | Requirements | L1 (above). R3: The receiver shall declare a label stale if not updated within 3 nominal transmit intervals. |
 | Level | Bench (hardware in the loop) |
 | Test file | `tests/test_bench_link.py` |
-| Test function | `test_l1_no_false_stale_on_healthy_link` (lines 259–271), helper `receiver_trace` (lines 156–170) |
+| Test function | `test_l1_no_false_stale_on_healthy_link` (lines 268–280), helper `receiver_trace` (lines 164–178) |
 
 **Purpose:** show that on a healthy link the receiver never calls pitch invalid, so real-world timing jitter does not cause a false stale. The replay part checks `healthy.csv`; the live part checks the whole live run except the link drop itself.
 
@@ -255,15 +255,15 @@ Expected output: `1 passed`. (Partial run: report goes to `reports/dev/`, not fo
 
 | Step | Action | Python command | Expected result | Line |
 |---|---|---|---|---|
-| 1 | Get the healthy recording | `rows, _ = capture(bench, "healthy")` | Recording loaded (skip if missing) | 262 |
-| 2 | Run the SIL receiver over the recording, checking pitch validity every 1 ms | `ts, valid = receiver_trace(rows, cfg, labels, rows[-1][0])` | Validity at every 1 ms sample | 263–264 |
-| 2a | *(inside the helper)* A fresh receiver (stale after 3 intervals) gets each word at its recorded arrival time; at each 1 ms sample, pitch validity is read | `rx.receive(name, rows[i][1], rows[i][0])` / `valid[k] = rx.read("pitch", t)[0]` | Invalid only if stale (over 60 ms since last good word), SSM not Normal, or out of range | test file 156–170; sil/receiver.py 24–32, 44–62 |
-| 3 | Skip the first two samples (0 and 1 ms, before the first word is in) | `after_first = ts > 0.001` | Mask made | 265 |
-| 4 | Save the number of invalid samples | `record_property("invalid_samples", int((~valid[after_first]).sum()))` | Saved | 266 |
-| 5 | Check every sample is valid | `assert valid[after_first].all()` | Pitch valid at every sample after 1 ms | 267 |
-| 6 | *(live results only, when present)* Get the live results from the same run | `live = live_results(bench)` | Present only with a matching `live_monitor.json` | 268 |
-| 7 | *(live results only, when present)* Save the live false-stale count: times the live check went invalid after it first went valid, anywhere in the run except inside the link drop (from the last word before the drop to the first word back) | `record_property("live_false_stale", live["false_stale_outside_drop"])` | Saved (counted in sil/bench.py 113–119) | 270 |
-| 8 | *(live results only, when present)* Check the live check never went stale outside the link drop | `assert live["false_stale_outside_drop"] == 0` | 0 | 271 |
+| 1 | Get the healthy recording | `rows, _ = capture(bench, "healthy")` | Recording loaded (skip if missing) | 271 |
+| 2 | Run the SIL receiver over the recording, checking pitch validity every 1 ms | `ts, valid = receiver_trace(rows, cfg, labels, rows[-1][0])` | Validity at every 1 ms sample | 272–273 |
+| 2a | *(inside the helper)* A fresh receiver (stale after 3 intervals) gets each word at its recorded arrival time; at each 1 ms sample, pitch validity is read | `rx.receive(name, rows[i][1], rows[i][0])` / `valid[k] = rx.read("pitch", t)[0]` | Invalid only if stale (over 60 ms since last good word), SSM not Normal, or out of range | test file 164–178; sil/receiver.py 24–32, 44–62 |
+| 3 | Skip the first two samples (0 and 1 ms, before the first word is in) | `after_first = ts > 0.001` | Mask made | 274 |
+| 4 | Save the number of invalid samples | `record_property("invalid_samples", int((~valid[after_first]).sum()))` | Saved | 275 |
+| 5 | Check every sample is valid | `assert valid[after_first].all()` | Pitch valid at every sample after 1 ms | 276 |
+| 6 | *(live results only, when present)* Get the live results from the same run | `live = live_results(bench)` | Present only with a matching `live_monitor.json` | 277 |
+| 7 | *(live results only, when present)* Save the live false-stale count: times the live check went invalid after it first went valid, anywhere in the run except inside the link drop (from the last word before the drop to the first word back) | `record_property("live_false_stale", live["false_stale_outside_drop"])` | Saved (counted in sil/bench.py 113–119) | 279 |
+| 8 | *(live results only, when present)* Check the live check never went stale outside the link drop | `assert live["false_stale_outside_drop"] == 0` | 0 | 280 |
 
 **Pass criteria:** every step gives its expected result. Each check is an `assert`; if any one fails, the test fails.
 
@@ -280,7 +280,7 @@ Loopback check (2026-10-18, local sender standing in for the Pi, not a Pi result
 | Requirements | L1 (above). R3: The receiver shall declare a label stale if not updated within 3 nominal transmit intervals. |
 | Level | Bench (hardware in the loop) |
 | Test file | `tests/test_bench_link.py` |
-| Test function | `test_l1_cable_pull_flagged_stale_and_recovers` (lines 275–296), helper `replay_link_drop` (lines 173–202) |
+| Test function | `test_l1_cable_pull_flagged_stale_and_recovers` (lines 284–315), helper `replay_link_drop` (lines 181–211) |
 
 **Purpose:** show that when the Pi's Ethernet link goes down, the receiver flags pitch stale within 3 intervals, and goes valid again by itself as soon as words come back. When live results exist, show the live check did the same at real time.
 
@@ -318,23 +318,24 @@ Expected output: `1 passed`. (Partial run: report goes to `reports/dev/`, not fo
 
 | Step | Action | Python command | Expected result | Line |
 |---|---|---|---|---|
-| 1 | Get the cable-pull recording and its header | `rows, meta = capture(bench, "cable_pull")` | Recording loaded (skip if missing) | 278 |
-| 2 | Replay the link drop through the receiver | `d = replay_link_drop(cfg, rows, meta)` | Flag and recovery times worked out | 279 |
-| 2a | *(inside the helper)* Replay end: `recorded_s` from the header if there is one, else the last word | `t_end = float((meta or {}).get("recorded_s", rows[-1][0]))` | 32.0 s for this recording (no `recorded_s`, so the last word) | 178–179 |
-| 2b | *(inside the helper)* Check the link came back: fail if there are no pitch words in the last 0.5 s | `pytest.fail(f"no words after {pt[-1]:.1f} s of a {t_end:g} s recording: " "the link never came back")` | Words at the end, so carry on | 180–182 |
-| 2c | *(inside the helper)* Find the longest gap between pitch words; skip if it is under 0.5 s | `if gaps[i] < PULL_MIN_GAP_S: pytest.skip(...)` | Gap found: last word before it (`t_last`), first word after (`t_back`) | 183–187 |
-| 2d | *(inside the helper)* Run the SIL receiver from 0 to the replay end, 1 ms samples | `ts, valid = receiver_trace(rows, cfg, labels, t_end)` | Validity at every 1 ms sample (see TC-L1-B02 step 2a) | 188 |
-| 2e | *(inside the helper)* Flag time = first invalid sample after `t_last`, minus `t_last`. Recovery time = first valid sample at or after `t_back`, minus `t_back`. Also counts invalid stretches outside the drop window, after the first valid sample (used by TC-L2-B01). Stale limit = 3 / 50 Hz | `"flag_s": ...` / `"recover_s": ...` / `"false_stale_outside_drop": starts` / `"stale_limit_s": ...` | `stale_limit_s` = 0.060 s | 189–202 |
-| 3 | Save how long the link was out, the flag time and the recovery time | `record_property("cable_out_s", round(d["cable_out_s"], 2))` ... | Saved | 280–283 |
-| 4 | Check the receiver flagged the loss at all | `assert d["flag_s"] is not None` | A flag time exists | 284 |
-| 5 | Check the flag came in time (stale limit plus 2 ms, the 2 ms is in the test file) | `assert d["flag_s"] <= d["stale_limit_s"] + 0.002` | Flagged within 62 ms of the last word | 285 |
-| 6 | Check recovery | `assert d["recover_s"] is not None and d["recover_s"] <= 0.002` | Valid again within 2 ms of the first word back | 286 |
-| 7 | *(live results only, when present)* Get the live results from the same run | `live = live_results(bench)` | Present only with a matching `live_monitor.json` | 287 |
-| 8 | *(live results only, when present)* Tolerance for live times (`bench_link.live_vs_replay_tol_ms`) | `tol_s = cfg["bench_link"]["live_vs_replay_tol_ms"] / 1000` | 0.005 s | 289 |
-| 9 | *(live results only, when present)* Check the live check saw the drop and flagged it | `assert drop and drop["flagged_after_ms"] is not None` | Live link-drop result exists with a flag time | 290–291 |
-| 10 | *(live results only, when present)* Save the live flag and recovery times | `record_property("live_flagged_after_ms", drop["flagged_after_ms"])` ... | Saved | 292–293 |
-| 11 | *(live results only, when present)* Check the live flag came in time | `assert drop["flagged_after_ms"] / 1000 <= d["stale_limit_s"] + tol_s` | Live flag within 60 + 5 = 65 ms of the last word | 294 |
-| 12 | *(live results only, when present)* Check live recovery | `assert drop["recovered_after_reconnect_ms"] is not None` / `assert drop["recovered_after_reconnect_ms"] / 1000 <= tol_s` | Live check valid again within 5 ms of the first word back | 295–296 |
+| 1 | Get the cable-pull recording and its header | `rows, meta = capture(bench, "cable_pull")` | Recording loaded (skip if missing) | 287 |
+| 2 | Replay the link drop through the receiver | `d = replay_link_drop(cfg, rows, meta)` | Flag and recovery times worked out | 288 |
+| 2a | Save what the replay saw, for the bench figure: the interval between pitch words, and the receiver's valid/invalid trace each 1 ms, with the drop times and the flag and recovery times | `plot_data.save("bench_pitch_intervals", ...)` / `plot_data.save("bench_receiver_valid", ...)` | `reports/data/bench_pitch_intervals.csv`, `bench_receiver_valid.csv` | 289–298 |
+| 2a | *(inside the helper)* Replay end: `recorded_s` from the header if there is one, else the last word | `t_end = float((meta or {}).get("recorded_s", rows[-1][0]))` | 32.0 s for this recording (no `recorded_s`, so the last word) | 186–187 |
+| 2b | *(inside the helper)* Check the link came back: fail if there are no pitch words in the last 0.5 s | `pytest.fail(f"no words after {pt[-1]:.1f} s of a {t_end:g} s recording: " "the link never came back")` | Words at the end, so carry on | 188–190 |
+| 2c | *(inside the helper)* Find the longest gap between pitch words; skip if it is under 0.5 s | `if gaps[i] < PULL_MIN_GAP_S: pytest.skip(...)` | Gap found: last word before it (`t_last`), first word after (`t_back`) | 191–195 |
+| 2d | *(inside the helper)* Run the SIL receiver from 0 to the replay end, 1 ms samples | `ts, valid = receiver_trace(rows, cfg, labels, t_end)` | Validity at every 1 ms sample (see TC-L1-B02 step 2a) | 196 |
+| 2e | *(inside the helper)* Flag time = first invalid sample after `t_last`, minus `t_last`. Recovery time = first valid sample at or after `t_back`, minus `t_back`. Also counts invalid stretches outside the drop window, after the first valid sample (used by TC-L2-B01). Stale limit = 3 / 50 Hz | `"flag_s": ...` / `"recover_s": ...` / `"false_stale_outside_drop": starts` / `"stale_limit_s": ...` | `stale_limit_s` = 0.060 s | 197–211 |
+| 3 | Save how long the link was out, the flag time and the recovery time | `record_property("cable_out_s", round(d["cable_out_s"], 2))` ... | Saved | 299–302 |
+| 4 | Check the receiver flagged the loss at all | `assert d["flag_s"] is not None` | A flag time exists | 303 |
+| 5 | Check the flag came in time (stale limit plus 2 ms, the 2 ms is in the test file) | `assert d["flag_s"] <= d["stale_limit_s"] + 0.002` | Flagged within 62 ms of the last word | 304 |
+| 6 | Check recovery | `assert d["recover_s"] is not None and d["recover_s"] <= 0.002` | Valid again within 2 ms of the first word back | 305 |
+| 7 | *(live results only, when present)* Get the live results from the same run | `live = live_results(bench)` | Present only with a matching `live_monitor.json` | 306 |
+| 8 | *(live results only, when present)* Tolerance for live times (`bench_link.live_vs_replay_tol_ms`) | `tol_s = cfg["bench_link"]["live_vs_replay_tol_ms"] / 1000` | 0.005 s | 308 |
+| 9 | *(live results only, when present)* Check the live check saw the drop and flagged it | `assert drop and drop["flagged_after_ms"] is not None` | Live link-drop result exists with a flag time | 309–310 |
+| 10 | *(live results only, when present)* Save the live flag and recovery times | `record_property("live_flagged_after_ms", drop["flagged_after_ms"])` ... | Saved | 311–312 |
+| 11 | *(live results only, when present)* Check the live flag came in time | `assert drop["flagged_after_ms"] / 1000 <= d["stale_limit_s"] + tol_s` | Live flag within 60 + 5 = 65 ms of the last word | 313 |
+| 12 | *(live results only, when present)* Check live recovery | `assert drop["recovered_after_reconnect_ms"] is not None` / `assert drop["recovered_after_reconnect_ms"] / 1000 <= tol_s` | Live check valid again within 5 ms of the first word back | 314–315 |
 
 **Pass criteria:** every step gives its expected result. Each check is an `assert` (or `pytest.fail` in step 2b); if any one fails, the test fails.
 
@@ -351,7 +352,7 @@ Note: the port was down for 5 s, but words were missing for 8.7 s. The extra tim
 | Requirements | L1 (above). R5: With three valid sources, the voter shall output the middle value. |
 | Level | Bench (hardware in the loop); also marked `system` (closed loop) |
 | Test file | `tests/test_bench_link.py` |
-| Test function | `test_l1_closed_loop_with_real_channel_a` (lines 300–313), helper `replay` (lines 205–208) |
+| Test function | `test_l1_closed_loop_with_real_channel_a` (lines 319–332), helper `replay` (lines 214–217) |
 
 **Purpose:** show that with the real channel A words in place of the simulated channel A, the whole loop (receivers, voter, command law, actuator) stays in triplex and the voted pitch stays close to the true pitch.
 
@@ -389,17 +390,17 @@ Expected output: `1 passed`. (Partial run: report goes to `reports/dev/`, not fo
 
 | Step | Action | Python command | Expected result | Line |
 |---|---|---|---|---|
-| 1 | Get the healthy recording | `rows, _ = capture(bench, "healthy")` | Recording loaded (skip if missing) | 304 |
-| 2 | Length of the replay: the recording, capped at 30 s | `dur = min(rows[-1][0], REPLAY_MAX_S)` | About 13.9 s | 305 |
-| 3 | Run the whole system with the recording as channel A, true pitch -2.0° | `run = replay(cfg, rows, dur)` | Run completes | 306 |
-| 3a | *(inside the run)* Channel A is replaced by the recording; B and C are simulated (bias 0.0° and -1.0°, noise 0.02°) | `chans[i] = src` | A = real words, B and C = simulated | sil/sim.py 93–100 |
-| 3b | *(inside the run)* Every 1 ms step, the recording hands over every word whose recorded arrival time has come, with the same values, timing and gaps | `ReplayChannel.transmit(t, truth)` | Words reach receiver A as they arrived | sil/link.py 84–92; sil/sim.py 132–134 |
-| 3c | *(inside the run)* Every 20 ms frame, the voter takes the three pitch readings; with three valid it outputs the middle one (B, about -2.0°); the command law and actuator follow | `voters["pitch"].update(...)` / `law.update(cur_v, v["frame_s"])` | Mode TRIPLEX | sil/sim.py 135–145; sil/voter.py 56–69 |
-| 4 | Ignore the first 0.2 s (start-up), then work out the voted pitch error | `settled = run.t > 0.2` / `err = np.abs(run.voted[settled] - TRUE_PITCH)` | Error list | 307–308 |
-| 5 | Save replay length and largest error | `record_property("replayed_s", round(dur, 1))` ... | Saved | 309–310 |
-| 6 | Check no channel was latched failed | `assert not run.failed` | No failed channels | 311 |
-| 7 | Check the voter stayed in triplex | `assert all(m == Mode.TRIPLEX for m, s in zip(run.mode, settled) if s)` | TRIPLEX at every step after 0.2 s | 312 |
-| 8 | Check the voted pitch error (limit from `voter.tolerance_deg` plus 0.35° in the test file) | `assert err.max() <= cfg["voter"]["tolerance_deg"] + 0.35` | Largest error ≤ 1.0 + 0.35 = 1.35° | 313 |
+| 1 | Get the healthy recording | `rows, _ = capture(bench, "healthy")` | Recording loaded (skip if missing) | 323 |
+| 2 | Length of the replay: the recording, capped at 30 s | `dur = min(rows[-1][0], REPLAY_MAX_S)` | About 13.9 s | 324 |
+| 3 | Run the whole system with the recording as channel A, true pitch -2.0° | `run = replay(cfg, rows, dur)` | Run completes | 325 |
+| 3a | *(inside the run)* Channel A is replaced by the recording; B and C are simulated (bias 0.0° and -1.0°, noise 0.02°) | `chans[i] = src` | A = real words, B and C = simulated | sil/sim.py 94–101 |
+| 3b | *(inside the run)* Every 1 ms step, the recording hands over every word whose recorded arrival time has come, with the same values, timing and gaps | `ReplayChannel.transmit(t, truth)` | Words reach receiver A as they arrived | sil/link.py 84–92; sil/sim.py 133–135 |
+| 3c | *(inside the run)* Every 20 ms frame, the voter takes the three pitch readings; with three valid it outputs the middle one (B, about -2.0°); the command law and actuator follow | `voters["pitch"].update(...)` / `law.update(cur_v, v["frame_s"])` | Mode TRIPLEX | sil/sim.py 136–146; sil/voter.py 56–69 |
+| 4 | Ignore the first 0.2 s (start-up), then work out the voted pitch error | `settled = run.t > 0.2` / `err = np.abs(run.voted[settled] - TRUE_PITCH)` | Error list | 326–327 |
+| 5 | Save replay length and largest error | `record_property("replayed_s", round(dur, 1))` ... | Saved | 328–329 |
+| 6 | Check no channel was latched failed | `assert not run.failed` | No failed channels | 330 |
+| 7 | Check the voter stayed in triplex | `assert all(m == Mode.TRIPLEX for m, s in zip(run.mode, settled) if s)` | TRIPLEX at every step after 0.2 s | 331 |
+| 8 | Check the voted pitch error (limit from `voter.tolerance_deg` plus 0.35° in the test file) | `assert err.max() <= cfg["voter"]["tolerance_deg"] + 0.35` | Largest error ≤ 1.0 + 0.35 = 1.35° | 332 |
 
 **Pass criteria:** every step gives its expected result. Each check is an `assert`; if any one fails, the test fails.
 
@@ -414,7 +415,7 @@ Expected output: `1 passed`. (Partial run: report goes to `reports/dev/`, not fo
 | Requirements | L1 (above). R8: After one channel failure, the voter shall continue on the remaining two and annunciate. R10: The actuator command shall never exceed the position or rate limits, whatever the input. |
 | Level | Bench (hardware in the loop); also marked `system` (closed loop) |
 | Test file | `tests/test_bench_link.py` |
-| Test function | `test_l1_closed_loop_cable_pull` (lines 316–337), helpers `replay_link_drop` (lines 173–202) and `replay` (lines 205–208) |
+| Test function | `test_l1_closed_loop_cable_pull` (lines 335–360), helpers `replay_link_drop` (lines 181–211) and `replay` (lines 214–217) |
 
 **Purpose:** show that when the real channel A link drops, the voter goes to dual on B and C, annunciates, keeps the command inside limits, and goes back to triplex by itself when the link returns, without latching channel A failed.
 
@@ -452,21 +453,22 @@ Expected output: `1 passed`. (Partial run: report goes to `reports/dev/`, not fo
 
 | Step | Action | Python command | Expected result | Line |
 |---|---|---|---|---|
-| 1 | Get the cable-pull recording and its header | `rows, meta = capture(bench, "cable_pull")` | Recording loaded (skip if missing) | 321 |
-| 2 | Check the recording: fails if the link never came back, skips if there is no drop (result not otherwise used here) | `replay_link_drop(cfg, rows, meta)` | Carries on (see TC-L1-B03 steps 2a–2c) | 322 |
-| 3 | Run the whole system over the full recording (no 30 s cap), true pitch -2.0° | `dur = rows[-1][0]` / `run = replay(cfg, rows, dur)` | Run of about 32.0 s completes | 323–324 |
-| 3a | *(inside the run)* Channel A is the recording; B and C are simulated | `chans[i] = src` | As TC-L1-B04 step 3a | sil/sim.py 93–100 |
+| 1 | Get the cable-pull recording and its header | `rows, meta = capture(bench, "cable_pull")` | Recording loaded (skip if missing) | 340 |
+| 2 | Check the recording: fails if the link never came back, skips if there is no drop (result not otherwise used here) | `replay_link_drop(cfg, rows, meta)` | Carries on (see TC-L1-B03 steps 2a–2c) | 341 |
+| 3 | Run the whole system over the full recording (no 30 s cap), true pitch -2.0° | `dur = rows[-1][0]` / `run = replay(cfg, rows, dur)` | Run of about 32.0 s completes | 342–343 |
+| 3a | Save the voter's channels in use over time (3 = TRIPLEX, 2 = DUAL) for the bench figure | `plot_data.save("bench_voter_channels", {"t_s": run.t, "channels_in_use": [...]}, ...)` | `reports/data/bench_voter_channels.csv` | 344–347 |
+| 3a | *(inside the run)* Channel A is the recording; B and C are simulated | `chans[i] = src` | As TC-L1-B04 step 3a | sil/sim.py 94–101 |
 | 3b | *(inside the run)* During the gap no words come; receiver A goes stale 60 ms after the last word | `reasons()`: `t - self.last_rx_t > stale_intervals / ld.rate_hz + 1e-9` | Channel A invalid | sil/receiver.py 26–27 |
 | 3c | *(inside the run)* The voter only counts valid channels, so A drops out without a miscompare count; with two left it averages B and C and annunciates `DEGRADED_DUAL` | `avail = [i for i in range(self.n) if inputs[i][0] and i not in self.failed]` / `ann.append(f"DEGRADED_{mode.value}")` | Mode DUAL, A not latched failed | sil/voter.py 53, 70–72, 82–83 |
 | 3d | *(inside the run)* When words come back, receiver A is valid again and the voter goes back to the middle of three | `voters["pitch"].update(...)` | Mode TRIPLEX | sil/voter.py 68–69 |
 | 3e | *(inside the run)* The command law clamps the command to the position limit | `raw = max(-self.pos_limit_mm, min(self.pos_limit_mm, raw))` | Command within ±22.0 mm | sil/command_law.py 28 |
-| 4 | Modes seen after 0.2 s; save them, the final mode and the actuator travel | `modes = {m for m, s in zip(run.mode, settled) if s}` / `record_property(...)` | Saved | 325–330 |
-| 5 | Check the voter dropped to dual | `assert Mode.DUAL in modes` | DUAL seen | 331 |
-| 6 | Check it came back | `assert run.mode[-1] == Mode.TRIPLEX` | Last mode TRIPLEX | 332 |
-| 7 | Check A was excluded, not latched failed | `assert not run.failed` | No failed channels | 333 |
-| 8 | Check the annunciation | `assert "DEGRADED_DUAL" in run.annunciations` | `DEGRADED_DUAL` raised | 334 |
-| 9 | Check the command position limit (`command_law.pos_limit_mm`) | `assert np.max(np.abs(run.cmd)) <= law["pos_limit_mm"] + 1e-9` | Largest command ≤ 22.0 mm | 335 |
-| 10 | Check the voted pitch error (limit from `voter.tolerance_deg` plus 0.35° in the test file) | `err = np.abs(run.voted[settled] - TRUE_PITCH)` / `assert err.max() <= cfg["voter"]["tolerance_deg"] + 0.35` | Largest error ≤ 1.35° | 336–337 |
+| 4 | Modes seen after 0.2 s; save them, the final mode and the actuator travel | `modes = {m for m, s in zip(run.mode, settled) if s}` / `record_property(...)` | Saved | 348–353 |
+| 5 | Check the voter dropped to dual | `assert Mode.DUAL in modes` | DUAL seen | 354 |
+| 6 | Check it came back | `assert run.mode[-1] == Mode.TRIPLEX` | Last mode TRIPLEX | 355 |
+| 7 | Check A was excluded, not latched failed | `assert not run.failed` | No failed channels | 356 |
+| 8 | Check the annunciation | `assert "DEGRADED_DUAL" in run.annunciations` | `DEGRADED_DUAL` raised | 357 |
+| 9 | Check the command position limit (`command_law.pos_limit_mm`) | `assert np.max(np.abs(run.cmd)) <= law["pos_limit_mm"] + 1e-9` | Largest command ≤ 22.0 mm | 358 |
+| 10 | Check the voted pitch error (limit from `voter.tolerance_deg` plus 0.35° in the test file) | `err = np.abs(run.voted[settled] - TRUE_PITCH)` / `assert err.max() <= cfg["voter"]["tolerance_deg"] + 0.35` | Largest error ≤ 1.35° | 359–360 |
 
 **Pass criteria:** every step gives its expected result. Each check is an `assert` (or `pytest.fail` inside step 2); if any one fails, the test fails.
 
@@ -483,7 +485,7 @@ Note: R10 covers position and rate limits; this test checks only the position li
 | Requirement | L2: The bench link checks shall also run live, during the capture, and the live results shall agree with the replay of the same recording (same words, fingerprint of the saved recording; no decode errors; no false stale anywhere outside the link drop; stale flag and recovery times within 5 ms). |
 | Level | Bench (hardware in the loop) |
 | Test file | `tests/test_bench_link.py` |
-| Test function | `test_l2_live_vs_replay_agree` (lines 341–393), helper `replay_link_drop` (lines 173–202) |
+| Test function | `test_l2_live_vs_replay_agree` (lines 364–416), helper `replay_link_drop` (lines 181–211) |
 
 **Purpose:** show that the checks made live, while the words arrived, give the same answers as the replay of the same recording: the saved recording is exactly what the live checks saw (word count and fingerprint), no decode errors, no false stale outside the link drop, and stale flag and recovery times within 5 ms.
 
@@ -523,23 +525,23 @@ If there are no live results, the test stops at step 2 and is skipped. Every ste
 
 | Step | Action | Python command | Expected result | Line |
 |---|---|---|---|---|
-| 1 | *(live results only, when present)* Get the live results from the same run | `live = live_results(bench)` | Present only with a matching `live_monitor.json` | 344 |
-| 2 | Skip if there are none | `pytest.skip("no live monitor results for this recording yet: run with --live")` | Skipped (NOT RUN) when there are no live results | 345–346 |
-| 3 | Get the cable-pull recording, its header and the tolerance (`bench_link.live_vs_replay_tol_ms`) | `rows, meta = capture(bench, "cable_pull")` / `tol_ms = cfg["bench_link"]["live_vs_replay_tol_ms"]` | 5.0 ms | 347–350 |
-| 4 | Replay side: fingerprint the saved recording, each word written the same way the live monitor wrote it | `replay_sha = hashlib.sha256("".join(LiveMonitor.row_text(t, w) for t, w in rows).encode()).hexdigest()` | SHA-256 made | 353 (`row_text`: sil/bench.py 58–61) |
-| 5 | Replay side: count decode errors in every word of the recording (label not in ICD, bad parity, SDI not 1, SSM not Normal) | `replay_errors += (not dw.parity_ok) + (dw.sdi != 1) + (dw.ssm != SSM.NORMAL)` | Count made | 356–363 |
-| 6 | Replay side: replay the link drop over the whole cable-pull recording: flag and recovery times, and false stale outside the drop | `d = replay_link_drop(cfg, rows, meta)` / `replay_false_stale = d["false_stale_outside_drop"]` | As TC-L1-B03 steps 2a–2e (fails if the link never came back) | 364–365 |
-| 7 | Check the replay saw a complete link drop (flag and recovery both found) | `assert d["flag_s"] is not None and d["recover_s"] is not None` | `True`, otherwise fails with "replay saw no complete link drop" | 366 |
-| 8 | Replay side: flag and recovery times in ms | `replay_flag_ms = d["flag_s"] * 1000` / `replay_recover_ms = d["recover_s"] * 1000` | Times made | 367–368 |
-| 9 | *(live results only, when present)* Check the live checks saw a complete link drop | `assert drop and drop["flagged_after_ms"] is not None and drop["recovered_after_reconnect_ms"] is not None` | `True`, otherwise fails with "live checks saw no complete link drop" | 371–373 |
-| 10 | *(live results only, when present)* Live side: total decode errors, and how far the live flag and recovery times are from the replay ones | `diff_flag = abs(drop["flagged_after_ms"] - replay_flag_ms)` / `diff_recover = abs(...)` | Differences made | 374–376 |
-| 11 | *(live results only, when present)* Save live vs replay words, flag and recovery times, the differences, the longest gap between live checks, false stale live vs replay, and the tolerance | `record_property("words_live_vs_replay", f"{live['words']} vs {len(rows)}")` ... `record_property("false_stale_live_vs_replay", ...)` | Saved | 378–386 |
-| 12 | *(live results only, when present)* Check same number of words | `assert live["words"] == len(rows)` | Live word count = recording word count | 388 |
-| 13 | *(live results only, when present)* Check the fingerprints match | `assert live["words_sha256"] == replay_sha` | Same SHA-256, otherwise fails with "the saved recording is not what the live checks saw" | 389 |
-| 14 | *(live results only, when present)* Check no decode errors on either side | `assert live_errors == 0 and replay_errors == 0` | Both 0 | 390 |
-| 15 | *(live results only, when present)* Check no false stale outside the link drop on either side | `assert live["false_stale_outside_drop"] == 0 and replay_false_stale == 0` | Both 0 | 391 |
-| 16 | *(live results only, when present)* Check the stale flag times agree | `assert diff_flag <= tol_ms` | Live and replay flag times within 5.0 ms | 392 |
-| 17 | *(live results only, when present)* Check the recovery times agree | `assert diff_recover <= tol_ms` | Live and replay recovery times within 5.0 ms | 393 |
+| 1 | *(live results only, when present)* Get the live results from the same run | `live = live_results(bench)` | Present only with a matching `live_monitor.json` | 367 |
+| 2 | Skip if there are none | `pytest.skip("no live monitor results for this recording yet: run with --live")` | Skipped (NOT RUN) when there are no live results | 368–369 |
+| 3 | Get the cable-pull recording, its header and the tolerance (`bench_link.live_vs_replay_tol_ms`) | `rows, meta = capture(bench, "cable_pull")` / `tol_ms = cfg["bench_link"]["live_vs_replay_tol_ms"]` | 5.0 ms | 370–373 |
+| 4 | Replay side: fingerprint the saved recording, each word written the same way the live monitor wrote it | `replay_sha = hashlib.sha256("".join(LiveMonitor.row_text(t, w) for t, w in rows).encode()).hexdigest()` | SHA-256 made | 376 (`row_text`: sil/bench.py 58–61) |
+| 5 | Replay side: count decode errors in every word of the recording (label not in ICD, bad parity, SDI not 1, SSM not Normal) | `replay_errors += (not dw.parity_ok) + (dw.sdi != 1) + (dw.ssm != SSM.NORMAL)` | Count made | 379–386 |
+| 6 | Replay side: replay the link drop over the whole cable-pull recording: flag and recovery times, and false stale outside the drop | `d = replay_link_drop(cfg, rows, meta)` / `replay_false_stale = d["false_stale_outside_drop"]` | As TC-L1-B03 steps 2a–2e (fails if the link never came back) | 387–388 |
+| 7 | Check the replay saw a complete link drop (flag and recovery both found) | `assert d["flag_s"] is not None and d["recover_s"] is not None` | `True`, otherwise fails with "replay saw no complete link drop" | 389 |
+| 8 | Replay side: flag and recovery times in ms | `replay_flag_ms = d["flag_s"] * 1000` / `replay_recover_ms = d["recover_s"] * 1000` | Times made | 390–391 |
+| 9 | *(live results only, when present)* Check the live checks saw a complete link drop | `assert drop and drop["flagged_after_ms"] is not None and drop["recovered_after_reconnect_ms"] is not None` | `True`, otherwise fails with "live checks saw no complete link drop" | 394–396 |
+| 10 | *(live results only, when present)* Live side: total decode errors, and how far the live flag and recovery times are from the replay ones | `diff_flag = abs(drop["flagged_after_ms"] - replay_flag_ms)` / `diff_recover = abs(...)` | Differences made | 397–399 |
+| 11 | *(live results only, when present)* Save live vs replay words, flag and recovery times, the differences, the longest gap between live checks, false stale live vs replay, and the tolerance | `record_property("words_live_vs_replay", f"{live['words']} vs {len(rows)}")` ... `record_property("false_stale_live_vs_replay", ...)` | Saved | 401–409 |
+| 12 | *(live results only, when present)* Check same number of words | `assert live["words"] == len(rows)` | Live word count = recording word count | 411 |
+| 13 | *(live results only, when present)* Check the fingerprints match | `assert live["words_sha256"] == replay_sha` | Same SHA-256, otherwise fails with "the saved recording is not what the live checks saw" | 412 |
+| 14 | *(live results only, when present)* Check no decode errors on either side | `assert live_errors == 0 and replay_errors == 0` | Both 0 | 413 |
+| 15 | *(live results only, when present)* Check no false stale outside the link drop on either side | `assert live["false_stale_outside_drop"] == 0 and replay_false_stale == 0` | Both 0 | 414 |
+| 16 | *(live results only, when present)* Check the stale flag times agree | `assert diff_flag <= tol_ms` | Live and replay flag times within 5.0 ms | 415 |
+| 17 | *(live results only, when present)* Check the recovery times agree | `assert diff_recover <= tol_ms` | Live and replay recovery times within 5.0 ms | 416 |
 
 **Where the 5 ms comes from** (comment at `bench_link` in `config/sil.yaml`, lines 100–107): replay 1 ms step + live check period 1 ms + Windows scheduling delay (word jitter up to 2.5 ms, measured 2026-10-16) = about 5 ms. Ceiling from the 4:1 rule: 60 ms stale limit / 4 = 15 ms. So 5 ms covers the budget and stays well under the ceiling.
 

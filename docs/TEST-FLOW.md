@@ -18,13 +18,13 @@ flowchart TD
     D --> E["1. Set up<br/>build what it needs from cfg"]
     E --> F["2. Act<br/>unit, system or bench (below)"]
     F --> G["3. Check<br/>assert against limits from cfg"]
-    G --> H["4. Record<br/>record_property: measured values"]
+    G --> H["4. Record<br/>record_property: measured values<br/>plot_data: what a figure shows"]
     H --> I{"Full run on<br/>committed code?"}
     I -- "yes" --> J["reports/traceability.md<br/>FULL RUN ... record"]
     I -- "no: one file, one test,<br/>-k, -m, stopped early" --> K["reports/dev/traceability.md<br/>PARTIAL RUN, not for record"]
 ```
 
-The report hook (end of `tests/conftest.py`) groups results by requirement, gives each a verdict (PASS, FAIL, OPEN DEFECT, NOT RUN, NOT TESTED) and shows each requirement's tests by name and level, stamped with the git commit and the config fingerprint.
+The report hook (end of `tests/conftest.py`) groups results by requirement, gives each a verdict (PASS, FAIL, OPEN DEFECT, NOT RUN, NOT TESTED) and shows each requirement's tests by name and level, stamped with the git commit and the config fingerprint. It also writes the plot data the tests saved to `reports/data/`, each file stamped with its test, that test's result, the commit and the config. `tools/make_figures.py` then draws the figures only from those files, so every point on a plot traces to the run for record ([EVIDENCE.md](EVIDENCE.md)).
 
 ## 2. Unit test
 

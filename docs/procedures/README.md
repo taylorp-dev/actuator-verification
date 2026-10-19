@@ -6,6 +6,7 @@ Plain-language procedures for every automated test in this repo: purpose, setup,
 - **TC IDs:** `TC-<requirement>-<U|S|B><nn>`, one per test function. A parametrized test (several cases, or both load conditions) is one TC with a table of its cases.
 - **Last result** in each TC comes from the pre-commit check run on 2026-10-18; the bench TCs (Raspberry Pi) come from the record run, commit `8f3a2df`. The official, current result is always the record: [reports/traceability.md](../../reports/traceability.md).
 - **Running one test** (the "How to run" line in each TC) is a partial run: its report goes to `reports/dev/`, not for record. The record is a full run on committed code (USER-GUIDE section 7).
+- **Plot data:** tests that are behind a figure also save the data they measured (`plot_data` fixture). Those steps say which file in `reports/data/` they write. The figures are drawn only from those files ([docs/EVIDENCE.md](../EVIDENCE.md)).
 - Lab-rig style procedure for the bandwidth test, written for real hardware: [TP-A4-bandwidth.md](TP-A4-bandwidth.md).
 
 ## By file
@@ -16,7 +17,7 @@ Plain-language procedures for every automated test in this repo: purpose, setup,
 | [M1 bench actuator model](model-bench-actuator.md) | Unit | [`tests/test_model_bench_actuator.py`](../../tests/test_model_bench_actuator.py) | 2 |
 | [Part B receiver](part-b-receiver.md) | Unit | [`tests/test_part_b_receiver.py`](../../tests/test_part_b_receiver.py) | 8 |
 | [Part B voter](part-b-voter.md) | Unit | [`tests/test_part_b_voter.py`](../../tests/test_part_b_voter.py) | 9 |
-| [Part B system](part-b-system.md) | System | [`tests/test_part_b_system.py`](../../tests/test_part_b_system.py) | 4 |
+| [Part B system](part-b-system.md) | System | [`tests/test_part_b_system.py`](../../tests/test_part_b_system.py) | 5 |
 | [Part C actuator faults](part-c-actuator-faults.md) | System | [`tests/test_part_c_actuator_faults.py`](../../tests/test_part_c_actuator_faults.py) | 14 |
 | [Bench link (Raspberry Pi)](bench-link.md) | Bench | [`tests/test_bench_link.py`](../../tests/test_bench_link.py) | 7 |
 
@@ -28,7 +29,7 @@ Plain-language procedures for every automated test in this repo: purpose, setup,
 | [TC-A2-U01](part-a-actuator.md#tc-a2-u01-maximum-extend-rate-unloaded-and-at-rated-load) | A2 | Unit | `test_a2_max_rate` | 2 | PASS (2 of 2) |
 | [TC-A3-U01](part-a-actuator.md#tc-a3-u01-static-accuracy-and-backlash-at-the-rod) | A3 | Unit | `test_a3_accuracy_and_backlash` | 1 | PASS |
 | [TC-A3-U02](part-a-actuator.md#tc-a3-u02-own-feedback-cannot-see-backlash) | A3 | Unit | `test_a3_own_feedback_cannot_see_backlash` | 1 | PASS |
-| [TC-A4-U01](part-a-actuator.md#tc-a4-u01-position-bandwidth) | A4 | Unit | `test_a4_bandwidth` | 1 | PASS |
+| [TC-A4-U01](part-a-actuator.md#tc-a4-u01-position-bandwidth) | A4 | Unit | `test_a4_bandwidth` | 2 | PASS (unloaded; rated case added 2026-10-19) |
 | [TC-A5-U01](part-a-actuator.md#tc-a5-u01-small-1-mm-step-at-rated-load) | A5 | Unit | `test_a5_small_signal_step_rated_load` | 1 | PASS |
 | [TC-A5-U02](part-a-actuator.md#tc-a5-u02-static-accuracy-at-rated-load) | A5 | Unit | `test_a5_accuracy_rated_load` | 1 | PASS |
 | [TC-M1-U01](model-bench-actuator.md#tc-m1-u01-model-speed-matches-the-datasheet-at-three-force-points) | M1 | Unit | `test_m1_speed_force_matches_datasheet` | 3 | PASS |
@@ -51,6 +52,7 @@ Plain-language procedures for every automated test in this repo: purpose, setup,
 | [TC-R8-U02](part-b-voter.md#tc-r8-u02-a-disagreement-in-dual-mode-is-annunciated) | R8 | Unit | `test_r8_second_fault_in_dual_is_annunciated` | 1 | PASS |
 | [TC-R8-U03](part-b-voter.md#tc-r8-u03-an-invalid-channel-is-left-out-of-the-vote) | R8 | Unit | `test_r8_invalid_channel_excluded` | 1 | PASS |
 | [TC-FM-S01](part-b-system.md#tc-fm-s01-fault-matrix-with-one-sensor-fault-at-a-time) | R1, R2, R3, R4, R6, R7, R8, R10 | System | `test_fault_matrix` | 24 | PASS (24 of 24) |
+| [TC-F002-S01](part-b-system.md#tc-f002-s01-finding-002-reproduced-at-the-old-threshold) | R6 | System | `test_finding002_reproduced_at_old_threshold` | 1 | New 2026-10-19 |
 | [TC-R9-S01](part-b-system.md#tc-r9-s01-reconfiguration-transient-baseline-design) | R9 | System | `test_r9_reconfiguration_transient_baseline` | 2 | Unloaded PASS; rated OPEN DEFECT (expected fail, RCA-001) |
 | [TC-R9-S02](part-b-system.md#tc-r9-s02-reconfiguration-transient-with-anti-windup-fix) | R9 | System | `test_r9_corrective_action_verified` | 2 | PASS (2 of 2) |
 | [TC-R10-U01](part-b-system.md#tc-r10-u01-command-limits-hold-for-worst-case-inputs) | R10 | Unit | `test_r10_command_limits_worst_case_inputs` | 1 | PASS |

@@ -6,3 +6,5 @@ venv/
 reports/junit.xml
 docs/internal/
 reports/dev/
+reports/data.tmp/
+reports/data.old/

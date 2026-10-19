@@ -136,6 +136,14 @@ def bench(request, cfg):
     return out
 
 
+def _rel(p: Path) -> str:
+    """Path of a recording as written in plot data: relative to the repo when it's inside it."""
+    try:
+        return Path(p).resolve().relative_to(ROOT).as_posix()
+    except ValueError:
+        return str(p)
+
+
 def capture(bench, name: str):
     if name not in bench:
         pytest.skip(f"no bench recording {name}.csv yet: run with --live, "
@@ -194,6 +202,7 @@ def replay_link_drop(cfg, rows, meta=None) -> dict:
     outside[:first_ok] = False
     starts = int(np.sum(outside[1:] & ~outside[:-1]) + (1 if outside[0] else 0))
     return {
+        "pitch_times": pt, "ts": ts, "valid": valid,
         "t_last": t_last, "t_back": t_back, "cable_out_s": float(gaps[i]),
         "flag_s": float(went_invalid[0] - t_last) if len(went_invalid) else None,
         "recover_s": float(back_valid[0] - t_back) if len(back_valid) else None,
@@ -274,9 +283,19 @@ def test_l1_no_false_stale_on_healthy_link(cfg, bench, record_property):
 # --------------------------------------------------------------- cable pull
 @pytest.mark.req("L1")
 @pytest.mark.req("R3")
-def test_l1_cable_pull_flagged_stale_and_recovers(cfg, bench, record_property):
+def test_l1_cable_pull_flagged_stale_and_recovers(cfg, bench, record_property, plot_data):
     rows, meta = capture(bench, "cable_pull")
     d = replay_link_drop(cfg, rows, meta)
+    pt = d["pitch_times"]
+    src = {k: meta.get(k, "") for k in ("recorded_utc", "sender", "mode", "link_drop")}
+    src["recording"] = _rel(BENCH / "cable_pull.csv")
+    nominal_ms = 1000.0 / label_defs(cfg)["pitch"].rate_hz
+    plot_data.save("bench_pitch_intervals", {"t_s": pt[1:], "interval_ms": np.diff(pt) * 1000.0},
+                   nominal_interval_ms=nominal_ms, **src)
+    plot_data.save("bench_receiver_valid", {"t_s": d["ts"], "ch_a_valid": d["valid"]},
+                   t_last_word_s=d["t_last"],
+                   t_back_s=d["t_back"], flag_s=d["flag_s"], recover_s=d["recover_s"],
+                   stale_limit_s=d["stale_limit_s"], **src)
     record_property("cable_out_s", round(d["cable_out_s"], 2))
     record_property("flagged_after_ms", None if d["flag_s"] is None else round(d["flag_s"] * 1000, 1))
     record_property("recovered_after_reconnect_ms",
@@ -317,11 +336,15 @@ def test_l1_closed_loop_with_real_channel_a(cfg, bench, record_property):
 @pytest.mark.req("R8")
 @pytest.mark.req("R10")
 @pytest.mark.system
-def test_l1_closed_loop_cable_pull(cfg, bench, record_property):
+def test_l1_closed_loop_cable_pull(cfg, bench, record_property, plot_data):
     rows, meta = capture(bench, "cable_pull")
     replay_link_drop(cfg, rows, meta)      # fails if the link never came back, skips if no drop
     dur = rows[-1][0]
     run = replay(cfg, rows, dur)
+    channels = {"TRIPLEX": 3, "DUAL": 2, "SIMPLEX": 1, "FAIL": 0}
+    plot_data.save("bench_voter_channels", {"t_s": run.t,
+                                            "channels_in_use": [channels[m.value] for m in run.mode]},
+                   recording=_rel(BENCH / "cable_pull.csv"), recorded_utc=meta.get("recorded_utc", ""))
     settled = run.t > 0.2
     modes = {m for m, s in zip(run.mode, settled) if s}
     law = cfg["command_law"]

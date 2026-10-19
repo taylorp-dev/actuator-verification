@@ -16,7 +16,7 @@ jobs:
       - run: pip install -r requirements.txt
       - name: Run SIL test suite (log + JUnit XML + traceability matrix)
         run: python tools/run_tests.py
-      - name: Regenerate figures
+      - name: Draw figures from this run's saved data (run_tests.py also tries; this shows any refusal)
         if: always()
         run: python tools/make_figures.py
       - name: Publish traceability matrix to the job summary

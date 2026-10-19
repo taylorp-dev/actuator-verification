@@ -48,7 +48,7 @@ def motor_loss_run(cfg, load_n, t_fail=1.0, duration_s=None):
     return t, x, mon, ema
 
 
-def r11_check(cfg, load_n, record_property):
+def r11_check(cfg, load_n, record_property, plot_data=None, name=None):
     spec = cfg["system_spec"]
     t, x, mon, ema = motor_loss_run(cfg, load_n)
     dev = float(np.max(np.abs(x[t >= 1.0])))
@@ -56,6 +56,10 @@ def r11_check(cfg, load_n, record_property):
     record_property("stall_after_loss_n", round(ema.stall_force_effective))
     record_property("max_deviation_mm", round(dev, 3))
     record_property("monitor_trip_after_s", None if mon.trip_t is None else round(mon.trip_t - 1.0, 2))
+    if plot_data is not None:            # saved before the check, so the failing case is kept too
+        plot_data.save(name, {"t_s": t, "rod_mm": x}, load_n=load_n, t_fail_s=1.0,
+                       stall_after_loss_n=ema.stall_force_effective, max_deviation_mm=dev,
+                       monitor_trip_t_s=mon.trip_t, hold_limit_mm=spec["R11_hold_max_mm"])
     assert dev <= spec["R11_hold_max_mm"]
 
 
@@ -65,10 +69,11 @@ def r11_check(cfg, load_n, record_property):
     pytest.param("rated", marks=pytest.mark.xfail(
         reason="FINDING-003: one motor's stall force is below rated load; rod is back-driven")),
 ])
-def test_r11_motor_channel_loss_hold(cfg, load_name, record_property):
+def test_r11_motor_channel_loss_hold(cfg, load_name, record_property, plot_data):
     """Baseline sizing: each motor gives half the total stall force. At rated load
     (70 % of total stall = 140 % of one motor) the actuator cannot hold."""
-    r11_check(cfg, cfg["load_conditions"][load_name], record_property)
+    r11_check(cfg, cfg["load_conditions"][load_name], record_property,
+              plot_data, f"r11_motor_loss_baseline_{load_name}")
 
 
 @pytest.mark.req("R11")
@@ -85,13 +90,13 @@ def test_r11_if_position_is_lost_it_is_annunciated(cfg, load_condition, record_p
 
 
 @pytest.mark.req("R11")
-def test_r11_corrective_option_verified(fresh_cfg, load_condition, record_property):
+def test_r11_corrective_option_verified(fresh_cfg, load_condition, record_property, plot_data):
     """FINDING-003 option A: size each motor to carry rated load alone
     (total stall doubled, so one motor = the original total). Must hold at every load."""
     name, load_n = load_condition
     fresh_cfg["actuator"]["stall_force_n"] *= 2
     record_property("load", name)
-    r11_check(fresh_cfg, load_n, record_property)
+    r11_check(fresh_cfg, load_n, record_property, plot_data, f"r11_motor_loss_option_a_{name}")
 
 
 # ------------------------------------------------------------------- R12
@@ -118,10 +123,17 @@ def jam_run(cfg, load_n, *, t_jam=0.5, start_mm=-5.0, rate_mm_s=None,
 
 @pytest.mark.req("R12")
 @pytest.mark.parametrize("start_mm", [-15.0, -5.0, 5.0], ids=["near-retract", "mid", "near-extend"])
-def test_r12_jam_detected_and_drive_removed(cfg, load_condition, start_mm, record_property):
+def test_r12_jam_detected_and_drive_removed(cfg, load_condition, start_mm, record_property,
+                                           plot_data, request):
     name, load_n = load_condition
     spec = cfg["system_spec"]
-    t, _, _, demand, integ, mon = jam_run(cfg, load_n, start_mm=start_mm)
+    t, cmd, x, demand, integ, mon = jam_run(cfg, load_n, start_mm=start_mm)
+    if name == "rated" and start_mm == -5.0:         # the case the R12 jam figure shows
+        plot_data.save(f"r12_jam_{request.node.callspec.id}",
+                       {"t_s": t, "cmd_mm": cmd, "rod_mm": x, "drive_mm_s": demand},
+                       load_n=load_n, start_mm=start_mm, t_jam_s=0.5, monitor_trip_t_s=mon.trip_t,
+                       cmd_rate_mm_s=spec["R12_cmd_rate_mm_s"],
+                       monitor_threshold_mm=cfg["actuator_monitor"]["err_threshold_mm"])
     assert mon.tripped, "jam not annunciated"
     latency = mon.trip_t - 0.5
     after = t > mon.trip_t + 0.01
@@ -255,40 +267,56 @@ def ff_params(cfg, **over):
     return ForceFightParams.from_dict(d)
 
 
+def _save_ff(plot_data, name, r, cfg, **meta):
+    """Save a force-fight run for the R13 figure: lane forces and surface position."""
+    meta["rig_offsets_mm"] = " ".join(f"{v:+.2f}" for v in cfg["force_fight"]["rig_offsets_mm"])
+    plot_data.save(name, {"t_s": r.t, "force_a_n": r.force[:, 0], "force_b_n": r.force[:, 1],
+                          "force_c_n": r.force[:, 2], "surface_mm": r.x},
+                   disengaged=";".join(f"{'ABC'[int(k)]}@{v:.3f}" for k, v in r.disengaged.items()) or "none",
+                   **meta)
+
+
 @pytest.mark.req("R13")
-def test_r13_healthy_lanes_share_load_with_equalization(cfg, record_property):
+def test_r13_healthy_lanes_share_load_with_equalization(cfg, record_property, plot_data):
     p = ff_params(cfg)
     r = run_force_fight(p, rig_offsets_mm=cfg["force_fight"]["rig_offsets_mm"], duration_s=10.0)
     fight = r.max_fight()
     record_property("max_fight_n", round(fight))
+    _save_ff(plot_data, "r13_equalization_on_healthy", r, cfg, eq_gain_mm_per_n=p.eq_gain_mm_per_n)
     assert fight <= cfg["system_spec"]["R13_fight_max_n"]
     assert not r.disengaged
 
 
 @pytest.mark.req("R13")
-def test_r13_without_equalization_healthy_lanes_fight_and_trip(cfg, record_property):
+def test_r13_without_equalization_healthy_lanes_fight_and_trip(cfg, record_property, plot_data):
     """Why equalization is required: with integrators and no equalization, two
     healthy lanes inside tolerance wind up against each other until the monitor
     disengages a lane that has nothing wrong with it."""
     p = ff_params(cfg, eq_gain_mm_per_n=0.0)
     r = run_force_fight(p, rig_offsets_mm=cfg["force_fight"]["rig_offsets_mm"], duration_s=10.0)
     record_property("max_fight_n", round(r.max_fight()))
+    _save_ff(plot_data, "r13_equalization_off_healthy", r, cfg, eq_gain_mm_per_n=0.0)
     record_property("healthy_lane_disengaged_at_s", {int(k): round(v, 2) for k, v in r.disengaged.items()})
     assert r.max_fight() > cfg["system_spec"]["R13_fight_max_n"]
     assert r.disengaged, "expected a false disengage without equalization"
 
 
 FF_CASES = [(lane, off) for lane in (0, 1, 2) for off in (2.0, -2.0, 5.0, -5.0, 10.0)]
+FF_FIGURE_CASE = (0, 5.0)    # lane A sensor +5 mm: the faulty-lane case shown in the R13 figure
 
 
 @pytest.mark.req("R13")
 @pytest.mark.parametrize("lane,offset_mm", FF_CASES,
                          ids=[f"lane{'ABC'[l]}{o:+.0f}mm" for l, o in FF_CASES])
-def test_r13_faulty_lane_disengaged(cfg, lane, offset_mm, record_property):
+def test_r13_faulty_lane_disengaged(cfg, lane, offset_mm, record_property, plot_data, request):
     spec = cfg["system_spec"]
     p = ff_params(cfg)
     r = run_force_fight(p, rig_offsets_mm=cfg["force_fight"]["rig_offsets_mm"], duration_s=4.0,
                         fault_lane=lane, fault_offset_mm=offset_mm, fault_t=1.0)
+    if (lane, offset_mm) == FF_FIGURE_CASE:          # the case the R13 figure shows
+        _save_ff(plot_data, f"r13_faulty_{request.node.callspec.id}", r, cfg,
+                 eq_gain_mm_per_n=p.eq_gain_mm_per_n, fault_lane="ABC"[lane],
+                 fault_offset_mm=offset_mm, fault_t_s=1.0)
     record_property("disengaged", {int(k): round(v - 1.0, 3) for k, v in r.disengaged.items()})
     record_property("peak_surface_mm", round(r.max_abs_x(1.0), 2))
     record_property("final_surface_mm", round(float(r.x[-1]), 3))

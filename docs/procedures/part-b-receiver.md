@@ -17,7 +17,7 @@ These tests check the ARINC 429 word format (ICD-1) and the receiver's per-word 
 
 | Item | Python command | Where |
 |---|---|---|
-| Load settings from `config/sil.yaml` (once per session) | `load_config()` | conftest.py line 59 |
+| Load settings from `config/sil.yaml` (once per session) | `load_config()` | conftest.py line 71 |
 | Build the label list (pitch label 324, roll label 325) | `label_defs(cfg)` | test file line 12 |
 | Create a fresh receiver, stale limit 3 intervals (from `icd.stale_intervals`) | `Receiver(labels, stale_intervals=cfg["icd"]["stale_intervals"])` | test file line 17 |
 
@@ -50,7 +50,7 @@ Expected output: `8 passed`. (A single test is a partial run: its report goes to
 
 | Item | Python command | Where |
 |---|---|---|
-| Load settings | `load_config()` | conftest.py line 59 |
+| Load settings | `load_config()` | conftest.py line 71 |
 | Build the label list | `label_defs(cfg)` | test file line 12 |
 | Pick the pitch label | `ld = labels["pitch"]` | test file line 24 |
 
@@ -108,7 +108,7 @@ Expected output: `1 passed`. (Partial run: report goes to `reports/dev/`, not fo
 
 | Item | Python command | Where |
 |---|---|---|
-| Load settings | `load_config()` | conftest.py line 59 |
+| Load settings | `load_config()` | conftest.py line 71 |
 | Build the label list | `label_defs(cfg)` | test file line 12 |
 
 **Steps:**
@@ -147,7 +147,7 @@ Expected output: `1 passed`. (Partial run: report goes to `reports/dev/`, not fo
 
 | Item | Python command | Where |
 |---|---|---|
-| Load settings | `load_config()` | conftest.py line 59 |
+| Load settings | `load_config()` | conftest.py line 71 |
 | Build the label list | `label_defs(cfg)` | test file line 12 |
 
 **Steps:**
@@ -188,7 +188,7 @@ Expected output: `1 passed`. (Partial run: report goes to `reports/dev/`, not fo
 
 | Item | Python command | Where |
 |---|---|---|
-| Load settings | `load_config()` | conftest.py line 59 |
+| Load settings | `load_config()` | conftest.py line 71 |
 | Build the label list | `label_defs(cfg)` | test file line 12 |
 | Create a fresh receiver | `Receiver(labels, stale_intervals=cfg["icd"]["stale_intervals"])` (3) | test file line 17 |
 | Pick the pitch label | `ld = labels["pitch"]` | test file line 46 |
@@ -232,7 +232,7 @@ Expected output: `2 passed`. pytest shows the cases as `[0]` and `[1]`, the SSM 
 
 | Item | Python command | Where |
 |---|---|---|
-| Load settings | `load_config()` | conftest.py line 59 |
+| Load settings | `load_config()` | conftest.py line 71 |
 | Build the label list | `label_defs(cfg)` | test file line 12 |
 | Create a fresh receiver | `Receiver(labels, stale_intervals=cfg["icd"]["stale_intervals"])` (3) | test file line 17 |
 
@@ -281,7 +281,7 @@ Expected output: `1 passed`. (Partial run: report goes to `reports/dev/`, not fo
 
 | Item | Python command | Where |
 |---|---|---|
-| Load settings | `load_config()` | conftest.py line 59 |
+| Load settings | `load_config()` | conftest.py line 71 |
 | Build the label list | `label_defs(cfg)` | test file line 12 |
 | Create a fresh receiver | `Receiver(labels, stale_intervals=cfg["icd"]["stale_intervals"])` (3) | test file line 17 |
 
@@ -321,7 +321,7 @@ Expected output: `1 passed`. (Partial run: report goes to `reports/dev/`, not fo
 
 | Item | Python command | Where |
 |---|---|---|
-| Load settings | `load_config()` | conftest.py line 59 |
+| Load settings | `load_config()` | conftest.py line 71 |
 | Build the label list | `label_defs(cfg)` | test file line 12 |
 | Create a fresh receiver | `Receiver(labels, stale_intervals=cfg["icd"]["stale_intervals"])` (3) | test file line 17 |
 | Pick the pitch label | `ld = labels["pitch"]` | test file line 71 |
@@ -368,7 +368,7 @@ Expected output: `4 passed`. (Partial run: report goes to `reports/dev/`, not fo
 
 | Item | Python command | Where |
 |---|---|---|
-| Load settings | `load_config()` | conftest.py line 59 |
+| Load settings | `load_config()` | conftest.py line 71 |
 | Build the label list | `label_defs(cfg)` | test file line 12 |
 | Create a fresh receiver | `Receiver(labels, stale_intervals=cfg["icd"]["stale_intervals"])` (3) | test file line 17 |
 

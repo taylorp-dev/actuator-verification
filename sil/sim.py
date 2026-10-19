@@ -30,7 +30,8 @@ CONFIG_PATH = Path(__file__).resolve().parent.parent / "config" / "sil.yaml"
 def load_config(path: Path = CONFIG_PATH) -> dict:
     with open(path) as fh:
         cfg = yaml.safe_load(fh)
-    cfg["_hash"] = hashlib.sha256(Path(path).read_bytes()).hexdigest()[:12]
+    # line endings normalized, so a Windows checkout (CRLF) and Linux/CI (LF) give the same fingerprint
+    cfg["_hash"] = hashlib.sha256(Path(path).read_bytes().replace(b"\r\n", b"\n")).hexdigest()[:12]
     cfg["_path"] = str(path)
     return cfg
 

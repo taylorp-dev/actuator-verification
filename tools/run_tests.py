@@ -1,7 +1,8 @@
 """Run the full test suite and save a readable log.
 
-    python tools/run_tests.py     -> runs pytest -v, prints it, saves reports/test_log.txt
-                                     and refreshes reports/l16p_predictions.md
+    python tools/run_tests.py     -> runs pytest -v, prints it, saves reports/test_log.txt,
+                                     refreshes reports/l16p_predictions.md, and draws the
+                                     figures from this run's saved data (run for record only)
 
 The log is plain text so it reads cleanly in a browser on GitHub. It records
 when the run happened, on what machine/Python, and every test's result.
@@ -39,6 +40,12 @@ def main() -> int:
                    cwd=ROOT, capture_output=True, text=True)
     print(output)
     print(f"Log saved to {LOG.relative_to(ROOT)}")
+    fig = subprocess.run([sys.executable, str(ROOT / "tools" / "make_figures.py")],
+                         cwd=ROOT, capture_output=True, text=True)
+    if fig.returncode == 0:
+        print("Figures drawn from this run's data: reports/figures/")
+    else:
+        print("Figures not drawn: " + (fig.stderr.strip() or fig.stdout.strip()))
     return proc.returncode
 
 

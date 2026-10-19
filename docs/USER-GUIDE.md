@@ -211,24 +211,24 @@ python -m pytest
 ### What you should see
 
 ```
-collected 125 items
+collected 127 items
 
 tests\test_bench_link.py .......                                         [  5%]
 tests\test_model_bench_actuator.py ....                                  [  8%]
-tests\test_part_a_actuator.py ........                                   [ 14%]
-tests\test_part_b_receiver.py ...................                        [ 29%]
-tests\test_part_b_system.py .........................x...                [ 53%]
-tests\test_part_b_voter.py ..............                                [ 64%]
+tests\test_part_a_actuator.py .........                                  [ 15%]
+tests\test_part_b_receiver.py ...................                        [ 30%]
+tests\test_part_b_system.py ..........................x...               [ 54%]
+tests\test_part_b_voter.py ..............                                [ 65%]
 tests\test_part_c_actuator_faults.py .x.................x............... [ 92%]
 .........                                                                [100%]
 
 XFAIL tests/test_part_b_system.py::test_r9_reconfiguration_transient_baseline[rated] - RCA-001: ...
 XFAIL tests/test_part_c_actuator_faults.py::test_r11_motor_channel_loss_hold[rated] - FINDING-003: ...
 XFAIL tests/test_part_c_actuator_faults.py::test_r12_no_false_alarm_baseline_actuator - FINDING-005: ...
-======================= 122 passed, 3 xfailed in 37.4s ========================
+======================= 124 passed, 3 xfailed in 29.7s ========================
 ```
 
-**This is the correct, healthy result.** The first line, `test_bench_link.py`, is the bench link: those 7 tests replay the Raspberry Pi recordings in `bench_data/`, so the Pi doesn't need to be on. L2 (live checks agree with the replay) also reads `bench_data/live_monitor.json`, saved by the same live run as the recording; if that file is missing or from a different run, L2 shows as `s` (skipped) and the result is `121 passed, 1 skipped, 3 xfailed`. If `bench_data/` is ever missing, all 7 show as `s` and the result is `115 passed, 7 skipped, 3 xfailed`. Skipped is never counted as passed. Run time varies by computer (15 to 40 seconds is normal; the Part C false-alarm sweep is the slow part).
+**This is the correct, healthy result.** The first line, `test_bench_link.py`, is the bench link: those 7 tests replay the Raspberry Pi recordings in `bench_data/`, so the Pi doesn't need to be on. L2 (live checks agree with the replay) also reads `bench_data/live_monitor.json`, saved by the same live run as the recording; if that file is missing or from a different run, L2 shows as `s` (skipped) and the result is `123 passed, 1 skipped, 3 xfailed`. If `bench_data/` is ever missing, all 7 show as `s` and the result is `117 passed, 7 skipped, 3 xfailed`. Skipped is never counted as passed. Run time varies by computer (15 to 40 seconds is normal; the Part C false-alarm sweep is the slow part).
 
 **Live = Pi, everything else = recordings.** Nothing in this guide talks to the Pi. Only `--live` (or the "Bench live (Raspberry Pi)" button on GitHub) does, and that's covered in `docs/BENCH-GUIDE.md`.
 
@@ -297,25 +297,25 @@ Mac: `open -e reports/traceability.md`. Linux: `xdg-open reports/traceability.md
 The top of the file shows what kind of run it was and the **configuration evidence**:
 
 ```
-- Run: FULL RUN (125 of 125 tests), record
+- Run: FULL RUN (127 of 127 tests), record
 - Git commit: `92ac2cb`
 - Config: `config/sil.yaml` (sha256 `baae11ef69bb`)
 - Requirements traced: 22/22 (100.0%)   <- L1/L2 (bench link) show NOT RUN if the Pi recordings are missing
-- Tests by level: Unit 46, System 72, Bench 7
+- Tests by level: Unit 47, System 73, Bench 7
 ```
 
-If anyone changes `config/sil.yaml`, the hash changes. That's how a result traces back to the exact configuration that produced it. A `-dirty` suffix on the commit means there were uncommitted changes when the tests ran, and the Run line then says "not for record".
+If anyone changes `config/sil.yaml`, the hash changes. That's how a result traces back to the exact configuration that produced it. A `-dirty` suffix on the commit means there were uncommitted changes when the tests ran: the Run line then says "not for record" and the report goes to `reports\dev\`, not `reports\`. The same happens if git isn't available (commit `no-git`) or `BENCH_DATA_DIR` points at recordings outside the repo. Only a run for record ever writes `reports\`.
 
 The matrix shows, for each requirement, its **level** (Unit = one component alone, System = components together in closed loop, Bench = real hardware data) and the **names** of the tests that cover it. Plain-language procedures for every test, with the exact Python line each step runs, are in `docs\procedures\` (start at `README.md` there).
 
 **Making a run for record:**
 
 1. `git status` must say "nothing to commit, working tree clean". If not, commit first.
-2. `python tools\run_tests.py`
+2. `python tools\run_tests.py` (runs the full suite, saves the log, then draws the figures from this run's data)
 3. Check the top of `reports\traceability.md` says `FULL RUN ... record` and the commit has no `-dirty`.
-4. Commit the `reports` folder.
+4. Commit the `reports` folder (matrix, log, `reports\data\` and `reports\figures\`).
 
-> **Reports always reflect the most recent run.** After an experiment, run the normal suite again so the reports match the baseline.
+> **`reports\` only ever holds the last run for record.** Experiments (uncommitted config changes) write to `reports\dev\`, so they can't overwrite the record.
 
 ### Figures
 
@@ -323,7 +323,9 @@ The matrix shows, for each requirement, its **level** (Unit = one component alon
 python tools\make_figures.py
 ```
 
-This writes ten PNGs to `reports\figures`, built from the same code the tests run. No window pops up; open the files from File Explorer.
+This draws eleven PNGs into `reports\figures` **from the data the tests saved in the run for record** (`reports\data\`). It doesn't run the simulation itself: every point on a plot is a value a test measured, and every number in a legend comes from that test's saved data or result. `tools\run_tests.py` calls it for you at the end of a run for record. No window pops up; open the files from File Explorer.
+
+It refuses to draw (and says why) if the last run isn't a run for record, if a data file is missing, or if `config\sil.yaml` changed since the run. For a quick look after an experiment or a partial run, use `python tools\make_figures.py --dev`: it draws from `reports\dev\` and the plots go to `reports\dev\figures\` with a "NOT FOR RECORD" watermark, so they never overwrite the record. If anything is missing it changes no figure at all. Which test made which data file: [docs/EVIDENCE.md](EVIDENCE.md).
 
 | Figure | Shows |
 | --- | --- |
@@ -337,6 +339,7 @@ This writes ten PNGs to `reports\figures`, built from the same code the tests ru
 | `c_motor_loss.png` | R11 / FINDING-003: one motor lost, holds unloaded, back-driven at rated load |
 | `c_jam_detection.png` | R12: jam detected, motor drive removed |
 | `c_force_fight.png` | R13: three lanes on one surface, with and without equalization, faulty lane disengaged |
+| `bench_link_drop.png` | L1: the real Raspberry Pi link drop, flagged and recovered (real hardware recording) |
 
 ---
 
@@ -374,7 +377,7 @@ All of these are **partial runs**: their matrix goes to `reports\dev\`, not `rep
 
 All settings live in one file: `config/sil.yaml`. Open it in Notepad or VS Code. Lines starting with `#` are comments.
 
-**For each experiment:** change one value, save, run `python -m pytest`, read the result, then **change it back** and run again to confirm you're back at your baseline: `122 passed, 3 xfailed`.
+**For each experiment:** change one value, save, run `python -m pytest`, read the result, then **change it back** and run again to confirm you're back at your baseline: `124 passed, 3 xfailed`.
 
 > Safety net: if you lose track of what you changed and the project is in git, `git checkout config/sil.yaml` restores the file. Or just unzip a fresh copy.
 
@@ -397,11 +400,12 @@ Run the suite. You should see:
 ```
 FAILED tests/test_part_b_system.py::test_fault_matrix[frozen-chB]
 FAILED tests/test_part_b_system.py::test_fault_matrix[drift-chB]
+FAILED tests/test_part_b_system.py::test_finding002_reproduced_at_old_threshold
 FAILED tests/test_part_b_voter.py::test_r6_threshold_has_margin_over_tolerance_stack
-3 failed, 119 passed, 3 xfailed
+4 failed, 120 passed, 3 xfailed
 ```
 
-**What happened:** with the threshold at exactly 2x the sensor tolerance, a healthy channel sits right on the limit, noise trips it, and the voter fails the wrong channel. The third failure is the guard test added so this mistake can't slip back in. Details: `docs/rca/FINDING-002-wrong-channel-isolated.md`.
+**What happened:** with the threshold at exactly 2x the sensor tolerance, a healthy channel sits right on the limit, noise trips it, and the voter fails the wrong channel. The last two failures are the guards: the FINDING-002 reproduction test (the configured threshold no longer isolates channel B) and the margin test, so this mistake can't slip back in. Details: `docs/rca/FINDING-002-wrong-channel-isolated.md`.
 
 Change it back to `2.5`.
 
@@ -414,7 +418,7 @@ Under `actuator:`, change `anti_windup: false` to `anti_windup: true`. Run the s
 [XPASS(strict)] FINDING-005: monitor needs the RCA-001 anti-windup fix; baseline windup gives false jam alarms
 FAILED tests/test_part_b_system.py::test_r9_reconfiguration_transient_baseline[rated]
 FAILED tests/test_part_c_actuator_faults.py::test_r12_no_false_alarm_baseline_actuator
-2 failed, 122 passed, 1 xfailed
+2 failed, 124 passed, 1 xfailed
 ```
 
 **What happened:** the fix works, so the "known defect" test now passes. It also closes FINDING-005: with the windup gone, the jam monitor stops false-alarming. One fix, two defects closed. Because it's marked strict, that unexpected pass is reported as a failure. On a real program, this is the moment you'd close the defect: remove the xfail marking and make the fixed design the new baseline.
@@ -423,7 +427,7 @@ Change it back to `false`.
 
 ### Experiment 3: Lighter load
 
-Under `load_conditions:`, change `rated: 4550.0` to `rated: 2275.0`. Run the suite. You should see three `XPASS(strict)` lines (RCA-001, FINDING-003, FINDING-005) and `3 failed, 122 passed`.
+Under `load_conditions:`, change `rated: 4550.0` to `rated: 2275.0`. Run the suite. You should see three `XPASS(strict)` lines (RCA-001, FINDING-003, FINDING-005) and `3 failed, 124 passed`.
 
 **What happened:** at half the load, all three load-dependent defects disappear. The actuator doesn't saturate long enough for the windup to matter, and one motor can carry half the load on its own. These defects only show up with a realistic load. That's the core lesson of the project: **test environment fidelity decides what you can catch.**
 
@@ -433,9 +437,9 @@ Change it back to `4550.0`.
 
 - Raise `noise_sd_deg` under `sensors:` and see when the voter starts tripping on healthy channels.
 - Change `bias_deg` to `[0.2, 0.0, -0.2]` (healthier sensors) and see how the R9 reconfiguration step shrinks.
-- Lower `kp` under `actuator:` from `15.0` to `9.0`. A4 bandwidth fails, and so do A1/A5 rise time, the unloaded R9 settling time, and the jam-monitor false-alarm checks (9 failures). One design change ripples across several requirements, which is exactly why you run the whole suite, not just the test you think is affected.
+- Lower `kp` under `actuator:` from `15.0` to `9.0`. A4 bandwidth fails (unloaded and rated), and so do A1/A5 rise time, the unloaded R9 overshoot (baseline and with the fix), and the jam-monitor false-alarm checks (10 failures). One design change ripples across several requirements, which is exactly why you run the whole suite, not just the test you think is affected.
 
-Run `python tools\make_figures.py` after any change to see the effect in the plots.
+Run `python tools\make_figures.py --dev` after any change to see the effect in the plots (watermarked, in `reports\dev\figures\`).
 
 ---
 
@@ -468,11 +472,11 @@ Run `python tools\make_figures.py` after any change to see the effect in the plo
 
 | Symptom | What it means | What to do |
 | --- | --- | --- |
-| Result isn't your baseline (`122 passed, 3 xfailed`) and you didn't change anything | Config or code changed | `git status` to see what changed; `git checkout config/sil.yaml` to restore config, or unzip a fresh copy |
+| Result isn't your baseline (`124 passed, 3 xfailed`) and you didn't change anything | Config or code changed | `git status` to see what changed; `git checkout config/sil.yaml` to restore config, or unzip a fresh copy |
 | `XPASS(strict)` | The known RCA-001 defect stopped failing | Expected if you turned on the fix or lowered the load (Experiments 2-3). Otherwise check what changed. |
 | `E` (error) instead of `F` | Test couldn't start; usually a typo in `config/sil.yaml` | YAML is picky about indentation. Use spaces, not tabs, and keep the same indent as neighboring lines. |
 | Different run time from someone else | Different computer speed | Not a problem. Results should match exactly; only timing differs. |
-| Figure looks different after a change | Expected: figures come from current config | Restore config and rerun `tools\make_figures.py` |
+| `make_figures: REFUSED` | The last run isn't a run for record, a data file is missing, or the config changed since the run | Read the reason it prints. For a preview use `--dev`; for the record, commit and run `tools\run_tests.py` |
 
 ### Still stuck?
 
@@ -516,7 +520,7 @@ actuator-verification-sil/
 │   ├── test_part_c_actuator_faults.py <- R11-R13
 │   ├── test_model_bench_actuator.py   <- M1 (L16-P model vs datasheet)
 │   └── test_bench_link.py             <- L1, L2 (real Pi over Ethernet: replay + live monitor)
-├── tools/make_figures.py        <- presentation plots
+├── tools/make_figures.py        <- presentation plots, drawn only from reports/data/ of the record run
 ├── tools/predict_bench.py       <- predicted L16-P bench results
 ├── tools/pi_channel_a.py        <- runs on the Raspberry Pi: channel A sender
 ├── tools/bench_capture.py       <- runs on the laptop: records channel A
@@ -528,6 +532,8 @@ actuator-verification-sil/
 │   ├── REFERENCES.md            <-   public sources and what each informed
 │   └── rca/                     <-   RCA-001, FINDING-002 to 005
 ├── reports/                     <- the record: written by a full run
+│   ├── data/                    <-   what the tests measured for each figure (one CSV per series)
+│   ├── figures/                 <-   the plots, drawn only from data/
 │   └── dev/                     <-   partial runs (not committed, not for record)
 ├── .github/workflows/ci.yml     <- runs the suite automatically on GitHub
 ├── pytest.ini                   <- pytest settings

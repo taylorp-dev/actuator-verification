@@ -7,10 +7,18 @@ results, stamped with the git commit and config hash (config control evidence).
 Each test also gets a verification level (Unit / System / Bench), from the file
 it lives in or an explicit @pytest.mark.level("...").
 
-Run for record vs partial run: only a full, unfiltered run writes reports/.
-Any partial run (one file, one test, -k, -m, stopped early) writes to
-reports/dev/ instead, labeled "not for record", so it can never overwrite the
-official record.
+Run for record vs everything else: only a run for record writes reports/: a
+full, unfiltered run on committed code (known git commit, no uncommitted
+changes, recordings from the repo's own bench_data/). Any other run (one file,
+one test, -k, -m, stopped early, uncommitted changes, no git, BENCH_DATA_DIR set)
+writes to reports/dev/ instead, labeled "not for record", so it can never
+overwrite the official record.
+
+Plot data: a test that is behind a figure saves the data it measured with the
+`plot_data` fixture. At the end of the run every saved series is written to
+reports/data/ (or reports/dev/data/), stamped with the test, its result, the
+git commit and the config hash. tools/make_figures.py draws the figures only
+from those files, so every point on a plot traces to the run that produced it.
 """
 
 from __future__ import annotations
@@ -20,12 +28,15 @@ import datetime as dt
 import json
 import os
 import platform
+import re
+import shutil
 import subprocess
 import sys
 import time
 from collections import defaultdict
 from pathlib import Path
 
+import numpy as np
 import pytest
 import yaml
 
@@ -36,6 +47,7 @@ from sil.sim import load_config  # noqa: E402
 
 REPORT_DIR = ROOT / "reports"
 _results: list[dict] = []
+_plot_data: list[dict] = []
 _t0 = time.time()
 
 
@@ -76,6 +88,78 @@ def load_condition(request, cfg):
     return name, cfg["load_conditions"][name]
 
 
+# ------------------------------------------------------------- plot data
+class PlotData:
+    """Saves what a test measured so the figures can be drawn from the run itself.
+
+        plot_data.save("a1_step_unloaded", {"t_s": t, "pos_mm": pos}, rise_s=0.108)
+
+    Columns are equal-length numeric arrays (may be empty); keyword values are
+    scalars written to the file header. Names must be unique in a run.
+    """
+
+    def __init__(self, nodeid: str):
+        self.nodeid = nodeid
+
+    RESERVED = {"file", "test", "test_status", "run", "run_type", "git_commit", "config_sha256_12",
+                "generated_utc", "record"}
+
+    def save(self, name: str, columns: dict | None = None, **meta) -> None:
+        if not re.fullmatch(r"[A-Za-z0-9_.+-]+", name):
+            raise ValueError(f"plot data name {name!r}: letters, digits, _ . + - only")
+        clash = self.RESERVED & set(meta)
+        if clash:
+            raise ValueError(f"plot data {name}: {sorted(clash)} are reserved header keys")
+        meta = {k: " ".join(str(v).split()) if isinstance(v, str) else v for k, v in meta.items()}
+        cols = {k: np.asarray(v, dtype=float).ravel() for k, v in (columns or {}).items()}
+        if len({len(v) for v in cols.values()}) > 1:
+            raise ValueError(f"plot data {name}: columns have different lengths")
+        if any(d["name"] == name for d in _plot_data):
+            raise ValueError(f"plot data {name}: name already used in this run")
+        _plot_data.append({"name": name, "test": self.nodeid, "columns": cols, "meta": meta})
+
+
+@pytest.fixture
+def plot_data(request):
+    """Save measured data for a figure (written to reports/data/ at the end of the run)."""
+    return PlotData(request.node.nodeid)
+
+
+def _write_plot_data(out_dir: Path, header: dict) -> None:
+    """Write every saved series to a fresh folder, then swap it in, so data/ never mixes two runs."""
+    final = out_dir / "data"
+    data_dir = out_dir / "data.tmp"
+    if data_dir.exists():
+        shutil.rmtree(data_dir)
+    data_dir.mkdir(parents=True)
+    status = {r["test"]: r["status"] for r in _results}
+    index = []
+    for d in _plot_data:
+        fname = f"{d['name']}.csv"
+        st = status.get(d["test"], "not reported")
+        lines = [f"# file: {fname}", f"# test: {d['test']}", f"# test_status: {st}"]
+        lines += [f"# {k}: {v}" for k, v in header.items()]
+        lines += [f"# {k}: {v}" for k, v in d["meta"].items()]
+        cols = d["columns"]
+        if cols:
+            lines.append(",".join(cols))
+            arr = np.column_stack(list(cols.values())) if len(next(iter(cols.values()))) else []
+            lines += [",".join(f"{x:.9g}" for x in row) for row in arr]
+        (data_dir / fname).write_text("\n".join(lines) + "\n")
+        index.append({"file": fname, "test": d["test"], "test_status": st,
+                      "columns": list(cols), "rows": len(next(iter(cols.values()))) if cols else 0,
+                      "meta": d["meta"]})
+    (data_dir / "index.json").write_text(json.dumps({**header, "files": index}, indent=2, default=str))
+    old = out_dir / "data.old"
+    if old.exists():
+        shutil.rmtree(old)
+    if final.exists():
+        final.rename(old)                # fails here (file open elsewhere?) before anything is lost
+    data_dir.rename(final)
+    if old.exists():
+        shutil.rmtree(old, ignore_errors=True)
+
+
 # ------------------------------------------------------ verification level
 # Unit:   one component tested alone (encoder, receiver, voter, actuator model).
 # System: several components working together in closed loop.
@@ -114,12 +198,16 @@ def _git_commit() -> str:
     try:
         out = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT,
                              capture_output=True, text=True, timeout=5)
-        commit = out.stdout.strip() or "no-git"
+        commit = out.stdout.strip()
+        if out.returncode != 0 or not commit:
+            return "no-git"
         # reports/ is the output of a run, so it doesn't count as a code change
-        dirty = subprocess.run(["git", "status", "--porcelain", "--", ".", ":!reports"], cwd=ROOT,
-                               capture_output=True, text=True, timeout=5).stdout.strip()
-        return commit + ("-dirty" if dirty else "")
-    except Exception:
+        st = subprocess.run(["git", "status", "--porcelain", "--", ".", ":!reports"], cwd=ROOT,
+                            capture_output=True, text=True, timeout=30)
+        if st.returncode != 0:
+            return "no-git"
+        return commit + ("-dirty" if st.stdout.strip() else "")
+    except Exception:            # no git, not a checkout, or git too slow: the commit is unknown
         return "no-git"
 
 
@@ -181,11 +269,14 @@ def pytest_sessionfinish(session, exitstatus):
     if not _results:
         return
     full, run_type = _run_type(session, exitstatus)
-    out_dir = REPORT_DIR if full else REPORT_DIR / "dev"
-    out_dir.mkdir(parents=True, exist_ok=True)
     cfg = load_config()
     reqs = yaml.safe_load((ROOT / "requirements" / "requirements.yaml").read_text())
     commit = _git_commit()
+    other_bench = "BENCH_DATA_DIR" in os.environ        # replaying recordings from outside the repo
+    record = full and commit not in ("no-git",) and not commit.endswith("-dirty") and not other_bench
+    # only a run for record writes reports/; everything else goes to reports/dev/ (never committed)
+    out_dir = REPORT_DIR if record else REPORT_DIR / "dev"
+    out_dir.mkdir(parents=True, exist_ok=True)
     if not full and run_type == "STOPPED EARLY":
         run_label = (f"PARTIAL RUN, stopped early ({len(_results)} of {session.testscollected} "
                      "tests run), not for record")
@@ -195,6 +286,12 @@ def pytest_sessionfinish(session, exitstatus):
     elif commit.endswith("-dirty"):
         run_label = (f"FULL RUN ({len(_results)} of {session.testscollected} tests) on uncommitted "
                      "changes, not for record: commit first, then run")
+    elif commit == "no-git":
+        run_label = (f"FULL RUN ({len(_results)} of {session.testscollected} tests), commit unknown "
+                     "(no git, or git failed), not for record")
+    elif other_bench:
+        run_label = (f"FULL RUN ({len(_results)} of {session.testscollected} tests) with BENCH_DATA_DIR "
+                     "set (recordings from outside the repo), not for record")
     else:
         run_label = f"FULL RUN ({len(_results)} of {session.testscollected} tests), record"
     meta = {
@@ -202,6 +299,7 @@ def pytest_sessionfinish(session, exitstatus):
         "run_type": run_type,
         "run_label": run_label,
         "git_commit": commit,
+        "record": record,
         "config_file": "config/sil.yaml",
         "config_sha256_12": cfg["_hash"],
         "airframe_icd": cfg["icd"]["airframe"],
@@ -252,6 +350,10 @@ def pytest_sessionfinish(session, exitstatus):
                "tests_by_status": dict(counts),
                "tests_by_level": {lv: by_level[lv] for lv in LEVEL_ORDER if by_level[lv]},
                "untagged_tests": [r["test"] for r in _results if not r["reqs"]]}
+
+    _write_plot_data(out_dir, {"run": run_label, "run_type": run_type, "git_commit": commit,
+                               "record": record, "config_sha256_12": cfg["_hash"],
+                               "generated_utc": meta["generated_utc"]})
 
     (out_dir / "test_summary.json").write_text(
         json.dumps({"summary": summary, "requirements": rows, "results": _results},
