@@ -1,23 +1,30 @@
 {
   "summary": {
-    "generated_utc": "2026-10-16T22:32:34+00:00",
-    "git_commit": "2b7d2e9-dirty",
+    "generated_utc": "2026-10-19T04:21:49+00:00",
+    "run_type": "FULL RUN",
+    "run_label": "FULL RUN (125 of 125 tests), record",
+    "git_commit": "8f3a2df",
     "config_file": "config/sil.yaml",
-    "config_sha256_12": "761c1ae3c552",
+    "config_sha256_12": "baae11ef69bb",
     "airframe_icd": "Generic Rotorcraft A",
     "load_conditions": {
       "unloaded": 0.0,
       "rated": 4550.0
     },
     "python": "3.13.3",
-    "suite_runtime_s": 39.1,
-    "requirements_total": 21,
-    "requirements_traced": 21,
+    "suite_runtime_s": 37.4,
+    "requirements_total": 22,
+    "requirements_traced": 22,
     "requirements_traced_pct": 100.0,
-    "tests_total": 124,
+    "tests_total": 125,
     "tests_by_status": {
-      "passed": 121,
+      "passed": 122,
       "xfail": 3
+    },
+    "tests_by_level": {
+      "Unit": 46,
+      "System": 72,
+      "Bench": 7
     },
     "untagged_tests": []
   },
@@ -26,7 +33,9 @@
       "req": "ICD-1",
       "stage": "Interface",
       "text": "ARINC 429 BNR words shall be encoded per the ICD (label, SDI, sign, resolution, SSM, odd parity).",
+      "levels": "Unit + Bench",
       "tests": 11,
+      "test_names": "test_l1_words_on_the_wire_decode_per_icd, test_icd_bnr_round_trip x8, test_icd_label_bits_are_reversed, test_icd_odd_parity",
       "passed": 11,
       "verdict": "PASS",
       "notes": ""
@@ -35,7 +44,9 @@
       "req": "A1",
       "stage": "Actuator",
       "text": "Small-signal step response (1 mm, unloaded) shall have rise time <= 0.15 s and overshoot <= 10 %.",
+      "levels": "Unit",
       "tests": 1,
+      "test_names": "test_a1_small_signal_step_unloaded",
       "passed": 1,
       "verdict": "PASS",
       "notes": ""
@@ -44,7 +55,9 @@
       "req": "A2",
       "stage": "Actuator",
       "text": "Maximum rate shall be >= 35 mm/s unloaded and >= 10 mm/s at rated opposing load.",
+      "levels": "Unit",
       "tests": 2,
+      "test_names": "test_a2_max_rate x2",
       "passed": 2,
       "verdict": "PASS",
       "notes": ""
@@ -53,7 +66,9 @@
       "req": "A3",
       "stage": "Actuator",
       "text": "Static position accuracy shall be <= 0.10 mm and backlash <= 0.15 mm, measured at the output rod.",
+      "levels": "Unit",
       "tests": 2,
+      "test_names": "test_a3_accuracy_and_backlash, test_a3_own_feedback_cannot_see_backlash",
       "passed": 2,
       "verdict": "PASS",
       "notes": ""
@@ -62,7 +77,9 @@
       "req": "A4",
       "stage": "Actuator",
       "text": "Position bandwidth (-3 dB) shall be >= 2.5 Hz.",
+      "levels": "Unit",
       "tests": 1,
+      "test_names": "test_a4_bandwidth",
       "passed": 1,
       "verdict": "PASS",
       "notes": ""
@@ -71,7 +88,9 @@
       "req": "A5",
       "stage": "Actuator",
       "text": "At rated opposing load, small-signal step overshoot shall be <= 10 %, rise time <= 0.15 s, accuracy <= 0.10 mm.",
+      "levels": "Unit",
       "tests": 2,
+      "test_names": "test_a5_small_signal_step_rated_load, test_a5_accuracy_rated_load",
       "passed": 2,
       "verdict": "PASS",
       "notes": ""
@@ -80,7 +99,9 @@
       "req": "M1",
       "stage": "Model",
       "text": "The bench actuator model (Actuonix L16-P) shall reproduce the manufacturer datasheet speed-force points within 5 % and use the datasheet backlash.",
+      "levels": "Unit",
       "tests": 4,
+      "test_names": "test_m1_speed_force_matches_datasheet x3, test_m1_backlash_matches_datasheet",
       "passed": 4,
       "verdict": "PASS",
       "notes": ""
@@ -89,7 +110,9 @@
       "req": "R1",
       "stage": "Receiver",
       "text": "The receiver shall reject words with bad parity.",
+      "levels": "Unit + System",
       "tests": 4,
+      "test_names": "test_r1_bad_parity_rejected, test_fault_matrix x3",
       "passed": 4,
       "verdict": "PASS",
       "notes": ""
@@ -98,7 +121,9 @@
       "req": "R2",
       "stage": "Receiver",
       "text": "The receiver shall treat SSM Failure Warning or No Computed Data as invalid.",
+      "levels": "Unit + System",
       "tests": 6,
+      "test_names": "test_r2_ssm_invalid x2, test_r2_ssm_normal_valid, test_fault_matrix x3",
       "passed": 6,
       "verdict": "PASS",
       "notes": ""
@@ -107,7 +132,9 @@
       "req": "R3",
       "stage": "Receiver",
       "text": "The receiver shall declare a label stale if not updated within 3 nominal transmit intervals.",
+      "levels": "Unit + System + Bench",
       "tests": 6,
+      "test_names": "test_l1_no_false_stale_on_healthy_link, test_l1_cable_pull_flagged_stale_and_recovers, test_r3_stale_boundary, test_fault_matrix x3",
       "passed": 6,
       "verdict": "PASS",
       "notes": ""
@@ -116,7 +143,9 @@
       "req": "R4",
       "stage": "Receiver",
       "text": "The receiver shall reject values outside the physical range.",
+      "levels": "Unit + System",
       "tests": 7,
+      "test_names": "test_r4_physical_range x4, test_fault_matrix x3",
       "passed": 7,
       "verdict": "PASS",
       "notes": ""
@@ -125,7 +154,9 @@
       "req": "R5",
       "stage": "Voter",
       "text": "With three valid sources, the voter shall output the middle value.",
+      "levels": "Unit + Bench",
       "tests": 7,
+      "test_names": "test_l1_closed_loop_with_real_channel_a, test_r5_mid_value_select x6",
       "passed": 7,
       "verdict": "PASS",
       "notes": ""
@@ -134,7 +165,9 @@
       "req": "R6",
       "stage": "Voter",
       "text": "The voter shall fail a channel that miscompares beyond threshold for longer than the persistence time.",
+      "levels": "Unit + System",
       "tests": 12,
+      "test_names": "test_fault_matrix x9, test_r6_fail_after_persistence, test_r6_threshold_has_margin_over_tolerance_stack, test_r6_within_threshold_never_fails",
       "passed": 12,
       "verdict": "PASS",
       "notes": ""
@@ -143,7 +176,9 @@
       "req": "R7",
       "stage": "Voter",
       "text": "The voter shall not fail a channel on a single short spike.",
+      "levels": "Unit + System",
       "tests": 5,
+      "test_names": "test_fault_matrix x3, test_r7_single_spike_ignored, test_r7_intermittent_spikes_reset_counter",
       "passed": 5,
       "verdict": "PASS",
       "notes": ""
@@ -152,7 +187,9 @@
       "req": "R8",
       "stage": "Voter",
       "text": "After one channel failure, the voter shall continue on the remaining two and annunciate.",
+      "levels": "Unit + System + Bench",
       "tests": 25,
+      "test_names": "test_l1_closed_loop_cable_pull, test_fault_matrix x21, test_r8_dual_mode_average_and_annunciate, test_r8_second_fault_in_dual_is_annunciated, test_r8_invalid_channel_excluded",
       "passed": 25,
       "verdict": "PASS",
       "notes": ""
@@ -161,7 +198,9 @@
       "req": "R9",
       "stage": "System",
       "text": "After a single-channel failure, the actuator reconfiguration transient shall overshoot <= 0.60 mm and settle within +/-0.25 mm in <= 0.80 s.",
+      "levels": "System",
       "tests": 4,
+      "test_names": "test_r9_reconfiguration_transient_baseline x2, test_r9_corrective_action_verified x2",
       "passed": 3,
       "verdict": "OPEN DEFECT",
       "notes": "RCA-001: integrator windup during rate saturation at rated load"
@@ -170,7 +209,9 @@
       "req": "R10",
       "stage": "System",
       "text": "The actuator command shall never exceed the position or rate limits, whatever the input.",
+      "levels": "Unit + System + Bench",
       "tests": 26,
+      "test_names": "test_l1_closed_loop_cable_pull, test_fault_matrix x24, test_r10_command_limits_worst_case_inputs",
       "passed": 26,
       "verdict": "PASS",
       "notes": ""
@@ -179,8 +220,21 @@
       "req": "L1",
       "stage": "Bench link",
       "text": "Channel A sent from a separate computer over a real Ethernet link shall decode per the ICD, arrive at the nominal label rate (mean interval within 2 %) without gaps long enough to trip the stale check, and a link loss shall be flagged stale within 3 intervals and recover automatically.",
+      "levels": "Bench",
       "tests": 6,
+      "test_names": "test_l1_words_on_the_wire_decode_per_icd, test_l1_rate_and_jitter_on_real_link, test_l1_no_false_stale_on_healthy_link, test_l1_cable_pull_flagged_stale_and_recovers, test_l1_closed_loop_with_real_channel_a, test_l1_closed_loop_cable_pull",
       "passed": 6,
+      "verdict": "PASS",
+      "notes": ""
+    },
+    {
+      "req": "L2",
+      "stage": "Bench link",
+      "text": "The bench link checks shall also run live, during the capture, and the live results shall agree with the replay of the same recording (same words, fingerprint of the saved recording; no decode errors; no false stale anywhere outside the link drop; stale flag and recovery times within 5 ms).",
+      "levels": "Bench",
+      "tests": 1,
+      "test_names": "test_l2_live_vs_replay_agree",
+      "passed": 1,
       "verdict": "PASS",
       "notes": ""
     },
@@ -188,7 +242,9 @@
       "req": "R11",
       "stage": "Actuator fault",
       "text": "After loss of one of two motor channels, the actuator shall hold commanded position within 0.50 mm for 5 s at every load condition up to rated.",
+      "levels": "System",
       "tests": 6,
+      "test_names": "test_r11_motor_channel_loss_hold x2, test_r11_if_position_is_lost_it_is_annunciated x2, test_r11_corrective_option_verified x2",
       "passed": 5,
       "verdict": "OPEN DEFECT",
       "notes": "FINDING-003: one motor's stall force is below rated load; rod is back-driven"
@@ -197,7 +253,9 @@
       "req": "R12",
       "stage": "Actuator fault",
       "text": "The actuator monitor shall annunciate a jam within 0.30 s while the command is moving, remove motor drive, and not annunciate during normal operation (including rate-limited moves at rated load and all Part B fault cases).",
+      "levels": "System",
       "tests": 14,
+      "test_names": "test_r12_jam_detected_and_drive_removed x6, test_r12_jam_with_stationary_command_is_latent, test_r12_no_false_alarm_on_rate_limited_move_at_rated_load, test_r12_no_false_alarm_on_bandwidth_sine, test_r12_no_false_alarm_across_part_b_faults x4, test_r12_no_false_alarm_baseline_actuator",
       "passed": 13,
       "verdict": "OPEN DEFECT",
       "notes": "FINDING-005: monitor needs the RCA-001 anti-windup fix; baseline windup gives false jam alarms"
@@ -206,7 +264,9 @@
       "req": "R13",
       "stage": "Actuator fault",
       "text": "With three lanes active on one surface, equalization shall keep force fight between healthy lanes <= 500 N; a faulty lane shall be disengaged (only that lane) with surface error <= 0.25 mm after; a lane fault too small to detect shall cause <= 0.60 mm surface error.",
+      "levels": "System",
       "tests": 24,
+      "test_names": "test_r13_healthy_lanes_share_load_with_equalization, test_r13_without_equalization_healthy_lanes_fight_and_trip, test_r13_faulty_lane_disengaged x15, test_r13_undetected_lane_fault_stays_small x6, test_r13_guard_monitor_isolates_only_the_largest_outlier",
       "passed": 24,
       "verdict": "PASS",
       "notes": ""
@@ -219,12 +279,14 @@
         "L1",
         "ICD-1"
       ],
+      "level": "Bench",
       "status": "passed",
-      "duration_s": 0.008,
+      "duration_s": 0.009,
       "measured": {
-        "words": 1426,
+        "words": 1396,
         "sender": "192.168.2.1",
-        "pitch_mean_deg": -1.0
+        "pitch_mean_deg": -0.999,
+        "live_decode_errors": 0
       },
       "note": ""
     },
@@ -233,14 +295,16 @@
       "reqs": [
         "L1"
       ],
+      "level": "Bench",
       "status": "passed",
-      "duration_s": 0.014,
+      "duration_s": 0.012,
       "measured": {
-        "intervals": 712,
-        "mean_ms": 19.987,
-        "p99_jitter_ms": 2.51,
-        "max_interval_ms": 23.27,
-        "stale_limit_ms": 60.0
+        "intervals": 697,
+        "mean_ms": 20.0,
+        "p99_jitter_ms": 12.77,
+        "max_interval_ms": 38.74,
+        "stale_limit_ms": 60.0,
+        "live_max_check_gap_ms": 4.24
       },
       "note": ""
     },
@@ -250,10 +314,12 @@
         "R3",
         "L1"
       ],
+      "level": "Bench",
       "status": "passed",
-      "duration_s": 0.016,
+      "duration_s": 0.018,
       "measured": {
-        "invalid_samples": 0
+        "invalid_samples": 0,
+        "live_false_stale": 0
       },
       "note": ""
     },
@@ -263,12 +329,15 @@
         "R3",
         "L1"
       ],
+      "level": "Bench",
       "status": "passed",
-      "duration_s": 0.036,
+      "duration_s": 0.043,
       "measured": {
-        "cable_out_s": 9.4,
-        "flagged_after_ms": 60.2,
-        "recovered_after_reconnect_ms": 0.4
+        "cable_out_s": 8.7,
+        "flagged_after_ms": 60.9,
+        "recovered_after_reconnect_ms": 0.4,
+        "live_flagged_after_ms": 61.9,
+        "live_recovered_after_reconnect_ms": 0.1
       },
       "note": ""
     },
@@ -278,10 +347,11 @@
         "R5",
         "L1"
       ],
+      "level": "Bench",
       "status": "passed",
-      "duration_s": 0.262,
+      "duration_s": 0.201,
       "measured": {
-        "replayed_s": 14.2,
+        "replayed_s": 13.9,
         "max_voted_error_deg": 0.066
       },
       "note": ""
@@ -293,15 +363,36 @@
         "R8",
         "L1"
       ],
+      "level": "Bench",
       "status": "passed",
-      "duration_s": 0.497,
+      "duration_s": 0.511,
       "measured": {
         "modes_seen": [
           "DUAL",
           "TRIPLEX"
         ],
         "ended_in": "TRIPLEX",
-        "actuator_span_mm": 2.298
+        "actuator_span_mm": 2.366
+      },
+      "note": ""
+    },
+    {
+      "test": "tests/test_bench_link.py::test_l2_live_vs_replay_agree",
+      "reqs": [
+        "L2"
+      ],
+      "level": "Bench",
+      "status": "passed",
+      "duration_s": 0.047,
+      "measured": {
+        "words_live_vs_replay": "2334 vs 2334",
+        "flag_ms_live_vs_replay": "61.9 vs 60.9",
+        "recover_ms_live_vs_replay": "0.1 vs 0.4",
+        "flag_diff_ms": 1.0,
+        "recover_diff_ms": 0.3,
+        "live_max_check_gap_ms": 4.24,
+        "false_stale_live_vs_replay": "0 vs 0",
+        "tol_ms": 5.0
       },
       "note": ""
     },
@@ -310,8 +401,9 @@
       "reqs": [
         "M1"
       ],
+      "level": "Unit",
       "status": "passed",
-      "duration_s": 0.01,
+      "duration_s": 0.011,
       "measured": {
         "force_n": 0.0,
         "datasheet_mm_s": 32.0,
@@ -325,8 +417,9 @@
       "reqs": [
         "M1"
       ],
+      "level": "Unit",
       "status": "passed",
-      "duration_s": 0.012,
+      "duration_s": 0.01,
       "measured": {
         "force_n": 50.0,
         "datasheet_mm_s": 16.0,
@@ -340,8 +433,9 @@
       "reqs": [
         "M1"
       ],
+      "level": "Unit",
       "status": "passed",
-      "duration_s": 0.01,
+      "duration_s": 0.009,
       "measured": {
         "force_n": 24.0,
         "datasheet_mm_s": 24.0,
@@ -355,8 +449,9 @@
       "reqs": [
         "M1"
       ],
+      "level": "Unit",
       "status": "passed",
-      "duration_s": 0.069,
+      "duration_s": 0.075,
       "measured": {
         "model_backlash_param_mm": 0.25,
         "predicted_bench_hysteresis_mm": 0.19
@@ -368,8 +463,9 @@
       "reqs": [
         "A1"
       ],
+      "level": "Unit",
       "status": "passed",
-      "duration_s": 0.007,
+      "duration_s": 0.012,
       "measured": {
         "rise_s": 0.108,
         "overshoot_pct": 4.4
@@ -381,8 +477,9 @@
       "reqs": [
         "A2"
       ],
+      "level": "Unit",
       "status": "passed",
-      "duration_s": 0.008,
+      "duration_s": 0.011,
       "measured": {
         "load": "unloaded",
         "rate_mm_s": 40.0
@@ -394,6 +491,7 @@
       "reqs": [
         "A2"
       ],
+      "level": "Unit",
       "status": "passed",
       "duration_s": 0.011,
       "measured": {
@@ -407,8 +505,9 @@
       "reqs": [
         "A3"
       ],
+      "level": "Unit",
       "status": "passed",
-      "duration_s": 0.131,
+      "duration_s": 0.141,
       "measured": {
         "accuracy_mm": 0.05,
         "backlash_mm": 0.101
@@ -420,8 +519,9 @@
       "reqs": [
         "A3"
       ],
+      "level": "Unit",
       "status": "passed",
-      "duration_s": 0.051,
+      "duration_s": 0.056,
       "measured": {
         "own_feedback_hysteresis_mm": 0.001,
         "truth_hysteresis_mm": 0.101
@@ -433,8 +533,9 @@
       "reqs": [
         "A4"
       ],
+      "level": "Unit",
       "status": "passed",
-      "duration_s": 1.628,
+      "duration_s": 1.713,
       "measured": {
         "bandwidth_hz": 2.99
       },
@@ -445,8 +546,9 @@
       "reqs": [
         "A5"
       ],
+      "level": "Unit",
       "status": "passed",
-      "duration_s": 0.007,
+      "duration_s": 0.012,
       "measured": {
         "rise_s": 0.108,
         "overshoot_pct": 5.1
@@ -458,8 +560,9 @@
       "reqs": [
         "A5"
       ],
+      "level": "Unit",
       "status": "passed",
-      "duration_s": 0.117,
+      "duration_s": 0.136,
       "measured": {
         "accuracy_mm": 0.051
       },
@@ -470,6 +573,7 @@
       "reqs": [
         "ICD-1"
       ],
+      "level": "Unit",
       "status": "passed",
       "duration_s": 0.0,
       "measured": {},
@@ -480,6 +584,7 @@
       "reqs": [
         "ICD-1"
       ],
+      "level": "Unit",
       "status": "passed",
       "duration_s": 0.0,
       "measured": {},
@@ -490,6 +595,7 @@
       "reqs": [
         "ICD-1"
       ],
+      "level": "Unit",
       "status": "passed",
       "duration_s": 0.0,
       "measured": {},
@@ -500,6 +606,7 @@
       "reqs": [
         "ICD-1"
       ],
+      "level": "Unit",
       "status": "passed",
       "duration_s": 0.0,
       "measured": {},
@@ -510,6 +617,7 @@
       "reqs": [
         "ICD-1"
       ],
+      "level": "Unit",
       "status": "passed",
       "duration_s": 0.0,
       "measured": {},
@@ -520,6 +628,7 @@
       "reqs": [
         "ICD-1"
       ],
+      "level": "Unit",
       "status": "passed",
       "duration_s": 0.0,
       "measured": {},
@@ -530,6 +639,7 @@
       "reqs": [
         "ICD-1"
       ],
+      "level": "Unit",
       "status": "passed",
       "duration_s": 0.0,
       "measured": {},
@@ -540,6 +650,7 @@
       "reqs": [
         "ICD-1"
       ],
+      "level": "Unit",
       "status": "passed",
       "duration_s": 0.0,
       "measured": {},
@@ -550,8 +661,9 @@
       "reqs": [
         "ICD-1"
       ],
+      "level": "Unit",
       "status": "passed",
-      "duration_s": 0.001,
+      "duration_s": 0.0,
       "measured": {},
       "note": ""
     },
@@ -560,6 +672,7 @@
       "reqs": [
         "ICD-1"
       ],
+      "level": "Unit",
       "status": "passed",
       "duration_s": 0.0,
       "measured": {},
@@ -570,6 +683,7 @@
       "reqs": [
         "R1"
       ],
+      "level": "Unit",
       "status": "passed",
       "duration_s": 0.0,
       "measured": {},
@@ -580,6 +694,7 @@
       "reqs": [
         "R2"
       ],
+      "level": "Unit",
       "status": "passed",
       "duration_s": 0.0,
       "measured": {},
@@ -590,6 +705,7 @@
       "reqs": [
         "R2"
       ],
+      "level": "Unit",
       "status": "passed",
       "duration_s": 0.0,
       "measured": {},
@@ -600,6 +716,7 @@
       "reqs": [
         "R2"
       ],
+      "level": "Unit",
       "status": "passed",
       "duration_s": 0.0,
       "measured": {},
@@ -610,6 +727,7 @@
       "reqs": [
         "R3"
       ],
+      "level": "Unit",
       "status": "passed",
       "duration_s": 0.0,
       "measured": {
@@ -622,6 +740,7 @@
       "reqs": [
         "R4"
       ],
+      "level": "Unit",
       "status": "passed",
       "duration_s": 0.0,
       "measured": {},
@@ -632,6 +751,7 @@
       "reqs": [
         "R4"
       ],
+      "level": "Unit",
       "status": "passed",
       "duration_s": 0.0,
       "measured": {},
@@ -642,6 +762,7 @@
       "reqs": [
         "R4"
       ],
+      "level": "Unit",
       "status": "passed",
       "duration_s": 0.0,
       "measured": {},
@@ -652,6 +773,7 @@
       "reqs": [
         "R4"
       ],
+      "level": "Unit",
       "status": "passed",
       "duration_s": 0.0,
       "measured": {},
@@ -664,8 +786,9 @@
         "R8",
         "R10"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.06,
+      "duration_s": 0.069,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL",
@@ -680,8 +803,9 @@
         "R8",
         "R10"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.065,
+      "duration_s": 0.069,
       "measured": {
         "max_voted_error_deg": 1.25,
         "final_mode": "DUAL",
@@ -696,8 +820,9 @@
         "R8",
         "R10"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.058,
+      "duration_s": 0.07,
       "measured": {
         "max_voted_error_deg": 1.25,
         "final_mode": "DUAL",
@@ -712,8 +837,9 @@
         "R8",
         "R10"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.063,
+      "duration_s": 0.068,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL",
@@ -728,8 +854,9 @@
         "R8",
         "R10"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.078,
+      "duration_s": 0.069,
       "measured": {
         "max_voted_error_deg": 1.25,
         "final_mode": "DUAL",
@@ -744,8 +871,9 @@
         "R8",
         "R10"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.063,
+      "duration_s": 0.068,
       "measured": {
         "max_voted_error_deg": 1.25,
         "final_mode": "DUAL",
@@ -760,6 +888,7 @@
         "R8",
         "R10"
       ],
+      "level": "System",
       "status": "passed",
       "duration_s": 0.068,
       "measured": {
@@ -776,8 +905,9 @@
         "R8",
         "R10"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.075,
+      "duration_s": 0.074,
       "measured": {
         "max_voted_error_deg": 0.96,
         "final_mode": "DUAL",
@@ -792,8 +922,9 @@
         "R8",
         "R10"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.083,
+      "duration_s": 0.087,
       "measured": {
         "max_voted_error_deg": 0.96,
         "final_mode": "DUAL",
@@ -807,8 +938,9 @@
         "R7",
         "R10"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.07,
+      "duration_s": 0.085,
       "measured": {
         "max_voted_error_deg": 0.21,
         "final_mode": "TRIPLEX"
@@ -821,8 +953,9 @@
         "R7",
         "R10"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.06,
+      "duration_s": 0.087,
       "measured": {
         "max_voted_error_deg": 0.94,
         "final_mode": "TRIPLEX"
@@ -835,8 +968,9 @@
         "R7",
         "R10"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.062,
+      "duration_s": 0.081,
       "measured": {
         "max_voted_error_deg": 0.94,
         "final_mode": "TRIPLEX"
@@ -850,8 +984,9 @@
         "R8",
         "R10"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.061,
+      "duration_s": 0.079,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL"
@@ -865,8 +1000,9 @@
         "R8",
         "R10"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.058,
+      "duration_s": 0.078,
       "measured": {
         "max_voted_error_deg": 0.24,
         "final_mode": "DUAL"
@@ -880,8 +1016,9 @@
         "R8",
         "R10"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.072,
+      "duration_s": 0.076,
       "measured": {
         "max_voted_error_deg": 0.73,
         "final_mode": "DUAL"
@@ -895,8 +1032,9 @@
         "R8",
         "R10"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.059,
+      "duration_s": 0.078,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL"
@@ -910,8 +1048,9 @@
         "R8",
         "R10"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.06,
+      "duration_s": 0.077,
       "measured": {
         "max_voted_error_deg": 0.21,
         "final_mode": "DUAL"
@@ -925,8 +1064,9 @@
         "R8",
         "R10"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.063,
+      "duration_s": 0.075,
       "measured": {
         "max_voted_error_deg": 0.73,
         "final_mode": "DUAL"
@@ -940,8 +1080,9 @@
         "R8",
         "R10"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.101,
+      "duration_s": 0.068,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL"
@@ -955,8 +1096,9 @@
         "R8",
         "R10"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.092,
+      "duration_s": 0.067,
       "measured": {
         "max_voted_error_deg": 0.24,
         "final_mode": "DUAL"
@@ -970,8 +1112,9 @@
         "R8",
         "R10"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.061,
+      "duration_s": 0.065,
       "measured": {
         "max_voted_error_deg": 0.73,
         "final_mode": "DUAL"
@@ -985,8 +1128,9 @@
         "R8",
         "R10"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.064,
+      "duration_s": 0.065,
       "measured": {
         "max_voted_error_deg": 0.69,
         "final_mode": "DUAL"
@@ -1000,8 +1144,9 @@
         "R8",
         "R10"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.069,
+      "duration_s": 0.066,
       "measured": {
         "max_voted_error_deg": 0.21,
         "final_mode": "DUAL"
@@ -1015,8 +1160,9 @@
         "R8",
         "R10"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.061,
+      "duration_s": 0.067,
       "measured": {
         "max_voted_error_deg": 0.73,
         "final_mode": "DUAL"
@@ -1028,8 +1174,9 @@
       "reqs": [
         "R9"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.075,
+      "duration_s": 0.071,
       "measured": {
         "load": "unloaded",
         "step_mm": 4.04,
@@ -1043,8 +1190,9 @@
       "reqs": [
         "R9"
       ],
+      "level": "System",
       "status": "xfail",
-      "duration_s": 0.073,
+      "duration_s": 0.074,
       "measured": {
         "load": "rated",
         "step_mm": 4.06,
@@ -1058,8 +1206,9 @@
       "reqs": [
         "R9"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.067,
+      "duration_s": 0.082,
       "measured": {
         "load": "unloaded",
         "step_mm": 4.04,
@@ -1073,8 +1222,9 @@
       "reqs": [
         "R9"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.074,
+      "duration_s": 0.084,
       "measured": {
         "load": "rated",
         "step_mm": 4.03,
@@ -1088,8 +1238,9 @@
       "reqs": [
         "R10"
       ],
+      "level": "Unit",
       "status": "passed",
-      "duration_s": 0.002,
+      "duration_s": 0.003,
       "measured": {
         "max_cmd_mm": 22.0,
         "max_rate_mm_s": 60.0
@@ -1101,6 +1252,7 @@
       "reqs": [
         "R5"
       ],
+      "level": "Unit",
       "status": "passed",
       "duration_s": 0.0,
       "measured": {},
@@ -1111,6 +1263,7 @@
       "reqs": [
         "R5"
       ],
+      "level": "Unit",
       "status": "passed",
       "duration_s": 0.0,
       "measured": {},
@@ -1121,6 +1274,7 @@
       "reqs": [
         "R5"
       ],
+      "level": "Unit",
       "status": "passed",
       "duration_s": 0.0,
       "measured": {},
@@ -1131,6 +1285,7 @@
       "reqs": [
         "R5"
       ],
+      "level": "Unit",
       "status": "passed",
       "duration_s": 0.0,
       "measured": {},
@@ -1141,6 +1296,7 @@
       "reqs": [
         "R5"
       ],
+      "level": "Unit",
       "status": "passed",
       "duration_s": 0.0,
       "measured": {},
@@ -1151,8 +1307,9 @@
       "reqs": [
         "R5"
       ],
+      "level": "Unit",
       "status": "passed",
-      "duration_s": 0.0,
+      "duration_s": 0.001,
       "measured": {},
       "note": ""
     },
@@ -1161,6 +1318,7 @@
       "reqs": [
         "R6"
       ],
+      "level": "Unit",
       "status": "passed",
       "duration_s": 0.0,
       "measured": {
@@ -1173,6 +1331,7 @@
       "reqs": [
         "R6"
       ],
+      "level": "Unit",
       "status": "passed",
       "duration_s": 0.0,
       "measured": {
@@ -1185,6 +1344,7 @@
       "reqs": [
         "R6"
       ],
+      "level": "Unit",
       "status": "passed",
       "duration_s": 0.001,
       "measured": {},
@@ -1195,8 +1355,9 @@
       "reqs": [
         "R7"
       ],
+      "level": "Unit",
       "status": "passed",
-      "duration_s": 0.001,
+      "duration_s": 0.0,
       "measured": {},
       "note": ""
     },
@@ -1205,8 +1366,9 @@
       "reqs": [
         "R7"
       ],
+      "level": "Unit",
       "status": "passed",
-      "duration_s": 0.001,
+      "duration_s": 0.0,
       "measured": {},
       "note": ""
     },
@@ -1215,6 +1377,7 @@
       "reqs": [
         "R8"
       ],
+      "level": "Unit",
       "status": "passed",
       "duration_s": 0.0,
       "measured": {},
@@ -1225,6 +1388,7 @@
       "reqs": [
         "R8"
       ],
+      "level": "Unit",
       "status": "passed",
       "duration_s": 0.0,
       "measured": {},
@@ -1235,6 +1399,7 @@
       "reqs": [
         "R8"
       ],
+      "level": "Unit",
       "status": "passed",
       "duration_s": 0.0,
       "measured": {},
@@ -1245,8 +1410,9 @@
       "reqs": [
         "R11"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.017,
+      "duration_s": 0.021,
       "measured": {
         "load_n": 0.0,
         "stall_after_loss_n": 3250,
@@ -1260,8 +1426,9 @@
       "reqs": [
         "R11"
       ],
+      "level": "System",
       "status": "xfail",
-      "duration_s": 0.017,
+      "duration_s": 0.026,
       "measured": {
         "load_n": 4550.0,
         "stall_after_loss_n": 3250,
@@ -1275,8 +1442,9 @@
       "reqs": [
         "R11"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.015,
+      "duration_s": 0.024,
       "measured": {
         "load": "unloaded",
         "drifted_past_threshold": false,
@@ -1289,8 +1457,9 @@
       "reqs": [
         "R11"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.022,
+      "duration_s": 0.021,
       "measured": {
         "load": "rated",
         "drifted_past_threshold": true,
@@ -1303,8 +1472,9 @@
       "reqs": [
         "R11"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.015,
+      "duration_s": 0.023,
       "measured": {
         "load": "unloaded",
         "load_n": 0.0,
@@ -1319,8 +1489,9 @@
       "reqs": [
         "R11"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.018,
+      "duration_s": 0.024,
       "measured": {
         "load": "rated",
         "load_n": 4550.0,
@@ -1335,8 +1506,9 @@
       "reqs": [
         "R12"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.009,
+      "duration_s": 0.007,
       "measured": {
         "load": "unloaded",
         "jam_detect_s": 0.171
@@ -1348,8 +1520,9 @@
       "reqs": [
         "R12"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.005,
+      "duration_s": 0.007,
       "measured": {
         "load": "unloaded",
         "jam_detect_s": 0.171
@@ -1361,8 +1534,9 @@
       "reqs": [
         "R12"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.005,
+      "duration_s": 0.007,
       "measured": {
         "load": "unloaded",
         "jam_detect_s": 0.171
@@ -1374,8 +1548,9 @@
       "reqs": [
         "R12"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.006,
+      "duration_s": 0.01,
       "measured": {
         "load": "rated",
         "jam_detect_s": 0.171
@@ -1387,8 +1562,9 @@
       "reqs": [
         "R12"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.005,
+      "duration_s": 0.007,
       "measured": {
         "load": "rated",
         "jam_detect_s": 0.171
@@ -1400,8 +1576,9 @@
       "reqs": [
         "R12"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.005,
+      "duration_s": 0.007,
       "measured": {
         "load": "rated",
         "jam_detect_s": 0.171
@@ -1413,8 +1590,9 @@
       "reqs": [
         "R12"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.005,
+      "duration_s": 0.01,
       "measured": {
         "annunciated": false
       },
@@ -1425,8 +1603,9 @@
       "reqs": [
         "R12"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.025,
+      "duration_s": 0.027,
       "measured": {
         "step_mm": 20.0
       },
@@ -1437,8 +1616,9 @@
       "reqs": [
         "R12"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.015,
+      "duration_s": 0.016,
       "measured": {},
       "note": ""
     },
@@ -1447,8 +1627,9 @@
       "reqs": [
         "R12"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 2.564,
+      "duration_s": 2.54,
       "measured": {
         "load_n": 0,
         "cases": 48,
@@ -1464,8 +1645,9 @@
       "reqs": [
         "R12"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 2.573,
+      "duration_s": 2.658,
       "measured": {
         "load_n": 2275,
         "cases": 48,
@@ -1481,8 +1663,9 @@
       "reqs": [
         "R12"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 2.599,
+      "duration_s": 2.582,
       "measured": {
         "load_n": 3412,
         "cases": 48,
@@ -1498,8 +1681,9 @@
       "reqs": [
         "R12"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 2.422,
+      "duration_s": 2.554,
       "measured": {
         "load_n": 4550,
         "cases": 48,
@@ -1515,8 +1699,9 @@
       "reqs": [
         "R12"
       ],
+      "level": "System",
       "status": "xfail",
-      "duration_s": 2.454,
+      "duration_s": 2.598,
       "measured": {
         "load_n": 3412,
         "false_alarms": 2,
@@ -1530,8 +1715,9 @@
       "reqs": [
         "R13"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 1.381,
+      "duration_s": 1.314,
       "measured": {
         "max_fight_n": 300
       },
@@ -1542,8 +1728,9 @@
       "reqs": [
         "R13"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.957,
+      "duration_s": 1.001,
       "measured": {
         "max_fight_n": 8454,
         "healthy_lane_disengaged_at_s": {
@@ -1557,8 +1744,9 @@
       "reqs": [
         "R13"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.448,
+      "duration_s": 0.42,
       "measured": {
         "disengaged": {
           "0": 0.2
@@ -1573,8 +1761,9 @@
       "reqs": [
         "R13"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.467,
+      "duration_s": 0.389,
       "measured": {
         "disengaged": {
           "0": 0.2
@@ -1589,8 +1778,9 @@
       "reqs": [
         "R13"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.391,
+      "duration_s": 0.412,
       "measured": {
         "disengaged": {
           "0": 0.2
@@ -1605,8 +1795,9 @@
       "reqs": [
         "R13"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.403,
+      "duration_s": 0.508,
       "measured": {
         "disengaged": {
           "0": 0.2
@@ -1621,8 +1812,9 @@
       "reqs": [
         "R13"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.435,
+      "duration_s": 0.432,
       "measured": {
         "disengaged": {
           "0": 0.2
@@ -1637,8 +1829,9 @@
       "reqs": [
         "R13"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.512,
+      "duration_s": 0.401,
       "measured": {
         "disengaged": {
           "1": 0.2
@@ -1653,8 +1846,9 @@
       "reqs": [
         "R13"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.419,
+      "duration_s": 0.422,
       "measured": {
         "disengaged": {
           "1": 0.2
@@ -1669,8 +1863,9 @@
       "reqs": [
         "R13"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.435,
+      "duration_s": 0.411,
       "measured": {
         "disengaged": {
           "1": 0.2
@@ -1685,8 +1880,9 @@
       "reqs": [
         "R13"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.415,
+      "duration_s": 0.435,
       "measured": {
         "disengaged": {
           "1": 0.2
@@ -1701,8 +1897,9 @@
       "reqs": [
         "R13"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.421,
+      "duration_s": 0.48,
       "measured": {
         "disengaged": {
           "1": 0.2
@@ -1717,8 +1914,9 @@
       "reqs": [
         "R13"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.48,
+      "duration_s": 0.42,
       "measured": {
         "disengaged": {
           "2": 0.2
@@ -1733,8 +1931,9 @@
       "reqs": [
         "R13"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.557,
+      "duration_s": 0.386,
       "measured": {
         "disengaged": {
           "2": 0.2
@@ -1749,8 +1948,9 @@
       "reqs": [
         "R13"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.481,
+      "duration_s": 0.384,
       "measured": {
         "disengaged": {
           "2": 0.2
@@ -1765,8 +1965,9 @@
       "reqs": [
         "R13"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.473,
+      "duration_s": 0.413,
       "measured": {
         "disengaged": {
           "2": 0.2
@@ -1781,8 +1982,9 @@
       "reqs": [
         "R13"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.478,
+      "duration_s": 0.45,
       "measured": {
         "disengaged": {
           "2": 0.2
@@ -1797,8 +1999,9 @@
       "reqs": [
         "R13"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 2.049,
+      "duration_s": 1.536,
       "measured": {
         "worst_undetected_surface_mm": 0.167
       },
@@ -1809,8 +2012,9 @@
       "reqs": [
         "R13"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 1.923,
+      "duration_s": 1.691,
       "measured": {
         "worst_undetected_surface_mm": 0.333
       },
@@ -1821,8 +2025,9 @@
       "reqs": [
         "R13"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 1.692,
+      "duration_s": 1.351,
       "measured": {
         "worst_undetected_surface_mm": 0.5
       },
@@ -1833,8 +2038,9 @@
       "reqs": [
         "R13"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 1.731,
+      "duration_s": 1.42,
       "measured": {
         "worst_undetected_surface_mm": 0.5
       },
@@ -1845,8 +2051,9 @@
       "reqs": [
         "R13"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 1.477,
+      "duration_s": 1.521,
       "measured": {
         "worst_undetected_surface_mm": 0.533
       },
@@ -1857,8 +2064,9 @@
       "reqs": [
         "R13"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 1.816,
+      "duration_s": 1.359,
       "measured": {
         "worst_undetected_surface_mm": 0.533
       },
@@ -1869,8 +2077,9 @@
       "reqs": [
         "R13"
       ],
+      "level": "System",
       "status": "passed",
-      "duration_s": 0.745,
+      "duration_s": 0.656,
       "measured": {
         "old_logic_lanes_disengaged": 3
       },
