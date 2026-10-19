@@ -246,7 +246,7 @@ Optional, inject a fault from the Pi side (same fault kinds as the SIL):
 | `Could not resolve hostname dronepi.local` | Name lookup doesn't work on your network | Use the Wi-Fi IP: `--pi taylor@10.0.0.40` (check your router) |
 | Live run fails, Pi only on the cable (no Wi-Fi) | Default control address is the Wi-Fi name | Add `--pi taylor@192.168.2.1`; check `ip route` on the Pi for the data address (section 1a, "One cable for everything") |
 | Can't log in to the Pi after a live run (single cable) | Pi network didn't come back after the drop | Power-cycle the Pi; re-run with `--drop-for 3` |
-| `no words on UDP 42900 within 25 s` | Firewall, or the Pi can't reach 192.168.2.2 | Step 1e; `ping 192.168.2.1`; check the laptop's Ethernet IP is 192.168.2.2 |
+| `no words on UDP 42900 within 25 s` | The laptop's Ethernet IP isn't 192.168.2.2 (Windows can change it), firewall, or the Pi can't reach the laptop | `ipconfig`: if the Ethernet IP is different, add `--data-host <that IP>` (or set it back to 192.168.2.2); step 1e; `ping 192.168.2.1` |
 | `live run saw no link drop` | sudo rule not working | Step 1c test: `sudo -n /usr/sbin/ip link show eth0` must not ask for a password |
 | Link drop flagged, but no recovery before the run ends | Pi network slow to come back up | Re-run with `--drop-for 3`; on the Pi, `nmcli connection up netplan-eth0` |
 | `OSError: ... address already in use` | Another capture still running | Close the other window |

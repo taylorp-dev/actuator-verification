@@ -342,7 +342,7 @@ def fig_fault_matrix(run, cfg):
             cell.set_facecolor("#fbe3e3" if bad else "#e6f2fb")
             cell.get_text().set_color(INK)
     result = "all pass" if passed == total else f"{passed} of {total} pass"
-    sub = ("(each test also checks the voted value stays inside healthy tolerance and R10 limits hold)"
+    sub = ("(each test also checks the voted value stays within the voter tolerance + 0.35 deg latency allowance, and R10 limits hold)"
            if passed == total else "(failed cells: see the traceability matrix for which check failed)")
     ax.set_title(f"Fault matrix: {len(kinds)} fault types x 3 channels, {result}\n{sub}", loc="left", fontsize=11)
     fig.text(0.01, 0.02, f"Software-in-the-loop simulation. {'from the run for record' if run.is_record else 'NOT FOR RECORD'}, "

@@ -25,7 +25,7 @@ A plain-language guide to the Tier 1 desk rig diagram ([full-resolution image](f
 | D | BNO055 IMU | Real attitude sensor, so channel A is real data | To build |
 | Link | Laptop to Pi Ethernet cable | ARINC 429 words (software-encoded) over UDP, plus SSH control and the automated link drop | **Built** |
 
-**In one line:** the software is built and runs today, the Pi link is built and tested on real hardware (15 live runs), and all the actuator hardware is the next step. The same requirements and tests run at every step; only the fixture behind them changes.
+**In one line:** the software is built and runs today, the Pi link is built and tested on real hardware (15 live runs, [bench_runs/](../bench_runs/README.md)), and all the actuator hardware is the next step. The same requirements and tests run at every step; only the fixture behind them changes.
 
 ## How it works, beginning to end (full Tier 1 rig)
 
@@ -89,9 +89,9 @@ Steps 1-4 run with one real hardware piece (the Pi on channel A). Steps 5-7 are 
 
 ## Pi link timing (measured)
 
-The diagram's Pi link note shows the measured timing over 15 live runs: words arrive every 20.0 ms on average, p99 jitter is 1.0-14.6 ms, and the worst gap is 43 ms, still under the 60 ms stale limit. A live monitor checks every word as it arrives.
+The diagram's Pi link note shows the measured timing over 15 live runs: words arrive every 20.0 ms on average, p99 jitter is 2.5-14.6 ms, and the worst gap is 43 ms, still under the 60 ms stale limit. A live monitor checks every word as it arrives.
 
-Jitter was 1.0-2.5 ms on 2026-10-16 and rose on 2026-10-18. An A/B test showed the rise is mostly the bench setup that night, with a smaller effect from the live monitor. It's an open finding; see the README results and [docs/procedures/bench-link.md](procedures/bench-link.md).
+Jitter was 2.5 ms in Test Set 1 (2026-10-16) and 6.3-14.6 ms in Test Set 2 (2026-10-18). An A/B test (Test Set 3, live monitor off) showed the rise is mostly the bench setup, with a smaller effect from the live monitor. Test Set 4, the run for record on 2026-10-19, measured 9.5 ms. It's an open finding; every run's report is in [bench_runs/](../bench_runs/README.md), and see the README results and [docs/procedures/bench-link.md](procedures/bench-link.md).
 
 ## Related
 

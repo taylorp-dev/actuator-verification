@@ -2,7 +2,7 @@
 
 These tests characterize the linear EMA (electromechanical actuator) model by itself, bench acceptance style, against requirements A1 to A5. Every test is **Unit** level: the actuator model alone, measured at the output rod (the independent truth sensor), never from the actuator's own feedback. Test file: `tests/test_part_a_actuator.py`.
 
-| TC | Requirement(s) | Test function | Cases | Last result |
+| TC | Requirement(s) | Test function | Cases | Last result (run for record, commit 19de3ef) |
 |---|---|---|---|---|
 | [TC-A1-U01](#tc-a1-u01-small-1-mm-step-unloaded) | A1 | `test_a1_small_signal_step_unloaded` | 1 | PASS |
 | [TC-A2-U01](#tc-a2-u01-maximum-extend-rate-unloaded-and-at-rated-load) | A2 | `test_a2_max_rate` | 2 | PASS (2 of 2) |
@@ -27,7 +27,7 @@ Notes that apply to every TC in this file:
 - The simulation runs at a fixed 1 kHz step (`DT = 0.001`, sil/analysis.py line 17).
 - Each measurement helper starts by calling `ema.reset(start_mm)` (sil/analysis.py line 32). Reset puts the motor side and the rod at the start position and pre-loads the integrator so a loaded actuator starts in balance (sil/ema.py lines 93–97).
 - "Position" in every check is the output rod (`EMA.position`, the truth sensor), except TC-A3-U02, which reads the actuator's own motor-side sensor on purpose.
-- Last results below come from the pre-commit check run on 2026-10-18 (all 125 tests, same code and config as this commit). The official record is [reports/traceability.md](../../reports/traceability.md).
+- Last results below come from the run for record: FULL RUN, 127 of 127 tests (124 passed, 3 xfail), commit `19de3ef`, config `baae11ef69bb`, generated 2026-10-19T16:14:37 UTC. The official record is [reports/traceability.md](../../reports/traceability.md).
 
 ---
 
@@ -71,7 +71,7 @@ Expected output: `1 passed`. (A single test is a partial run: its report goes to
 
 **Pass criteria:** every step gives its expected result. Each check is an `assert`; if any one fails, the test fails.
 
-**Last result (2026-10-18):** PASS. Rise time 0.108 s, overshoot 4.4 %.
+**Last result (run for record, commit 19de3ef):** PASS. Rise time 0.108 s, overshoot 4.4 %.
 
 ---
 
@@ -122,7 +122,7 @@ Expected output: `2 passed` (one per load condition). (A partial run: report goe
 
 **Pass criteria:** every step gives its expected result in both cases. Each check is an `assert`; if any one fails, that case fails.
 
-**Last result (2026-10-18):** PASS, both cases. Unloaded 40.0 mm/s; rated 11.7 mm/s.
+**Last result (run for record, commit 19de3ef):** PASS, both cases. Unloaded 40.0 mm/s; rated 11.7 mm/s.
 
 ---
 
@@ -165,7 +165,7 @@ Expected output: `1 passed`. (A partial run: report goes to `reports/dev/`, not 
 
 **Pass criteria:** every step gives its expected result. Each check is an `assert`; if any one fails, the test fails.
 
-**Last result (2026-10-18):** PASS. Accuracy error 0.05 mm, backlash 0.101 mm.
+**Last result (run for record, commit 19de3ef):** PASS. Accuracy error 0.05 mm, backlash 0.101 mm.
 
 ---
 
@@ -208,12 +208,12 @@ Expected output: `1 passed`. (A partial run: report goes to `reports/dev/`, not 
 | 6 | Run a slow 1 mm sine on a new actuator: 8 s period, two cycles, keep the second cycle. Save rod and own-sensor position each 1 ms | `cmd = np.sin(2 * math.pi * t / period)` / `rod[k] = ema.step(cmd[k], an.DT)` / `own[k] = ema.own_feedback` | Sine run done | 72–83 |
 | 7 | Hysteresis from the sine: position where the command crosses 0 going up, minus where it crosses 0 going down, for the rod and for the own sensor | `sine_truth, sine_own = crossing_gap(rk), crossing_gap(ok)` | Two numbers in mm (the rod number also includes a little lag from the moving sine) | 85–91 |
 | 8 | Record the sine values and save the sine data for the A3 figure (error vs command for both sensors) | `record_property("sine_truth_hysteresis_mm", ...)` / `plot_data.save("a3_backlash_sine", ...)` | Saved; `reports/data/a3_backlash_sine.csv` | 92–97 |
-| 9 | Check the own sensor sees much less than the rod | `own_hyst < 0.25 * truth_hyst` | Own-sensor hysteresis is less than a quarter of the rod hysteresis. The limit is computed from the measured rod value, not from the config (0.25 × 0.101 = 0.025 mm on the last run) | 98 |
-| 10 | Same check on the sine | `sine_own < 0.25 * sine_truth` | Own-sensor sine hysteresis is less than a quarter of the rod value (0.25 × 0.113 = 0.028 mm on the pre-commit check) | 99 |
+| 9 | Check the own sensor sees much less than the rod | `own_hyst < 0.25 * truth_hyst` | Own-sensor hysteresis is less than a quarter of the rod hysteresis. The limit is computed from the measured rod value, not from the config (0.25 × 0.101 = 0.025 mm on the run for record) | 98 |
+| 10 | Same check on the sine | `sine_own < 0.25 * sine_truth` | Own-sensor sine hysteresis is less than a quarter of the rod value (0.25 × 0.113 = 0.028 mm on the run for record) | 99 |
 
 **Pass criteria:** every step gives its expected result. The check is an `assert`; if it fails, the test fails.
 
-**Last result (2026-10-18):** PASS. Own-sensor hysteresis 0.001 mm, rod hysteresis 0.101 mm. Steps 6-8 and 10 were added on 2026-10-19 so the A3 figure is drawn from this test's own data; pre-commit check: sine rod 0.113 mm, own sensor 0.013 mm. The record run gives the official values.
+**Last result (run for record, commit 19de3ef):** PASS. Own-sensor hysteresis 0.001 mm, rod hysteresis 0.101 mm. Sine (steps 6-8 and 10, added so the A3 figure is drawn from this test's own data): rod 0.113 mm, own sensor 0.013 mm.
 
 ---
 
@@ -260,7 +260,7 @@ Expected output: `2 passed` (one per load condition). (A partial run: report goe
 
 **Pass criteria:** every step gives its expected result. The check is an `assert`; if it fails, the test fails.
 
-**Last result (2026-10-18):** PASS. Bandwidth 2.99 Hz (unloaded; the only case then). Pre-commit check 2026-10-19: unloaded 2.99 Hz, rated 2.85 Hz. The record run gives the official values.
+**Last result (run for record, commit 19de3ef):** PASS, both cases. Unloaded 2.99 Hz; rated 2.85 Hz.
 
 ---
 
@@ -302,7 +302,7 @@ Expected output: `1 passed`. (A partial run: report goes to `reports/dev/`, not 
 
 **Pass criteria:** every step gives its expected result. Each check is an `assert`; if any one fails, the test fails.
 
-**Last result (2026-10-18):** PASS. Rise time 0.108 s, overshoot 5.1 %.
+**Last result (run for record, commit 19de3ef):** PASS. Rise time 0.108 s, overshoot 5.1 %.
 
 ---
 
@@ -341,4 +341,4 @@ Expected output: `1 passed`. (A partial run: report goes to `reports/dev/`, not 
 
 **Pass criteria:** every step gives its expected result. The check is an `assert`; if it fails, the test fails.
 
-**Last result (2026-10-18):** PASS. Accuracy error 0.051 mm.
+**Last result (run for record, commit 19de3ef):** PASS. Accuracy error 0.051 mm.
