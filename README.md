@@ -41,6 +41,8 @@ EMA characterization, triplex ARINC 429 sensor fault response, and actuator-leve
 | --- | --- |
 | Requirements traceability matrix (every requirement, its level, its tests by name, verdict, measured values, commit + config fingerprint, run type) | [reports/traceability.md](reports/traceability.md) |
 | **Test procedures**, plain language, every test, with the exact Python line each step runs | [docs/procedures/README.md](docs/procedures/README.md) |
+| **Test flow** diagrams: how a unit, system and bench test runs, start to finish | [docs/TEST-FLOW.md](docs/TEST-FLOW.md) |
+| **Tier 1 rig overview**: built vs to build, and how the parts work together end to end | [docs/RIG-OVERVIEW.md](docs/RIG-OVERVIEW.md) |
 | Full test run log (every test name and result) | [reports/test_log.txt](reports/test_log.txt) |
 | Requirements, full text | [requirements/requirements.yaml](requirements/requirements.yaml) |
 | Test cases: actuator acceptance (A1-A5) | [tests/test_part_a_actuator.py](tests/test_part_a_actuator.py) |
