@@ -53,7 +53,8 @@ jobs:
         if: always()
         run: |
           Set-Location $env:GITHUB_WORKSPACE
-          if (Test-Path reports/traceability.md) { Get-Content reports/traceability.md | Add-Content $env:GITHUB_STEP_SUMMARY }
+          # bench tests alone are a partial run, so their matrix is in reports/dev/ (not for record)
+          if (Test-Path reports/dev/traceability.md) { Get-Content reports/dev/traceability.md | Add-Content $env:GITHUB_STEP_SUMMARY }
 
       - uses: actions/upload-artifact@v4
         if: always()

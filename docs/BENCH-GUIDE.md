@@ -138,32 +138,42 @@ What happens, in about 45 seconds:
 2. It starts the channel A sender on the Pi and starts recording.
 3. At 15 s it takes the Pi's Ethernet port down; at 20 s it brings it back up.
 4. It records until 32 s, stops the sender, and makes sure the port is up.
-5. It saves `bench_data/healthy.csv` (the part before the drop) and `bench_data/cable_pull.csv` (the whole run), then runs the 6 tests on them.
+5. All through the run, a **live monitor** checks every word the moment it arrives (label, parity, SDI, SSM) and re-checks "is channel A valid?" every 1 ms, so the link drop is caught live, at real time, not only afterwards. A status line prints once a second.
+6. It saves `bench_data/healthy.csv` (the part before the drop), `bench_data/cable_pull.csv` (the whole run) and `bench_data/live_monitor.json` (what the live checks saw), then runs the 7 tests on the replay of the recording. The decode, false-stale and cable-pull tests also check the live results (the closed-loop tests use the replay only), and L2 checks that live and replay agree: same words (fingerprint of the saved recording), no false stale anywhere outside the drop, stale flag and recovery times within 5 ms.
 
 Expected:
 
 ```
 [live] Pi taylor@dronepi.local (code 1a2b3c4) -> 192.168.2.2; link drop at 15 s for 5 s; recording 32 s
+[live] t=  0.0 s  words     1  pitch  -0.987 deg  VALID
+...
+[live] t= 16.0 s  words  1500  pitch  -1.012 deg  INVALID: stale
+...
 test_l1_words_on_the_wire_decode_per_icd PASSED
 test_l1_rate_and_jitter_on_real_link PASSED
 test_l1_no_false_stale_on_healthy_link PASSED
 test_l1_cable_pull_flagged_stale_and_recovers PASSED
 test_l1_closed_loop_with_real_channel_a PASSED
 test_l1_closed_loop_cable_pull PASSED
-6 passed
+test_l2_live_vs_replay_agree PASSED
+7 passed
 ```
 
-The measured numbers (mean interval, jitter, worst gap, how fast the drop was flagged, how fast it recovered) land in `reports/traceability.md` under L1.
+The measured numbers (mean interval, jitter, worst gap, how fast the drop was flagged and recovered, live and replay side by side, and `live_max_check_gap_ms`, how late the live checks themselves ran) land in the traceability matrix under L1 and L2. This is a **partial run** (bench tests only), so the matrix goes to `reports/dev/traceability.md`, not for record. The record comes from the full suite afterwards (below).
+
+**Why live and replay both:** the replay keeps the PC's own hiccups out of the verdict and leaves evidence anyone can re-check; the live checks show it works at real time. Windows and Python are not a real-time system, so the live monitor asks Windows for a 1 ms timer during the run and records how late its checks ran. If L2 fails, look at `live_max_check_gap_ms` first: a big value means the PC was busy, not that the link is wrong.
 
 Options: `--pi taylor@10.0.0.40` if `dronepi.local` doesn't resolve (or set `$env:PI_SSH`), `--drop-at 10 --drop-for 3` to change the timing.
 
-**Save the evidence** so GitHub's normal CI replays your latest live run:
+**Save the evidence** so GitHub's normal CI replays your latest live run (the three files must come from the same run; L2 checks that):
 
 ```
 git add bench_data
 git commit -m "Bench link: live run"
 git push
 ```
+
+Then make the **run for record** on the committed code (`python tools/run_tests.py`, see USER-GUIDE section 7) and commit `reports/`.
 
 **If a timing test fails, that's not necessarily a mistake.** It may be a real finding about Linux timing on the Pi. Keep the recording and look at `max_interval_ms` before changing anything.
 

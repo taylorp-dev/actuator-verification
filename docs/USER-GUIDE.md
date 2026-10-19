@@ -211,9 +211,9 @@ python -m pytest
 ### What you should see
 
 ```
-collected 124 items
+collected 125 items
 
-tests\test_bench_link.py ......                                          [  4%]
+tests\test_bench_link.py ......s                                         [  5%]
 tests\test_model_bench_actuator.py ....                                  [  8%]
 tests\test_part_a_actuator.py ........                                   [ 14%]
 tests\test_part_b_receiver.py ...................                        [ 29%]
@@ -222,13 +222,14 @@ tests\test_part_b_voter.py ..............                                [ 64%]
 tests\test_part_c_actuator_faults.py .x.................x............... [ 92%]
 .........                                                                [100%]
 
+SKIPPED [1] tests/test_bench_link.py:333: no live monitor results for this recording yet: run with --live
 XFAIL tests/test_part_b_system.py::test_r9_reconfiguration_transient_baseline[rated] - RCA-001: ...
 XFAIL tests/test_part_c_actuator_faults.py::test_r11_motor_channel_loss_hold[rated] - FINDING-003: ...
 XFAIL tests/test_part_c_actuator_faults.py::test_r12_no_false_alarm_baseline_actuator - FINDING-005: ...
-======================= 121 passed, 3 xfailed in 39.02s =======================
+================== 121 passed, 1 skipped, 3 xfailed in 22.29s ==================
 ```
 
-**This is the correct, healthy result.** The first line, `test_bench_link.py`, is the bench link: those 6 tests replay the Raspberry Pi recordings in `bench_data/`, so the Pi doesn't need to be on. If that folder is ever missing, they show as `ssssss` (skipped) and the result is `115 passed, 6 skipped, 3 xfailed`. Skipped is never counted as passed. Run time varies by computer (15 to 40 seconds is normal; the Part C false-alarm sweep is the slow part).
+**This is the correct, healthy result.** The first line, `test_bench_link.py`, is the bench link: those 7 tests replay the Raspberry Pi recordings in `bench_data/`, so the Pi doesn't need to be on. The one `s` is L2 (live checks agree with the replay): it needs `bench_data/live_monitor.json` from the same live run as the recording, which only a `--live` run makes. Once a live run with the live monitor is committed, it runs and the result is `122 passed, 3 xfailed`. If `bench_data/` is ever missing, all 7 show as `s` and the result is `115 passed, 7 skipped, 3 xfailed`. Skipped is never counted as passed. Run time varies by computer (15 to 40 seconds is normal; the Part C false-alarm sweep is the slow part).
 
 **Live = Pi, everything else = recordings.** Nothing in this guide talks to the Pi. Only `--live` (or the "Bench live (Raspberry Pi)" button on GitHub) does, and that's covered in `docs/BENCH-GUIDE.md`.
 
@@ -276,7 +277,7 @@ Read it as: *the measured value (3.24) broke the limit (1.35).* The line marked 
 
 ## 7. Reports and figures
 
-Every run writes these to the `reports` folder:
+A **full run** (`python -m pytest` or `python tools\run_tests.py`, nothing filtered) writes these to the `reports` folder. That's the **run for record**. Any **partial run** (one file, one test, `-k`, `-m`, `-x` that stopped early) writes the same files to `reports\dev\` instead, labeled "PARTIAL RUN, not for record", so it can never overwrite the record. `reports\dev\` is not committed.
 
 | File | What it is | Open with |
 | --- | --- | --- |
@@ -294,15 +295,26 @@ notepad reports\traceability.md
 
 Mac: `open -e reports/traceability.md`. Linux: `xdg-open reports/traceability.md`.
 
-The top of the file shows the run's **configuration evidence**:
+The top of the file shows what kind of run it was and the **configuration evidence**:
 
 ```
+- Run: FULL RUN (125 of 125 tests), record
 - Git commit: `92ac2cb`
-- Config: `config/sil.yaml` (sha256 `3efda6d32f2d`)
-- Requirements traced: 21/21 (100.0%)   <- L1 (bench link) shows NOT RUN if the Pi recordings are missing
+- Config: `config/sil.yaml` (sha256 `baae11ef69bb`)
+- Requirements traced: 22/22 (100.0%)   <- L1/L2 (bench link) show NOT RUN if the Pi recordings are missing
+- Tests by level: Unit 46, System 72, Bench 7
 ```
 
-If anyone changes `config/sil.yaml`, the hash changes. That's how a result traces back to the exact configuration that produced it. A `-dirty` suffix on the commit means there were uncommitted changes when the tests ran.
+If anyone changes `config/sil.yaml`, the hash changes. That's how a result traces back to the exact configuration that produced it. A `-dirty` suffix on the commit means there were uncommitted changes when the tests ran, and the Run line then says "not for record".
+
+The matrix shows, for each requirement, its **level** (Unit = one component alone, System = components together in closed loop, Bench = real hardware data) and the **names** of the tests that cover it. Plain-language procedures for every test, with the exact Python line each step runs, are in `docs\procedures\` (start at `README.md` there).
+
+**Making a run for record:**
+
+1. `git status` must say "nothing to commit, working tree clean". If not, commit first.
+2. `python tools\run_tests.py`
+3. Check the top of `reports\traceability.md` says `FULL RUN ... record` and the commit has no `-dirty`.
+4. Commit the `reports` folder.
 
 > **Reports always reflect the most recent run.** After an experiment, run the normal suite again so the reports match the baseline.
 
@@ -350,10 +362,12 @@ test_r9_reconfiguration_transient_baseline[unloaded] PASSED
 test_r9_reconfiguration_transient_baseline[rated] XFAIL
 test_r9_corrective_action_verified[unloaded] PASSED
 test_r9_corrective_action_verified[rated] PASSED
-3 passed, 114 deselected, 1 xfailed
+3 passed, 121 deselected, 1 xfailed
 ```
 
 The words in square brackets, like `[rated]`, are the **load condition** the test ran under. One test definition runs once per load automatically.
+
+All of these are **partial runs**: their matrix goes to `reports\dev\`, not `reports\`. Use them while you work; make the record with a full run.
 
 ---
 
@@ -361,7 +375,7 @@ The words in square brackets, like `[rated]`, are the **load condition** the tes
 
 All settings live in one file: `config/sil.yaml`. Open it in Notepad or VS Code. Lines starting with `#` are comments.
 
-**For each experiment:** change one value, save, run `python -m pytest`, read the result, then **change it back** and run again to confirm you're back at your baseline: `121 passed, 3 xfailed`.
+**For each experiment:** change one value, save, run `python -m pytest`, read the result, then **change it back** and run again to confirm you're back at your baseline: `121 passed, 1 skipped, 3 xfailed` (or `122 passed, 3 xfailed` once a live-monitor run is committed).
 
 > Safety net: if you lose track of what you changed and the project is in git, `git checkout config/sil.yaml` restores the file. Or just unzip a fresh copy.
 
@@ -385,7 +399,7 @@ Run the suite. You should see:
 FAILED tests/test_part_b_system.py::test_fault_matrix[frozen-chB]
 FAILED tests/test_part_b_system.py::test_fault_matrix[drift-chB]
 FAILED tests/test_part_b_voter.py::test_r6_threshold_has_margin_over_tolerance_stack
-3 failed, 118 passed, 3 xfailed
+3 failed, 118 passed, 1 skipped, 3 xfailed
 ```
 
 **What happened:** with the threshold at exactly 2x the sensor tolerance, a healthy channel sits right on the limit, noise trips it, and the voter fails the wrong channel. The third failure is the guard test added so this mistake can't slip back in. Details: `docs/rca/FINDING-002-wrong-channel-isolated.md`.
@@ -401,7 +415,7 @@ Under `actuator:`, change `anti_windup: false` to `anti_windup: true`. Run the s
 [XPASS(strict)] FINDING-005: monitor needs the RCA-001 anti-windup fix; baseline windup gives false jam alarms
 FAILED tests/test_part_b_system.py::test_r9_reconfiguration_transient_baseline[rated]
 FAILED tests/test_part_c_actuator_faults.py::test_r12_no_false_alarm_baseline_actuator
-2 failed, 121 passed, 1 xfailed
+2 failed, 121 passed, 1 skipped, 1 xfailed
 ```
 
 **What happened:** the fix works, so the "known defect" test now passes. It also closes FINDING-005: with the windup gone, the jam monitor stops false-alarming. One fix, two defects closed. Because it's marked strict, that unexpected pass is reported as a failure. On a real program, this is the moment you'd close the defect: remove the xfail marking and make the fixed design the new baseline.
@@ -410,7 +424,7 @@ Change it back to `false`.
 
 ### Experiment 3: Lighter load
 
-Under `load_conditions:`, change `rated: 4550.0` to `rated: 2275.0`. Run the suite. You should see three `XPASS(strict)` lines (RCA-001, FINDING-003, FINDING-005) and `3 failed, 121 passed`.
+Under `load_conditions:`, change `rated: 4550.0` to `rated: 2275.0`. Run the suite. You should see three `XPASS(strict)` lines (RCA-001, FINDING-003, FINDING-005) and `3 failed, 121 passed, 1 skipped`.
 
 **What happened:** at half the load, all three load-dependent defects disappear. The actuator doesn't saturate long enough for the windup to matter, and one motor can carry half the load on its own. These defects only show up with a realistic load. That's the core lesson of the project: **test environment fidelity decides what you can catch.**
 
@@ -455,7 +469,7 @@ Run `python tools\make_figures.py` after any change to see the effect in the plo
 
 | Symptom | What it means | What to do |
 | --- | --- | --- |
-| Result isn't your baseline (`121 passed, 3 xfailed`) and you didn't change anything | Config or code changed | `git status` to see what changed; `git checkout config/sil.yaml` to restore config, or unzip a fresh copy |
+| Result isn't your baseline (`121 passed, 1 skipped, 3 xfailed`, see section 5) and you didn't change anything | Config or code changed | `git status` to see what changed; `git checkout config/sil.yaml` to restore config, or unzip a fresh copy |
 | `XPASS(strict)` | The known RCA-001 defect stopped failing | Expected if you turned on the fix or lowered the load (Experiments 2-3). Otherwise check what changed. |
 | `E` (error) instead of `F` | Test couldn't start; usually a typo in `config/sil.yaml` | YAML is picky about indentation. Use spaces, not tabs, and keep the same indent as neighboring lines. |
 | Different run time from someone else | Different computer speed | Not a problem. Results should match exactly; only timing differs. |
@@ -482,7 +496,7 @@ That's almost always enough to diagnose it.
 ```
 actuator-verification-sil/
 ├── config/sil.yaml              <- every setting and limit (start here)
-├── requirements/requirements.yaml  <- requirement text (ICD-1, A1-A5, M1, R1-R13)
+├── requirements/requirements.yaml  <- requirement text (ICD-1, A1-A5, M1, R1-R13, L1, L2)
 ├── sil/                         <- the simulated system
 │   ├── ema.py                   <-   actuator model
 │   ├── analysis.py              <-   bench measurements (step, rate, Bode, backlash)
@@ -494,7 +508,7 @@ actuator-verification-sil/
 │   ├── actuator_monitor.py      <-   jam / not-tracking monitor (Part C)
 │   ├── force_fight.py           <-   three lanes on one surface (Part C)
 │   └── sim.py                   <-   wires it all together, runs at 1 kHz
-├── tests/                       <- the test procedures
+├── tests/                       <- the automated tests
 │   ├── conftest.py              <-   shared setup + traceability matrix builder
 │   ├── test_part_a_actuator.py  <-   A1-A5
 │   ├── test_part_b_receiver.py  <-   ICD-1, R1-R4
@@ -502,19 +516,20 @@ actuator-verification-sil/
 │   ├── test_part_b_system.py    <-   fault matrix, R9, R10
 │   ├── test_part_c_actuator_faults.py <- R11-R13
 │   ├── test_model_bench_actuator.py   <- M1 (L16-P model vs datasheet)
-│   └── test_bench_link.py             <- L1 (real Pi over Ethernet, from recordings)
+│   └── test_bench_link.py             <- L1, L2 (real Pi over Ethernet: replay + live monitor)
 ├── tools/make_figures.py        <- presentation plots
 ├── tools/predict_bench.py       <- predicted L16-P bench results
 ├── tools/pi_channel_a.py        <- runs on the Raspberry Pi: channel A sender
 ├── tools/bench_capture.py       <- runs on the laptop: records channel A
-├── bench_data/                  <- recordings from the Pi (see BENCH-GUIDE.md)
+├── bench_data/                  <- recordings from the Pi + live_monitor.json (see BENCH-GUIDE.md)
 ├── docs/
 │   ├── USER-GUIDE.md            <-   this file
-│   ├── procedures/TP-A4-bandwidth.md
+│   ├── procedures/              <-   written test procedures for every test (README.md = index)
 │   ├── BENCH-GUIDE.md           <-   channel A on a real Raspberry Pi, step by step
 │   ├── REFERENCES.md            <-   public sources and what each informed
 │   └── rca/                     <-   RCA-001, FINDING-002 to 005
-├── reports/                     <- generated by every run
+├── reports/                     <- the record: written by a full run
+│   └── dev/                     <-   partial runs (not committed, not for record)
 ├── .github/workflows/ci.yml     <- runs the suite automatically on GitHub
 ├── pytest.ini                   <- pytest settings
 └── requirements.txt             <- Python packages to install

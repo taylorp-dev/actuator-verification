@@ -5,3 +5,4 @@ __pycache__/
 venv/
 reports/junit.xml
 docs/internal/
+reports/dev/

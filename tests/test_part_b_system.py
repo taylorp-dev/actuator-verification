@@ -110,6 +110,7 @@ def test_r9_corrective_action_verified(fresh_cfg, load_condition, record_propert
 
 # ------------------------------------------------------------------ R10
 @pytest.mark.req("R10")
+@pytest.mark.level("Unit")      # command law alone, not the closed loop
 def test_r10_command_limits_worst_case_inputs(cfg, record_property):
     law = AttitudeHold(**cfg["command_law"])
     law.reset(0.0)

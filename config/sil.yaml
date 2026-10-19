@@ -97,6 +97,15 @@ system_spec:                # Part B system-level limits
   R13_undetected_err_max_mm: 0.60   # a lane fault too small to detect must stay this small at the surface
   R13_final_err_max_mm: 0.25        # after the faulty lane is disengaged
 
+bench_link:                 # real Pi link (L1, L2)
+  # Live checks run during the capture every check period (L2). Live vs replay of
+  # the same recording must agree within tol. Budget: replay 1 ms step + live
+  # check period 1 ms + Windows scheduling delay (word jitter up to 2.5 ms
+  # measured 2026-10-16) = about 5 ms. Ceiling from the 4:1 rule: 60 ms stale
+  # limit / 4 = 15 ms.
+  live_check_period_s: 0.001
+  live_vs_replay_tol_ms: 5.0
+
 # Bench actuator for the desk rig (next step, not built yet). Parameters come from
 # the Actuonix L16 datasheet, 35:1 gear, 12 V, 100 mm stroke. The model gives the
 # PREDICTIONS the bench results will be compared against (model correlation).
